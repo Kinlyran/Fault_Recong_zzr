@@ -1,0 +1,14 @@
+Fault_data
+pytorch2dunet/__pycache__/
+pytorch2dunet/data/
+pytorch2dunet/e2UNet_CKPTS/
+pytorch2dunet/output/
+pytorch2dunet/unet/__pycache__/
+pytorch2dunet/UNet_CKPTS/
+pytorch2dunet/utils/__pycache__/
+pytorch2dunet/wandb/
+tf-3d-unet/
+pytorch3dunet/3dunet/
+pytorch3dunet/augment/__pycache__/
+pytorch3dunet/datasets/__pycache__/
+pytorch3dunet/unet3d/__pycache__/
