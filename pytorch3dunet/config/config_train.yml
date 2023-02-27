@@ -23,8 +23,7 @@ optimizer:
 loss:
   name: BCEWithLogitsLoss
 eval_metric:
-  name: MeanIoU
-  ignore_index: null
+  name: SimpleAverageAcc
 lr_scheduler:
   name: MultiStepLR
   milestones: [50, 80]

@@ -426,6 +426,19 @@ class MSE:
         input, target = convert_to_numpy(input, target)
         return mean_squared_error(input, target)
 
+class SimpleAverageAcc:
+    def __init__(self, **kwargs):
+        pass
+    
+    def __call__(self, input, target):
+        input = input.squeeze(1)
+        target = target.squeeze(1)
+        input, target = convert_to_numpy(input, target)
+        input = (input > 0.5).astype(np.uint8)
+        target = target.astype(np.uint8)
+        return np.mean((input==target).astype(np.float32))
+    
+    
 
 def get_evaluation_metric(config):
     """
