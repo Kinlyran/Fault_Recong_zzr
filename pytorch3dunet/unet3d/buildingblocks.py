@@ -3,10 +3,20 @@ from functools import partial
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
+from .util_pdo import PDO_e3DConv, Cap_Type
 
 
 def conv3d(in_channels, out_channels, kernel_size, bias, padding):
     return nn.Conv3d(in_channels, out_channels, kernel_size, padding=padding, bias=bias)
+
+def pdo_conv3d(in_channels, out_channels):
+    cap_type = Cap_Type()
+    group = 'S4'
+    layer_type_list = [[cap_type.get_type("trivial", in_channels)],
+                        [cap_type.get_type("regular", 10)],
+                        [cap_type.get_type("trivial", out_channels)]]
+    return nn.Sequential(PDO_e3DConv(group, layer_type_list[0], layer_type_list[1]),
+                        PDO_e3DConv(group, layer_type_list[1], layer_type_list[2]))
 
 
 def create_conv(in_channels, out_channels, kernel_size, order, num_groups, padding):
@@ -30,7 +40,7 @@ def create_conv(in_channels, out_channels, kernel_size, order, num_groups, paddi
     Return:
         list of tuple (name, module)
     """
-    assert 'c' in order, "Conv layer MUST be present"
+    assert 'c' or 'p' in order, "Conv layer MUST be present"
     assert order[0] not in 'rle', 'Non-linearity cannot be the first operation in the layer'
 
     modules = []
@@ -45,8 +55,14 @@ def create_conv(in_channels, out_channels, kernel_size, order, num_groups, paddi
             # add learnable bias only in the absence of batchnorm/groupnorm
             bias = not ('g' in order or 'b' in order)
             modules.append(('conv', conv3d(in_channels, out_channels, kernel_size, bias, padding=padding)))
+        elif char == 'p':
+            modules.append(('conv-pdo', pdo_conv3d(in_channels, out_channels)))
         elif char == 'g':
-            is_before_conv = i < order.index('c')
+            if 'c' in order:
+                is_before_conv = i < order.index('c') 
+            else:
+                is_before_conv = i < order.index('p')
+                
             if is_before_conv:
                 num_channels = in_channels
             else:
@@ -59,13 +75,17 @@ def create_conv(in_channels, out_channels, kernel_size, order, num_groups, paddi
             assert num_channels % num_groups == 0, f'Expected number of channels in input to be divisible by num_groups. num_channels={num_channels}, num_groups={num_groups}'
             modules.append(('groupnorm', nn.GroupNorm(num_groups=num_groups, num_channels=num_channels)))
         elif char == 'b':
-            is_before_conv = i < order.index('c')
+            if 'c' in order:
+                is_before_conv = i < order.index('c') 
+            else:
+                is_before_conv = i < order.index('p')
+                
             if is_before_conv:
                 modules.append(('batchnorm', nn.BatchNorm3d(in_channels)))
             else:
                 modules.append(('batchnorm', nn.BatchNorm3d(out_channels)))
         else:
-            raise ValueError(f"Unsupported layer type '{char}'. MUST be one of ['b', 'g', 'r', 'l', 'e', 'c']")
+            raise ValueError(f"Unsupported layer type '{char}'. MUST be one of ['b', 'g', 'r', 'l', 'e', 'c', 'p]")
 
     return modules
 
