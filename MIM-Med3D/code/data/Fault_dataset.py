@@ -10,6 +10,35 @@ from monai.data import MetaTensor
 import h5py
 
 
+class Standardize:
+    """
+    Apply Z-score normalization to a given input tensor, i.e. re-scaling the values to be 0-mean and 1-std.
+    """
+
+    def __init__(self, eps=1e-10, mean=None, std=None, channelwise=False, **kwargs):
+        if mean is not None or std is not None:
+            assert mean is not None and std is not None
+        self.mean = mean
+        self.std = std
+        self.eps = eps
+        self.channelwise = channelwise
+
+    def __call__(self, m):
+        if self.mean is not None:
+            mean, std = self.mean, self.std
+        else:
+            if self.channelwise:
+                # normalize per-channel
+                axes = list(range(m.ndim))
+                # average across channels
+                axes = tuple(axes[1:])
+                mean = np.mean(m, axis=axes, keepdims=True)
+                std = np.std(m, axis=axes, keepdims=True)
+            else:
+                mean = np.mean(m)
+                std = np.std(m)
+
+        return (m - mean) / np.clip(std, a_min=self.eps, a_max=None)
 
 class Fault(Dataset):
     def __init__(self, 
@@ -19,6 +48,7 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
+        self.transform = Standardize()
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -34,6 +64,8 @@ class Fault(Dataset):
     def __getitem__(self, index):
         f = h5py.File(os.path.join(self.root_dir, self.split, self.data_lst[index]),'r') 
         image = f['raw'][:]
+        # apply transform
+        image = self.transform(image)
         mask = f['label'][:]
         # mask = np.squeeze(mask,0)
         f.close()

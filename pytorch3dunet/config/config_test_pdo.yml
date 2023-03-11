@@ -1,5 +1,5 @@
 # path to the checkpoint file containing the model
-model_path: './3dunet/best_checkpoint.pth'
+model_path: './3dunet-pdo/best_checkpoint.pth'
 # model configuration
 model:
   # model class
@@ -9,7 +9,7 @@ model:
   # number of output channels
   out_channels: 1
   # determines the order of operators in a single layer (gcr - GroupNorm+Conv3d+ReLU)
-  layer_order: gcr
+  layer_order: gpr
   # feature maps scale factor
   f_maps: 16
   # number of groups in the groupnorm
@@ -33,7 +33,7 @@ loaders:
   # how many subprocesses to use for data loading
   num_workers: 1
   # output dir
-  output_dir: /home/zhangzr/FaultRecongnition/Fault_data/Predict
+  output_dir: /home/zhangzr/FaultRecongnition/Fault_data/Predict-pdo
   # test loaders configuration
   test:
     dataset: StandardHDF5Dataset
