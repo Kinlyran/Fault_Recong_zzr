@@ -1,15 +1,16 @@
 from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
 from monai.metrics import DiceMetric
-from models import UNETR
 from monai.networks.nets import SegResNet
 from monai.data import decollate_batch
 from monai.transforms import Compose, Activations, AsDiscrete, EnsureType
-
 import numpy as np
 import torch
 import pytorch_lightning as pl
 from pytorch_lightning.cli import LightningCLI
+import sys
+sys.path.insert(0,'./code')
+from models import UNETR
 import data
 import optimizers
 
@@ -81,6 +82,7 @@ class MultiSegtrainer(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         images, labels = batch["image"], batch["label"]
         batch_size = images.shape[0]
+        '''
         roi_size = (96, 96, 96)
         sw_batch_size = 4
         outputs = sliding_window_inference(
@@ -89,6 +91,9 @@ class MultiSegtrainer(pl.LightningModule):
             sw_batch_size,
             self.forward,  # the output image will be cropped to the original image size
         )
+        '''
+        outputs = self.forward(images)
+        
         loss = self.loss_function(outputs, labels)
         # compute dice score
         outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
@@ -197,4 +202,4 @@ class MultiSegtrainer(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    cli = LightningCLI(save_config_overwrite=True)
+    cli = LightningCLI(save_config_kwargs={'overwrite': True})
