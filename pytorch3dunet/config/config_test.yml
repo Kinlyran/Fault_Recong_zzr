@@ -24,6 +24,7 @@ predictor:
   name: 'StandardPredictor'
 # specify the test datasets
 loaders:
+  dataset: StandardHDF5Dataset
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -33,14 +34,14 @@ loaders:
   # how many subprocesses to use for data loading
   num_workers: 1
   # output dir
-  output_dir: /home/zhangzr/FaultRecongnition/Fault_data/Predict
+  output_dir: /home/zhangzr/FaultRecongnition/Fault_data/3DUnet-Predict
   # test loaders configuration
   test:
-    dataset: StandardHDF5Dataset
+    
     # paths to the test datasets; if a given path is a directory all H5 files ('*.h5', '*.hdf', '*.hdf5', '*.hd5')
     # inside this this directory will be included as well (non-recursively)
     file_paths:
-      - '/home/zhangzr/FaultRecongnition/Fault_data/hdf5/val'
+      - '/home/zhangzr/FaultRecongnition/Fault_data/real_data'
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
