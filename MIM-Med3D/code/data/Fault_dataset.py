@@ -10,35 +10,19 @@ from monai.data import MetaTensor
 import h5py
 
 
-class Standardize:
+class Normalize:
     """
-    Apply Z-score normalization to a given input tensor, i.e. re-scaling the values to be 0-mean and 1-std.
+    Apply simple min-max scaling to a given input tensor, i.e. shrinks the range of the data in a fixed range of [-1, 1].
     """
 
-    def __init__(self, eps=1e-10, mean=None, std=None, channelwise=False, **kwargs):
-        if mean is not None or std is not None:
-            assert mean is not None and std is not None
-        self.mean = mean
-        self.std = std
-        self.eps = eps
-        self.channelwise = channelwise
+    def __init__(self, min_value, max_value, **kwargs):
+        assert max_value > min_value
+        self.min_value = min_value
+        self.value_range = max_value - min_value
 
     def __call__(self, m):
-        if self.mean is not None:
-            mean, std = self.mean, self.std
-        else:
-            if self.channelwise:
-                # normalize per-channel
-                axes = list(range(m.ndim))
-                # average across channels
-                axes = tuple(axes[1:])
-                mean = np.mean(m, axis=axes, keepdims=True)
-                std = np.std(m, axis=axes, keepdims=True)
-            else:
-                mean = np.mean(m)
-                std = np.std(m)
-
-        return (m - mean) / np.clip(std, a_min=self.eps, a_max=None)
+        norm_0_1 = (m - self.min_value) / self.value_range
+        return np.clip(2 * norm_0_1 - 1, -1, 1)
 
 class Fault(Dataset):
     def __init__(self, 
@@ -48,7 +32,7 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Standardize()
+        self.transform = Normalize(min_value=-7.5453, max_value=7.3079)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
