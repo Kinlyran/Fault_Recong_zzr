@@ -172,7 +172,7 @@ class MultiSegtrainer(pl.LightningModule):
         
         batch_size = images.shape[0]
         roi_size = (128, 128, 128)
-        sw_batch_size = 1
+        sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
             roi_size,
