@@ -101,7 +101,7 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     root_dir: /home/zhangzr/FaultRecongnition/Fault_data/hdf5
-    batch_size: 8
+    batch_size: 4
     val_batch_size: 1
     num_workers: 8
     dist: false
