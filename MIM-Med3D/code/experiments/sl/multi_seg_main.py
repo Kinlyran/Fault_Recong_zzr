@@ -82,8 +82,8 @@ class MultiSegtrainer(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         images, labels = batch["image"], batch["label"]
         batch_size = images.shape[0]
-        '''
-        roi_size = (96, 96, 96)
+        
+        roi_size = (128, 128, 128)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
@@ -91,8 +91,8 @@ class MultiSegtrainer(pl.LightningModule):
             sw_batch_size,
             self.forward,  # the output image will be cropped to the original image size
         )
-        '''
-        outputs = self.forward(images)
+        
+        # outputs = self.forward(images)
         
         loss = self.loss_function(outputs, labels)
         # compute dice score
@@ -169,15 +169,17 @@ class MultiSegtrainer(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         images, labels = batch["image"], batch["label"]
+        
         batch_size = images.shape[0]
-        roi_size = (96, 96, 96)
-        sw_batch_size = 4
+        roi_size = (128, 128, 128)
+        sw_batch_size = 1
         outputs = sliding_window_inference(
             images,
             roi_size,
             sw_batch_size,
             self.forward,  # the output image will be cropped to the original image size
         )
+       
         loss = self.loss_function(outputs, labels)
         # compute dice score
         outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
