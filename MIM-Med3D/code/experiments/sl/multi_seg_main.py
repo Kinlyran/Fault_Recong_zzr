@@ -198,6 +198,21 @@ class MultiSegtrainer(pl.LightningModule):
         self.dice_metric.reset()
 
         print(f"avg dice score: {mean_val_dice} ")
+    
+    def predict_step(self, batch, batch_idx, dataloader_idx = 0):
+        images = batch["image"]
+        
+        roi_size = (128, 128, 128)
+        sw_batch_size = 4
+        outputs = sliding_window_inference(
+            images,
+            roi_size,
+            sw_batch_size,
+            self.forward,  # the output image will be cropped to the original image size
+        )
+        
+        outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
+        return outputs
         
 
 
