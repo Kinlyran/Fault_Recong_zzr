@@ -56,7 +56,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '../2d-simulate-data'
+data_root = '../Fault_data/2d-simulate-data'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 crop_size = (128, 128)
 train_pipeline = [

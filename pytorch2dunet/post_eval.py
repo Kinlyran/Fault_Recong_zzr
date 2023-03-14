@@ -30,7 +30,7 @@ def post_eval(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/pytorch2dunet/e2UNet_CKPTS/preds'
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation-master/test_results/upernet_swin_base_patch4_window7_128x128_160k_fault_imagenet_pretrain_224x224_22K'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/2d-simulate-data/val/ann'
     post_eval(predict_path, gt_path)
     
