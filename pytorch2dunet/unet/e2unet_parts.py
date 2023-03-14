@@ -143,10 +143,10 @@ class e2OutConv(torch.nn.Module):
         x = nn.GeometricTensor(x, self.in_type)
         return self.conv(x).tensor
 
-class OutConv(nn.Module):
+class OutConv(torch.nn.Module):
     def __init__(self, in_channels, out_channels):
         super(OutConv, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        self.conv = torch.nn.Conv2d(in_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
         return self.conv(x)
