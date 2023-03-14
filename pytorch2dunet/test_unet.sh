@@ -1,1 +1,1 @@
-python predict.py --model_type UNet --model_ckpts ./UNet_CKPTS/checkpoint.pth --input ./data/hdf5/val --output ./output/unet-pred/ --eval --mask-threshold 0.5 --bilinear
+python predict.py --model_type UNet --model_ckpts ./UNet_CKPTS/checkpoint.pth --input ../Fault_data/2d-simulate-data/val/image --output ./UNet_CKPTS/preds --mask-threshold 0.5 --bilinear

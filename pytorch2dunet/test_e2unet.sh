@@ -1,1 +1,1 @@
-python predict.py --model_type e2UNet --model_ckpts ./e2UNet_CKPTS/checkpoint.pth --input ./data/hdf5/val --output ./output/e2unet-pred/ --eval --mask-threshold 0.5 --bilinear
+python predict.py --model_type e2UNet --model_ckpts ./e2UNet_CKPTS/checkpoint.pth --input ../Fault_data/2d-simulate-data/val/image --output ./e2UNet_CKPTS/preds --mask-threshold 0.5 --bilinear

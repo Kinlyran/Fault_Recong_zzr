@@ -28,20 +28,20 @@ loaders:
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
-  mirror_padding: [16, 16, 16]
+  # mirror_padding: [16, 16, 16]
   # path to the raw data within the H5
   raw_internal_path: raw
   # how many subprocesses to use for data loading
   num_workers: 1
   # output dir
-  output_dir: /home/zhangzr/FaultRecongnition/Fault_data/3DUnet-Predict
+  output_dir: /home/zhangzr/FaultRecongnition/pytorch3dunet/3dunet/3DUnet-Predict
   # test loaders configuration
   test:
     
     # paths to the test datasets; if a given path is a directory all H5 files ('*.h5', '*.hdf', '*.hdf5', '*.hd5')
     # inside this this directory will be included as well (non-recursively)
     file_paths:
-      - '/home/zhangzr/FaultRecongnition/Fault_data/real_data'
+      - '/home/zhangzr/FaultRecongnition/Fault_data/hdf5/val'
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
