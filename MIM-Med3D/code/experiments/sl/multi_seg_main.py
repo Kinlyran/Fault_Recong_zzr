@@ -185,22 +185,20 @@ class MultiSegtrainer(pl.LightningModule):
         outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
         # labels = [self.post_label(i) for i in decollate_batch(labels)]
         self.dice_metric(y_pred=outputs, y=labels)
-        # dice = self.dice_metric.aggregate().item()
+        dice = self.dice_metric.aggregate().item()
 
-        # return {"dice": dice}
+        return {"dice": dice}
 
     def test_epoch_end(self, outputs):
-        # dice_vals = []
-        # for output in outputs:
-        #     dice_vals.append(output["dice"])
-        # mean_val_dice = np.mean(dice_vals)
+        dice_vals = []
+        for output in outputs:
+             dice_vals.append(output["dice"])
+        mean_val_dice = np.mean(dice_vals)
         # mean_val_dice = self.dice_metric_test.aggregate().item()
-        # self.dice_metric.reset()
+        self.dice_metric.reset()
 
-        # print(f"avg dice score: {mean_val_dice} ")
-        mean_val_dice = torch.nanmean(self.dice_metric.get_buffer(), dim=0)
-        print(mean_val_dice)
-        print(torch.mean(mean_val_dice))
+        print(f"avg dice score: {mean_val_dice} ")
+        
 
 
 if __name__ == "__main__":

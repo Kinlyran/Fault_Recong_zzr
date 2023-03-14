@@ -1,2 +1,3 @@
 metric: mean dice
-unetr-baseline: 0.4563 
+unetr-baseline: 0.4689 
+unetr-pretrained: 0.5667
