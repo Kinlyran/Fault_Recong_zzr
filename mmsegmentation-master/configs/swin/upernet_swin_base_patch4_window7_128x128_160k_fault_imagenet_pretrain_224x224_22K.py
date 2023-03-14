@@ -26,7 +26,7 @@ model = dict(
         init_cfg=dict(
             type='Pretrained',
             checkpoint=
-            'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
+            './pretrained_ckpt/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
         )),
     decode_head=dict(
         type='UPerHead',
@@ -56,7 +56,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/2d-simulate-data'
+data_root = '../2d-simulate-data'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 crop_size = (128, 128)
 train_pipeline = [
@@ -86,7 +86,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=2,
+    samples_per_gpu=4,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -107,7 +107,7 @@ data = dict(
         ann_dir='val/ann',
         pipeline=test_pipeline))
 log_config = dict(
-    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=False)])
+    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=True)])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
@@ -132,8 +132,8 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='IterBasedRunner', max_iters=160000)
-checkpoint_config = dict(by_epoch=False, interval=16000, max_keep_ckpts=2)
-evaluation = dict(interval=160, metric='mDice', pre_eval=True, save_best='mDice')
+runner = dict(type='EpochBasedRunner', max_epochs=20)
+checkpoint_config = dict(by_epoch=True, interval=1, max_keep_ckpts=2)
+evaluation = dict(interval=1, metric='mDice', pre_eval=True, save_best='mDice')
 auto_resume = False
 workflow = [('train', 1)]
