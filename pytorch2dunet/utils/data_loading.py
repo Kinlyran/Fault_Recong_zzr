@@ -13,6 +13,7 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 import h5py
 import os
+import cv2
 
 
 def load_image(filename):
@@ -127,13 +128,11 @@ class CarvanaDataset(BasicDataset):
         
 
 class FaultDataset(Dataset):
-    def __init__(self, images_dir: str, ext: str):
-        self.ids = [splitext(file)[0] for file in listdir(images_dir) if isfile(join(images_dir, file)) and not file.startswith('.')]
+    def __init__(self, data_dir: str):
+        self.ids = os.listdir(os.path.join(data_dir, 'image'))
         if not self.ids:
-            raise RuntimeError(f'No input file found in {images_dir}, make sure you put your images there')
-        self.images_dir = images_dir
-        self.ext = ext
-
+            raise RuntimeError(f'No input file found in {data_dir}, make sure you put your images there')
+        self.data_dir = data_dir
         logging.info(f'Creating dataset with {len(self.ids)} examples')
         
     def __len__(self):
@@ -143,12 +142,12 @@ class FaultDataset(Dataset):
     def __getitem__(self, idx):
         name = self.ids[idx]
         
-        img, mask = load_image(os.path.join(self.images_dir,f'{name}.{self.ext}'))
+        img = cv2.imread(os.path.join(self.data_dir, 'image', name), cv2.IMREAD_UNCHANGED)
+        mask = cv2.imread(os.path.join(self.data_dir, 'ann', name), cv2.IMREAD_UNCHANGED)
 
         assert img.size == mask.size, \
             f'Image and mask {name} should be the same size, but are {img.size} and {mask.size}'
         return {
-            'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            'image': torch.as_tensor(img.copy()).float().contiguous().unsqueeze(0),
+            'mask': torch.as_tensor(mask.copy()).long().contiguous().unsqueeze(0)
         }
-

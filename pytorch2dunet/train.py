@@ -40,8 +40,8 @@ def train_model(
         gradient_clipping: float = 1.0,
 ):
     # 1. Create dataset
-    train_set = FaultDataset(train_dir, 'h5')
-    val_set = FaultDataset(val_dir, 'h5')
+    train_set = FaultDataset(train_dir)
+    val_set = FaultDataset(val_dir)
     n_train = len(train_set)
     n_val = len(val_set)
 
@@ -84,10 +84,11 @@ def train_model(
         with tqdm(total=n_train, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
             for batch in train_loader:
                 images, true_masks = batch['image'], batch['mask']
-                
+                print(images.shape)
+                print(true_masks.shape)
 
 
-                images = images.to(device=device, dtype=torch.float32, memory_format=torch.channels_last)
+                images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.float64)
 
                 with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
@@ -175,9 +176,9 @@ if __name__ == '__main__':
     # n_channels=128 for Fault Data
     # n_classes is the number of probabilities you want to get per pixel
     if args.model_type == 'UNet':
-        model = UNet(n_channels=128, n_classes=args.classes, bilinear=args.bilinear)
+        model = UNet(n_channels=1, n_classes=args.classes, bilinear=args.bilinear)
     elif args.model_type == 'e2UNet':
-        model = e2UNet(n_channels=128, n_classes=args.classes, bilinear=args.bilinear)
+        model = e2UNet(n_channels=1, n_classes=args.classes, bilinear=args.bilinear)
         
     model = model.to(memory_format=torch.channels_last)
 
