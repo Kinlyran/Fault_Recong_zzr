@@ -22,7 +22,8 @@ class e2UNet(torch.nn.Module):
         self.up2 = (e2Up(512, 256 // factor))
         self.up3 = (e2Up(256, 128 // factor))
         self.up4 = (e2Up(128, 64))
-        self.outc = (e2OutConv(64, n_classes))
+        # self.outc = (e2OutConv(64, n_classes))
+        self.outc = OutConv(64, n_classes)
     def forward(self, x):
         x1 = self.inc(x)
         x2 = self.down1(x1)
