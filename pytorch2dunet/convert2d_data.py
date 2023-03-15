@@ -21,11 +21,11 @@ def main():
             label = f['label'][:]
             label = label.squeeze(0)
         for i in range(128):
-            image_slice = image_cube[:,:,i]
+            image_slice = image_cube[:,i,:]
             # [0-1] scale
             image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
             image_slice = image_slice * 255
-            label_slice = label[:,:,i]
+            label_slice = label[:,i,:]
             cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'cube_{k}_slice_{i}.png'), image_slice)
             cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'cube_{k}_slice_{i}.png'), label_slice)
             

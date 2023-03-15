@@ -5,6 +5,7 @@ model = dict(
     pretrained=None,
     backbone=dict(
         type='SwinTransformer',
+        in_channels=1,
         pretrain_img_size=224,
         embed_dims=128,
         patch_size=4,
@@ -23,11 +24,8 @@ model = dict(
         use_abs_pos_embed=False,
         act_cfg=dict(type='GELU'),
         norm_cfg=backbone_norm_cfg,
-        init_cfg=dict(
-            type='Pretrained',
-            checkpoint=
-            './pretrained_ckpt/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
-        )),
+        # init_cfg=dict(type='Pretrained',checkpoint='https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth')
+        ),
     decode_head=dict(
         type='UPerHead',
         in_channels=[128, 256, 512, 1024],
@@ -35,11 +33,11 @@ model = dict(
         pool_scales=(1, 2, 3, 6),
         channels=512,
         dropout_ratio=0.1,
-        num_classes=2,
+        num_classes=1,
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=512,
@@ -48,11 +46,11 @@ model = dict(
         num_convs=1,
         concat_input=False,
         dropout_ratio=0.1,
-        num_classes=2,
+        num_classes=1,
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.4)),
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
@@ -60,14 +58,14 @@ data_root = '../Fault_data/2d-simulate-data'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 crop_size = (128, 128)
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile',color_type='unchanged'),
     dict(type='LoadAnnotations', reduce_zero_label=False),
-    dict(type='Resize', img_scale=(128, 128), ratio_range=(0.5, 2.0)),
-    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
+    dict(type='Resize', img_scale=(128, 128)),
+    # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
-    dict(type='PhotoMetricDistortion'),
+    # dict(type='PhotoMetricDistortion'),
     dict(type='Normalize',**img_norm_cfg),
-    dict(type='Pad', size=crop_size, pad_val=0, seg_pad_val=0),
+    # dict(type='Pad', size=crop_size, pad_val=0, seg_pad_val=0),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_semantic_seg'])
 ]
