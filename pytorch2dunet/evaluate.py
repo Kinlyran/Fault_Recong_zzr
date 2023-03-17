@@ -4,13 +4,15 @@ from tqdm import tqdm
 
 from utils.dice_score import multiclass_dice_coeff, dice_coeff
 from utils.acc import acc_score
+import numpy as np
 
 
 @torch.inference_mode()
 def evaluate(net, dataloader, device, amp):
     net.eval()
     num_val_batches = len(dataloader)
-    acc = 0
+    acc_lst = []
+    dice_lst = []
 
     # iterate over the validation set
     with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
@@ -26,8 +28,9 @@ def evaluate(net, dataloader, device, amp):
 
             mask_pred = (torch.sigmoid(mask_pred) > 0.5).long()
             # compute the acc
-            acc += acc_score(mask_pred, mask_true)
+            acc_lst.append(acc_score(mask_pred, mask_true))
+            dice_lst.append(dice_coeff(mask_pred, mask_true))
     
 
     net.train()
-    return acc / max(num_val_batches, 1)
+    return torch.mean(torch.tensor(acc_lst)), torch.mean(torch.tensor(dice_lst))

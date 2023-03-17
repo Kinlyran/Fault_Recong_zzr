@@ -120,14 +120,16 @@ def train_model(
                             if not torch.isinf(value.grad).any():
                                 histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
-                        val_score = evaluate(model, val_loader, device, amp)
-                        scheduler.step(val_score)
+                        acc, dice = evaluate(model, val_loader, device, amp)
+                        scheduler.step(dice)
 
-                        logging.info('Validation ACC: {}'.format(val_score))
+                        logging.info('Validation ACC: {}'.format(acc))
+                        logging.info('Validation Dice: {}'.format(dice))
                         try:
                             experiment.log({
                                 'learning rate': optimizer.param_groups[0]['lr'],
-                                'validation ACC': val_score,
+                                'validation ACC': acc,
+                                'validation Dice': dice,
                                 'step': global_step,
                                 'epoch': epoch,
                                 **histograms
@@ -135,8 +137,8 @@ def train_model(
                         except:
                             pass
 
-                        if save_checkpoint and val_score > best_val_score:
-                            best_val_score = val_score
+                        if save_checkpoint and dice > best_val_score:
+                            best_val_score = dice
                             Path(ckpt_save_dir).mkdir(parents=True, exist_ok=True)
                             state_dict = model.state_dict()
                             torch.save(state_dict, 
