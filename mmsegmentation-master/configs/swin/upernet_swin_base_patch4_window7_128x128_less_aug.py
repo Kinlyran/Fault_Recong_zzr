@@ -62,7 +62,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', reduce_zero_label=False),
     # dict(type='Resize', img_scale=(128, 128)),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
-    # dict(type='RandomFlip', prob=0.5),
+    dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
     # dict(type='Normalize',**img_norm_cfg),
     # dict(type='Pad', size=crop_size, pad_val=0, seg_pad_val=0),
@@ -77,7 +77,7 @@ test_pipeline = [
         flip=False,
         transforms=[
             # dict(type='Resize', keep_ratio=True),
-            # dict(type='RandomFlip'),
+            dict(type='RandomFlip'),
            #  dict(type='Normalize',**img_norm_cfg),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img'])
@@ -130,7 +130,7 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='EpochBasedRunner', max_epochs=20)
+runner = dict(type='EpochBasedRunner', max_epochs=100)
 checkpoint_config = dict(by_epoch=True, interval=1, max_keep_ckpts=2)
 evaluation = dict(interval=1, metric='mDice', pre_eval=True, save_best='mDice')
 auto_resume = False

@@ -130,7 +130,7 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='EpochBasedRunner', max_epochs=20)
+runner = dict(type='EpochBasedRunner', max_epochs=100)
 checkpoint_config = dict(by_epoch=True, interval=1, max_keep_ckpts=2)
 evaluation = dict(interval=1, metric='mDice', pre_eval=True, save_best='mDice')
 auto_resume = False
