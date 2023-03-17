@@ -14,11 +14,11 @@ def post_eval(predict_path, gt_path):
         gts = np.zeros((128, 128, 128))
         for k in range(128):
             gt = cv2.imread(os.path.join(gt_path, f'cube_{i}_slice_{k}.png'), cv2.IMREAD_UNCHANGED)
-            gts[:,:,k] = gt
+            gts[:,k,:] = gt
         preds = np.zeros((128, 128, 128))
         for k in range(128):
             pred = cv2.imread(os.path.join(predict_path, f'cube_{i}_slice_{k}.png'), cv2.IMREAD_UNCHANGED)
-            preds[:,:,k] = pred
+            preds[:,k,:] = pred
         preds = torch.from_numpy(preds)
         gts = torch.from_numpy(gts)
         dice_metric(y_pred=preds, y=gts)
@@ -30,7 +30,7 @@ def post_eval(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation-master/test_results/upernet_swin_base_patch4_window7_128x128_160k_fault_imagenet_pretrain_224x224_22K'
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation-master/test_results/upernet_swin_base_patch4_window7_128x128_less_aug'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/2d-simulate-data/val/ann'
     post_eval(predict_path, gt_path)
     

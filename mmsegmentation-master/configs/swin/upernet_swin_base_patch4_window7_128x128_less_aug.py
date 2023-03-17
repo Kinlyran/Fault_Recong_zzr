@@ -60,11 +60,11 @@ crop_size = (128, 128)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='LoadAnnotations', reduce_zero_label=False),
-    dict(type='Resize', img_scale=(128, 128)),
+    # dict(type='Resize', img_scale=(128, 128)),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
-    dict(type='RandomFlip', prob=0.5),
+    # dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
-    dict(type='Normalize',**img_norm_cfg),
+    # dict(type='Normalize',**img_norm_cfg),
     # dict(type='Pad', size=crop_size, pad_val=0, seg_pad_val=0),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_semantic_seg'])
@@ -76,9 +76,9 @@ test_pipeline = [
         img_scale=(128, 128),
         flip=False,
         transforms=[
-            dict(type='Resize', keep_ratio=True),
-            dict(type='RandomFlip'),
-            dict(type='Normalize',**img_norm_cfg),
+            # dict(type='Resize', keep_ratio=True),
+            # dict(type='RandomFlip'),
+           #  dict(type='Normalize',**img_norm_cfg),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img'])
         ])
