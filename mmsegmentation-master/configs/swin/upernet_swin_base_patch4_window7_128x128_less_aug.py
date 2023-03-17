@@ -58,7 +58,7 @@ data_root = '../Fault_data/2d-simulate-data'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 crop_size = (128, 128)
 train_pipeline = [
-    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='LoadImageFromFile', color_type='unchanged', to_float32=True, simple_standard=True),
     dict(type='LoadAnnotations', reduce_zero_label=False),
     # dict(type='Resize', img_scale=(128, 128)),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
@@ -70,7 +70,7 @@ train_pipeline = [
     dict(type='Collect', keys=['img', 'gt_semantic_seg'])
 ]
 test_pipeline = [
-    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='LoadImageFromFile', color_type='unchanged', to_float32=True, simple_standard=True),
     dict(
         type='MultiScaleFlipAug',
         img_scale=(128, 128),
