@@ -83,7 +83,7 @@ model:
     model_dict:
       pretrained: null
       in_channels: 1
-      img_size: [128, 128, 128]
+      img_size: [96, 96, 96]
       patch_size: [16, 16, 16]
       hidden_size: 768
       mlp_dim: 3072
@@ -100,7 +100,7 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
-    root_dir: /home/zhangzr/FaultRecongnition/Fault_data/hdf5
+    root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_data/crop
     batch_size: 32
     val_batch_size: 1
     num_workers: 8

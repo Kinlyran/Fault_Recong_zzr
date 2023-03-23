@@ -32,7 +32,7 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Normalize(min_value=-7.5453, max_value=7.3079)
+        self.transform = Normalize(min_value=-54110.90625, max_value=51780.52734375)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -50,11 +50,17 @@ class Fault(Dataset):
         image = f['raw'][:]
         # apply transform
         image = self.transform(image)
-        mask = f['label'][:]
+        if 'label' in f.keys():
+            mask = f['label'][:]
+        else:
+            mask = None
         # mask = np.squeeze(mask,0)
         f.close()
-        return {'image': MetaTensor(image).unsqueeze(0),
-                'label': MetaTensor(mask)}
+        if mask is None:
+            return {'image': MetaTensor(image).unsqueeze(0)}
+        else:
+            return {'image': MetaTensor(image).unsqueeze(0),
+                    'label': MetaTensor(mask)}
         
 
 
