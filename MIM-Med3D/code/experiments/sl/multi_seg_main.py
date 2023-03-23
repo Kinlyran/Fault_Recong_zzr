@@ -28,8 +28,7 @@ class MultiSegtrainer(pl.LightningModule):
         elif model_name == "segresnet":
             self.model = SegResNet(**model_dict)
 
-        # self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True)
-        self.loss_function = torch.nn.BCEWithLogitsLoss()
+        self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True)
         # self.post_pred = AsDiscrete(argmax=True, to_onehot=num_classes)
         # self.post_label = AsDiscrete(to_onehot=num_classes)
         self.post_trans = Compose(
@@ -57,8 +56,7 @@ class MultiSegtrainer(pl.LightningModule):
         loss = self.loss_function(output, labels)
         # logging
         self.log(
-            # "train/dice_loss_step",
-            "train/bce_loss_step",
+            "train/dice_loss_step",
             loss,
             batch_size=batch_size,
             on_step=True,
@@ -72,8 +70,7 @@ class MultiSegtrainer(pl.LightningModule):
     def training_epoch_end(self, outputs):
         avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log(
-            # "train/dice_loss_avg",
-            "train/bce_loss_avg",
+            "train/dice_loss_avg",
             avg_loss,
             on_step=False,
             on_epoch=True,
@@ -86,7 +83,7 @@ class MultiSegtrainer(pl.LightningModule):
         images, labels = batch["image"], batch["label"]
         batch_size = images.shape[0]
         
-        roi_size = (128, 128, 128)
+        roi_size = (96, 96, 96)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
@@ -107,8 +104,7 @@ class MultiSegtrainer(pl.LightningModule):
         self.dice_vals.append(dice)
         # logging
         self.log(
-            # "val/dice_loss_step",
-            "val/bce_loss_step",
+            "val/dice_loss_step",
             loss,
             batch_size=batch_size,
             on_step=True,
@@ -130,8 +126,7 @@ class MultiSegtrainer(pl.LightningModule):
         mean_val_loss = torch.tensor(val_loss / num_items)
         # logging
         self.log(
-            # "val/dice_loss_avg",
-            "val/bce_loss_avg",
+            "val/dice_loss_avg",
             mean_val_loss,
             on_step=False,
             on_epoch=True,
@@ -158,8 +153,7 @@ class MultiSegtrainer(pl.LightningModule):
                 "max_epochs": self.trainer.max_epochs,
                 "precision": self.trainer.precision,
             },
-            # metrics={"dice_loss": mean_val_loss, "dice_score": mean_val_dice},
-            metrics={"bce_loss": mean_val_loss, "dice_score": mean_val_dice},
+            metrics={"dice_loss": mean_val_loss, "dice_score": mean_val_dice},
         )
 
         if mean_val_dice > self.best_val_dice:
@@ -177,7 +171,7 @@ class MultiSegtrainer(pl.LightningModule):
         images, labels = batch["image"], batch["label"]
         
         batch_size = images.shape[0]
-        roi_size = (128, 128, 128)
+        roi_size = (96, 96, 96)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
@@ -208,7 +202,7 @@ class MultiSegtrainer(pl.LightningModule):
     def predict_step(self, batch, batch_idx, dataloader_idx = 0):
         images = batch["image"]
         
-        roi_size = (128, 128, 128)
+        roi_size = (96, 96, 96)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,

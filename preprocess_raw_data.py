@@ -7,19 +7,20 @@ from tqdm import tqdm
 
 
 def dat2h5():
-    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_data/seis.dat'
-    cube = np.fromfile(data_path, dtype=np.single)
-    cube = cube.reshape(101,1201,2751)
-    print(f'min value is {cube.min()}, max value is {cube.max()}')
+    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data'
+    seis_data = segyio.tools.cube(os.path.join(data_path, 'mig.sgy'))
+    label = segyio.tools.cube(os.path.join(data_path, 'label.sgy'))
+    label.astype(np.uint8)
+    print(f'min value is {seis_data.min()}, max value is {seis_data.max()}')
 
-    slice_builder = SliceBuilder(raw_dataset=cube,
+    slice_builder = SliceBuilder(raw_dataset=seis_data,
                                  label_dataset=None,
                                  weight_dataset=None,
                                  patch_shape=(96, 96, 96),
-                                 stride_shape=(5,96, 96))
+                                 stride_shape=(96,96, 96))
     crop_cubes_pos = slice_builder.raw_slices
-    train_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_data/crop/train'
-    val_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_data/crop/val'
+    train_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/train'
+    val_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
     if not os.path.exists(train_save_path):
         os.makedirs(train_save_path)
     if not os.path.exists(val_save_path):
@@ -30,14 +31,17 @@ def dat2h5():
         y_range = pos[1]
         z_range = pos[2]
         print(f'Processing num {i} slice')
-        cube_crop = cube[x_range, y_range, z_range]
+        seis_cube_crop = seis_data[x_range, y_range, z_range]
+        label_cube_crop = label[x_range, y_range, z_range]
         if i < split_ratio * len(crop_cubes_pos):
             f = h5py.File(os.path.join(train_save_path, f'{i}.h5'),'w') 
-            f['raw'] = cube_crop
+            f['raw'] = seis_cube_crop
+            f['label'] = label_cube_crop
             f.close() 
         else:
             f = h5py.File(os.path.join(val_save_path, f'{i}.h5'),'w') 
-            f['raw'] = cube_crop
+            f['raw'] = seis_cube_crop
+            f['label'] = label_cube_crop
             f.close() 
 
 class SliceBuilder:

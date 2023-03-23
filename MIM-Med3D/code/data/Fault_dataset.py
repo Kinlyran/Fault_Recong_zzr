@@ -32,7 +32,7 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Normalize(min_value=-54110.90625, max_value=51780.52734375)
+        self.transform = Normalize(min_value=-912300.0, max_value=55077.2109375)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -60,7 +60,7 @@ class Fault(Dataset):
             return {'image': MetaTensor(image).unsqueeze(0)}
         else:
             return {'image': MetaTensor(image).unsqueeze(0),
-                    'label': MetaTensor(mask)}
+                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0)}
         
 
 
