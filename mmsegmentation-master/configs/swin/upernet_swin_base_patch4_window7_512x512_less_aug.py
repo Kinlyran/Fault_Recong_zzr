@@ -54,7 +54,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '../Fault_data/2d-simulate-data'
+data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 # crop_size = (128, 128)
 train_pipeline = [
@@ -130,7 +130,7 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='EpochBasedRunner', max_epochs=100)
+runner = dict(type='EpochBasedRunner', max_epochs=20)
 checkpoint_config = dict(by_epoch=True, interval=1, max_keep_ckpts=2)
 evaluation = dict(interval=1, metric='mDice', pre_eval=True, save_best='mDice')
 auto_resume = False

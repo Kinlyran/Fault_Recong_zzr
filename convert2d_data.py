@@ -4,8 +4,8 @@ import os
 from tqdm import tqdm
 
 def main():
-    scr_root_path = '/mnt/disk1/zhangzr/dataset/Fault_data/hdf5'
-    dst_path = '/mnt/disk1/zhangzr/dataset/Fault_data/2d-simulate-data/'
+    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop'
+    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
     if not os.path.exists(dst_path):
         os.makedirs(os.path.join(dst_path, 'train', 'image'))
         os.makedirs(os.path.join(dst_path, 'train', 'ann'))
@@ -19,9 +19,8 @@ def main():
         with h5py.File(os.path.join(scr_root_path, 'train', item), 'r') as f:
             image_cube = f['raw'][:]
             label = f['label'][:]
-            label = label.squeeze(0)
         num_id = int(item.split('.')[0])
-        for i in range(128):
+        for i in range(96):
             image_slice = image_cube[:,i,:]
             # [0-1] scale
             image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
@@ -38,9 +37,8 @@ def main():
         with h5py.File(os.path.join(scr_root_path, 'val', item), 'r') as f:
             image_cube = f['raw'][:]
             label = f['label'][:]
-            label = label.squeeze(0)
         num_id = int(item.split('.')[0])
-        for i in range(128):
+        for i in range(96):
             image_slice = image_cube[:,i,:]
             # [0-1] scale
             image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())

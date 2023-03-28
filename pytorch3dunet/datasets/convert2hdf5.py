@@ -2,8 +2,8 @@ import numpy as np
 import os
 import h5py
 
-save_path = '/mnt/disk1/zhangzr/dataset/Fault_data/hdf5'
-base_path = './Fault_data'
+save_path = '/home/zhangzr/FaultRecongnition/Fault_data/simulate_data/hdf5'
+base_path = '/home/zhangzr/FaultRecongnition/Fault_data/simulate_data'
 train_root_path = os.path.join(base_path, 'train')
 val_root_path = os.path.join(base_path, 'validation')
 dim=(128,128,128)
@@ -15,14 +15,14 @@ for i in range(200):
     gx = np.transpose(gx)
     fx = np.transpose(fx)
 
-    xm = np.mean(gx)
-    xs = np.std(gx)
-    gx = gx - xm
-    gx = gx / xs
+    # xm = np.mean(gx)
+    # xs = np.std(gx)
+    # gx = gx - xm
+    # gx = gx / xs
     X = np.zeros(dim, dtype=np.single)
-    Y = np.zeros((1,*dim), dtype=np.single)
+    Y = np.zeros(dim, dtype=np.single)
     X = np.reshape(gx, dim)
-    Y[0,:] = np.reshape(fx, dim)
+    Y = np.reshape(fx, dim)
     f = h5py.File(os.path.join(save_path, 'train',f'{i}.h5'),'w') 
     f['raw'] = X 
     f['label'] = Y 
@@ -37,14 +37,10 @@ for i in range(20):
     gx = np.transpose(gx)
     fx = np.transpose(fx)
 
-    xm = np.mean(gx)
-    xs = np.std(gx)
-    gx = gx - xm
-    gx = gx / xs
     X = np.zeros(dim, dtype=np.single)
-    Y = np.zeros((1,*dim), dtype=np.single)
+    Y = np.zeros(dim, dtype=np.single)
     X = np.reshape(gx, dim)
-    Y[0,:] = np.reshape(fx, dim)
+    Y = np.reshape(fx, dim)
     f = h5py.File(os.path.join(save_path, 'val',f'{i}.h5'),'w') 
     f['raw'] = X 
     f['label'] = Y 
