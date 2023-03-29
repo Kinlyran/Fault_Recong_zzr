@@ -32,7 +32,7 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Normalize(min_value=-912300.0, max_value=55077.2109375)
+        self.transform = Normalize(min_value=-46924.76953125, max_value=55077.2109375)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))

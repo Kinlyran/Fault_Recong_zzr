@@ -8,16 +8,18 @@ from tqdm import tqdm
 
 def dat2h5():
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data'
-    seis_data = segyio.tools.cube(os.path.join(data_path, 'mig.sgy'))
-    label = segyio.tools.cube(os.path.join(data_path, 'label.sgy'))
+    seis_data = segyio.tools.cube(os.path.join(data_path, 'mig_fill.sgy'))
+    # precess missing value
+    seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
+    label = segyio.tools.cube(os.path.join(data_path, 'label_fill.sgy'))
     label.astype(np.uint8)
     print(f'min value is {seis_data.min()}, max value is {seis_data.max()}')
 
     slice_builder = SliceBuilder(raw_dataset=seis_data,
                                  label_dataset=None,
                                  weight_dataset=None,
-                                 patch_shape=(96, 96, 96),
-                                 stride_shape=(96,96, 96))
+                                 patch_shape=(128, 128, 128),
+                                 stride_shape=(128, 128, 128))
     crop_cubes_pos = slice_builder.raw_slices
     train_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/train'
     val_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'

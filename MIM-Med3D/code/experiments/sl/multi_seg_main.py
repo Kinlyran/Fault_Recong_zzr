@@ -83,7 +83,7 @@ class MultiSegtrainer(pl.LightningModule):
         images, labels = batch["image"], batch["label"]
         batch_size = images.shape[0]
         
-        roi_size = (96, 96, 96)
+        roi_size = (128, 128, 128)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
@@ -171,7 +171,7 @@ class MultiSegtrainer(pl.LightningModule):
         images, labels = batch["image"], batch["label"]
         
         batch_size = images.shape[0]
-        roi_size = (96, 96, 96)
+        roi_size = (128, 128, 128)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,
@@ -202,7 +202,7 @@ class MultiSegtrainer(pl.LightningModule):
     def predict_step(self, batch, batch_idx, dataloader_idx = 0):
         images = batch["image"]
         
-        roi_size = (96, 96, 96)
+        roi_size = (128, 128, 128)
         sw_batch_size = 4
         outputs = sliding_window_inference(
             images,

@@ -54,13 +54,13 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '../Fault_data/2d-simulate-data'
+data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
 img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
 crop_size = (128, 128)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged', to_float32=True, simple_standard=True),
     dict(type='LoadAnnotations', reduce_zero_label=False),
-    # dict(type='Resize', img_scale=(128, 128)),
+    dict(type='Resize', img_scale=(128, 128)),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
@@ -76,7 +76,7 @@ test_pipeline = [
         img_scale=(128, 128),
         flip=False,
         transforms=[
-            # dict(type='Resize', keep_ratio=True),
+            dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
            #  dict(type='Normalize',**img_norm_cfg),
             dict(type='ImageToTensor', keys=['img']),
@@ -84,7 +84,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=8,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
