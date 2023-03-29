@@ -2,9 +2,12 @@ import h5py
 import cv2
 import os
 from tqdm import tqdm
+import segyio
+
 
 def main():
-    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop'
+    ratio = 0.8
+    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data'
     dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
     if not os.path.exists(dst_path):
         os.makedirs(os.path.join(dst_path, 'train', 'image'))
@@ -13,40 +16,29 @@ def main():
         os.makedirs(os.path.join(dst_path, 'val', 'ann'))
 
     
-    # convert train data
-    data_lst = os.listdir(os.path.join(scr_root_path, 'train'))
-    for item in tqdm(data_lst):
-        with h5py.File(os.path.join(scr_root_path, 'train', item), 'r') as f:
-            image_cube = f['raw'][:]
-            label = f['label'][:]
-        num_id = int(item.split('.')[0])
-        for i in range(96):
-            image_slice = image_cube[:,i,:]
-            # [0-1] scale
-            image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
-            image_slice = image_slice * 255
-            label_slice = label[:,i,:]
-            cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
-            cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
+    # convert data
+    seis_data = segyio.tools.cube(os.path.join(scr_root_path, 'mig_fill.sgy'))
+    label = segyio.tools.cube(os.path.join(scr_root_path, 'label_fill.sgy'))
+    
+    assert seis_data.shape == label.shape
+    h, w, d = seis_data.shape
+    valid_slices = 775
+    for i in range(valid_slices):
+        image_slice = seis_data[:,i,:]
+        # [0-1] scale
+        image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
+        image_slice = image_slice * 255
+        label_slice = label[:,i,:]
+        if i <= valid_slices * ratio:
+            cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'slice_{i}.png'), image_slice)
+            cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'slice_{i}.png'), label_slice)
+        else:
+            cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'slice_{i}.png'), image_slice)
+            cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'slice_{i}.png'), label_slice)
+    
             
             
-    
-    # convert val data
-    data_lst = os.listdir(os.path.join(scr_root_path, 'val'))
-    for item in tqdm(data_lst):
-        with h5py.File(os.path.join(scr_root_path, 'val', item), 'r') as f:
-            image_cube = f['raw'][:]
-            label = f['label'][:]
-        num_id = int(item.split('.')[0])
-        for i in range(96):
-            image_slice = image_cube[:,i,:]
-            # [0-1] scale
-            image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
-            image_slice = image_slice * 255
-            label_slice = label[:,i,:]
-            cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
-            cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
-    
+            
 
 
 
