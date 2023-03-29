@@ -1,5 +1,5 @@
 # path to the checkpoint file containing the model
-model_path: './3dunet/best_checkpoint.pth'
+model_path: './3dunet-real/best_checkpoint.pth'
 # model configuration
 model:
   # model class
@@ -34,14 +34,14 @@ loaders:
   # how many subprocesses to use for data loading
   num_workers: 1
   # output dir
-  output_dir: /home/zhangzr/FaultRecongnition/pytorch3dunet/3dunet/3DUnet-Predict/real
+  output_dir: /home/zhangzr/FaultRecongnition/pytorch3dunet/3dunet-real/predict
   # test loaders configuration
   test:
     
     # paths to the test datasets; if a given path is a directory all H5 files ('*.h5', '*.hdf', '*.hdf5', '*.hd5')
     # inside this this directory will be included as well (non-recursively)
     file_paths:
-      - '/home/zhangzr/FaultRecongnition/Fault_data/real_data/h5_format'
+      - '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
@@ -53,7 +53,9 @@ loaders:
       stride_shape: [64, 64, 64]
 
     transformer:
-        raw:
-          - name: Standardize
-          - name: ToTensor
-            expand_dims: true
+      raw:
+        - name: Normalize
+          min_value: -46924.76953125
+          max_value: 55077.2109375
+        - name: ToTensor
+          expand_dims: true

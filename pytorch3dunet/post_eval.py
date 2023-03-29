@@ -17,7 +17,7 @@ def post_eval(predict_path, gt_path):
             gt = f['label'][:]
         pred[pred>=0.5] = 1
         pred[pred<0.5] = 0
-        pred = torch.FloatTensor(pred)
+        pred = torch.FloatTensor(pred).squeeze(0)
         gt = torch.FloatTensor(gt)
         dice_metric(y_pred=pred, y=gt)
         dice = dice_metric.aggregate().item()
@@ -28,8 +28,8 @@ def post_eval(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/pytorch3dunet/3dunet-pdo/Predict-pdo'
-    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/hdf5/val'
+    predict_path = '/home/zhangzr/FaultRecongnition/pytorch3dunet/3dunet-real/predict'
+    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
     post_eval(predict_path, gt_path)
     
     
