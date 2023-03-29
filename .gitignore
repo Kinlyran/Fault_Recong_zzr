@@ -13,6 +13,7 @@ pytorch3dunet/augment/__pycache__/
 pytorch3dunet/datasets/__pycache__/
 pytorch3dunet/unet3d/__pycache__/
 pytorch3dunet/3dunet-pdo
+pytorch3dunet/3dunet-real
 .DS_Store
 *.pyc
 *.pth

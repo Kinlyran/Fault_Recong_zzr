@@ -10,7 +10,7 @@ model:
   final_sigmoid: true
   is_segmentation: true
 trainer:
-  checkpoint_dir: 3dunet
+  checkpoint_dir: 3dunet-real
   resume: null
   validate_after_iters: 100
   log_after_iters: 2
@@ -23,21 +23,21 @@ optimizer:
 loss:
   name: BCEWithLogitsLoss
 eval_metric:
-  name: SimpleAverageAcc
+  name: DiceCoefficient
 lr_scheduler:
   name: MultiStepLR
   milestones: [50, 80]
   gamma: 0.5
 loaders:
   dataset: StandardHDF5Dataset
-  batch_size: 2
+  batch_size: 4
   num_workers: 1
   raw_internal_path: raw
   label_internal_path: label
   weight_internal_path: null
   train:
     file_paths:
-      - '../Fault_data/hdf5/train'
+      - '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/train'
 
     slice_builder:
       name: SliceBuilder
@@ -46,13 +46,15 @@ loaders:
 
     transformer:
       raw:
-        - name: Standardize
+        - name: Normalize
+          min_value: -46924.76953125
+          max_value: 55077.2109375
         - name: ToTensor
           expand_dims: true
       label:
         - name: ToTensor
           # do not expand dims for cross-entropy loss
-          expand_dims: false
+          expand_dims: true
           # cross-entropy loss requires target to be of type 'long'
           dtype: 'long'
       weight:
@@ -60,7 +62,7 @@ loaders:
           expand_dims: false
   val:
     file_paths:
-      - '../Fault_data/hdf5/val'
+      - '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
 
     slice_builder:
       name: SliceBuilder
@@ -69,12 +71,14 @@ loaders:
 
     transformer:
       raw:
-        - name: Standardize
+        - name: Normalize
+          min_value: -46924.76953125
+          max_value: 55077.2109375
         - name: ToTensor
           expand_dims: true
       label:
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
           # dtype: 'float'
       weight:
         - name: ToTensor
