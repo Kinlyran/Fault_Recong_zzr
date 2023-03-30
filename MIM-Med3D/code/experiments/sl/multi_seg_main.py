@@ -10,7 +10,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.cli import LightningCLI
 import sys
 sys.path.insert(0,'./code')
-from models import UNETR
+from models import UNETR, SwinUNETR
 import data
 import optimizers
 
@@ -25,6 +25,8 @@ class MultiSegtrainer(pl.LightningModule):
 
         if model_name.split("_")[0] == "unetr":
             self.model = UNETR(**model_dict)
+        elif model_name == "swin_unetr":
+            self.model = SwinUNETR(**model_dict)
         elif model_name == "segresnet":
             self.model = SegResNet(**model_dict)
 

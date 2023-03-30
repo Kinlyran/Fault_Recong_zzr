@@ -8,3 +8,4 @@ from .vitautoenc import ViTAutoEnc
 from .unetr import UNETR
 from .upernet_swin import UperNetSwin
 from .upernet_van import UperNetVAN
+from .swin_unetr import SwinUNETR
