@@ -1,13 +1,16 @@
 import torch
 import pytorch_lightning as pl
-from pytorch_lightning.utilities.cli import LightningCLI
+from pytorch_lightning.cli import LightningCLI
 
-from models import ViTSimMIM
+import sys
+sys.path.insert(0, './code')
+from models import ViTSimMIM, SwinSimMIM
 from torch.nn import L1Loss
-from monai.inferers import SlidingWindowInferer
-from utils.schedulers import LinearWarmupCosineAnnealingLR
+# from monai.inferers import SlidingWindowInferer
+# from utils.schedulers import LinearWarmupCosineAnnealingLR
 import data
 import optimizers
+from monai.data import MetaTensor
 
 
 class SimMIMtrainer(pl.LightningModule):
@@ -19,8 +22,10 @@ class SimMIMtrainer(pl.LightningModule):
         super().__init__()
         self.model_name = model_name
         self.model_dict = model_dict
-
-        self.model = ViTSimMIM(**model_dict)
+        if self.model_name == 'vitsimmim_base':
+            self.model = ViTSimMIM(**model_dict)
+        elif self.model_name == 'swinsimmim_base':
+            self.model = SwinSimMIM(**model_dict)
 
         self.recon_loss = L1Loss()
         self.recon_patches = []
@@ -31,7 +36,7 @@ class SimMIMtrainer(pl.LightningModule):
         image = batch["image"]
         pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
         batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
+        loss = self.recon_loss(pred_pixel_values, MetaTensor(patches.as_tensor()[batch_range, masked_indices]))
 
         self.log("train/l1_loss", loss, batch_size=batch_size, sync_dist=True)
 
@@ -42,7 +47,7 @@ class SimMIMtrainer(pl.LightningModule):
         image = batch["image"]
         pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
         batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
+        loss = self.recon_loss(pred_pixel_values, MetaTensor(patches.as_tensor()[batch_range, masked_indices]))
 
         self.log("val/l1_loss", loss, batch_size=batch_size, sync_dist=True)
 
@@ -75,4 +80,4 @@ class SimMIMtrainer(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    cli = LightningCLI(save_config_overwrite=True)
+    cli = LightningCLI(save_config_kwargs={'overwrite':True})
