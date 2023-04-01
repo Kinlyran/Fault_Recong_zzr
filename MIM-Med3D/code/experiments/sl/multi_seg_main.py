@@ -1,6 +1,6 @@
 from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
-from monai.metrics import DiceMetric
+# from monai.metrics import DiceMetric
 from monai.networks.nets import SegResNet
 from monai.data import decollate_batch
 from monai.transforms import Compose, Activations, AsDiscrete, EnsureType
@@ -11,6 +11,7 @@ from pytorch_lightning.cli import LightningCLI
 import sys
 sys.path.insert(0,'./code')
 from models import UNETR, SwinUNETR
+from metrics import dice_coefficient_batch
 import data
 import optimizers
 
@@ -30,15 +31,12 @@ class MultiSegtrainer(pl.LightningModule):
         elif model_name == "segresnet":
             self.model = SegResNet(**model_dict)
 
-        # self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True, lambda_dice=0.1, lambda_ce=1.0)
-        self.loss_function = torch.nn.BCEWithLogitsLoss()
+        self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True, lambda_dice=0.1, lambda_ce=1.0)
+        # self.loss_function = torch.nn.BCEWithLogitsLoss()
         # self.post_pred = AsDiscrete(argmax=True, to_onehot=num_classes)
         # self.post_label = AsDiscrete(to_onehot=num_classes)
         self.post_trans = Compose(
             [EnsureType(), Activations(sigmoid=True), AsDiscrete(threshold=0.5)]
-        )
-        self.dice_metric = DiceMetric(
-            include_background=True, reduction="mean", get_not_nans=False
         )
         self.best_val_dice = 0
         self.best_val_epoch = 0
@@ -99,12 +97,10 @@ class MultiSegtrainer(pl.LightningModule):
         
         loss = self.loss_function(outputs, labels)
         # compute dice score
-        outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
-        # labels = [self.post_label(i) for i in decollate_batch(labels)]
-        self.dice_metric(y_pred=outputs, y=labels)
-        dice = self.dice_metric.aggregate().item()
-        # compute mean dice score per validation epoch
-        self.dice_vals.append(dice)
+        outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
+        labels = [label.detach().cpu().numpy().astype(np.float32) for label in decollate_batch(labels)]
+        dice_batch = dice_coefficient_batch(labels, outputs)
+        self.dice_vals += dice_batch
         # logging
         self.log(
             "val/dice_loss_step",
@@ -125,7 +121,6 @@ class MultiSegtrainer(pl.LightningModule):
             num_items += output["val_number"]
         mean_val_dice = np.mean(self.dice_vals)
         self.dice_vals = []
-        self.dice_metric.reset()
         mean_val_loss = torch.tensor(val_loss / num_items)
         # logging
         self.log(
@@ -185,20 +180,18 @@ class MultiSegtrainer(pl.LightningModule):
        
         loss = self.loss_function(outputs, labels)
         # compute dice score
-        outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
-        # labels = [self.post_label(i) for i in decollate_batch(labels)]
-        self.dice_metric(y_pred=outputs, y=labels)
-        dice = self.dice_metric.aggregate().item()
+        outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
+        labels = [label.detach().cpu().numpy().astype(np.float32) for label in decollate_batch(labels)]
+        dice_batch = dice_coefficient_batch(labels, outputs)
+        # print(dice_batch)
 
-        return {"dice": dice}
+        return {"dice_batch": dice_batch}
 
     def test_epoch_end(self, outputs):
         dice_vals = []
         for output in outputs:
-             dice_vals.append(output["dice"])
+             dice_vals += output["dice_batch"]
         mean_val_dice = np.mean(dice_vals)
-        # mean_val_dice = self.dice_metric_test.aggregate().item()
-        self.dice_metric.reset()
 
         print(f"avg dice score: {mean_val_dice} ")
     
