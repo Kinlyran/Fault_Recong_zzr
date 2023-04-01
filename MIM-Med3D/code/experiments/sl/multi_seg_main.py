@@ -98,7 +98,7 @@ class MultiSegtrainer(pl.LightningModule):
         loss = self.loss_function(outputs, labels)
         # compute dice score
         outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
-        labels = [label.detach().cpu().numpy().astype(np.float32) for label in decollate_batch(labels)]
+        labels = [label.detach().cpu().numpy() for label in decollate_batch(labels)]
         dice_batch = dice_coefficient_batch(labels, outputs)
         self.dice_vals += dice_batch
         # logging
@@ -181,7 +181,7 @@ class MultiSegtrainer(pl.LightningModule):
         loss = self.loss_function(outputs, labels)
         # compute dice score
         outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
-        labels = [label.detach().cpu().numpy().astype(np.float32) for label in decollate_batch(labels)]
+        labels = [label.detach().cpu().numpy() for label in decollate_batch(labels)]
         dice_batch = dice_coefficient_batch(labels, outputs)
         # print(dice_batch)
 

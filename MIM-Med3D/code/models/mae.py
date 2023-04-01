@@ -184,7 +184,7 @@ class MAE(nn.Module):
 
         # get the unmasked tokens to be encoded
         batch_range = torch.arange(batch, device=device)[:, None]
-        tokens = MetaTensor(tokens.as_tensor()[batch_range, unmasked_indices])
+        tokens = tokens[batch_range, unmasked_indices]
 
         # get the patches to be masked for the final reconstruction loss
         # masked_patches = patches[batch_range, masked_indices]

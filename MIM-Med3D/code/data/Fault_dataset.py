@@ -6,7 +6,6 @@ import torch.distributed as ptdist
 import pytorch_lightning as pl
 from torch.utils.data.distributed import DistributedSampler
 import numpy as np
-from monai.data import MetaTensor
 import h5py
 
 from monai.transforms import (
@@ -41,6 +40,37 @@ class Normalize:
     def __call__(self, m):
         norm_0_1 = (m - self.min_value) / self.value_range
         return np.clip(2 * norm_0_1 - 1, -1, 1)
+
+
+class Fault_Simulate(Dataset):
+    def __init__(self,
+                 root_dir,
+                 split):
+        self.root_dir = root_dir
+        self.split = split
+        self.base_transform = Normalize(min_value=-7, max_value=7)
+        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                    ])
+        self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
+
+    def __len__(self):
+        return len(self.data_lst)
+    
+    def __getitem__(self, index):
+        name = self.data_lst[index]
+        seis = np.fromfile(os.path.join(self.root_dir, self.split, 'seis', name), dtype=np.single)
+        fault = np.fromfile(os.path.join(self.root_dir, self.split, 'fault', name), dtype=np.single)
+        # reshape into 128 * 128 * 128
+        seis = seis.reshape((128, 128, 128))
+        fault = fault.reshape((128, 128, 128))
+        seis = self.base_transform(seis)
+        if self.split == 'train':
+            return self.transform({{'image': torch.from_numpy(seis).unsqueeze(0),
+                    'label': torch.from_numpy(fault).unsqueeze(0),
+                    'image_name': self.data_lst[index]}})
+
 
 class Fault(Dataset):
     def __init__(self, 
@@ -79,15 +109,15 @@ class Fault(Dataset):
         # mask = np.squeeze(mask,0)
         f.close()
         if mask is None:
-            return {'image': MetaTensor(image).unsqueeze(0),
+            return {'image': torch.from_numpy(image).unsqueeze(0),
                     'image_name': self.data_lst[index]}
         elif self.split == 'train':
-            return self.transform({'image': MetaTensor(image).unsqueeze(0),
-                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0),
+            return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
         elif self.split == 'val':
-            return {'image': MetaTensor(image).unsqueeze(0),
-                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0),
+            return {'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]}
 
         
