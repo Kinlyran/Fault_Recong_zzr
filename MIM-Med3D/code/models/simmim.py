@@ -343,6 +343,8 @@ class SwinSimMIM(nn.Module):
 
 
 if __name__ == "__main__":
+    import time
+    
     # config
     img_size = [96, 96, 96]
     in_channels = 1
@@ -360,6 +362,7 @@ if __name__ == "__main__":
     pretrained = None
     revise_keys = []
     
+    device = 'cuda'
     
     model = SwinSimMIM(img_size,
                         in_channels,
@@ -377,8 +380,16 @@ if __name__ == "__main__":
                         pretrained,
                         revise_keys,
                         masking_ratio=0.75)
-
-    x = torch.randn(2, 1, 96, 96, 96)
-    y = model(x)
-
-    print(y[0].shape)
+    model.to(device)
+    loss_function = torch.nn.L1Loss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    model.train()
+    img = torch.randn(2, 1, 96, 96, 96).to(device)
+    pred_pixel_values, patches, batch_range, masked_indices = model(img)
+    loss = loss_function(pred_pixel_values, patches[batch_range, masked_indices,:])
+    print('start backward...')
+    t1 = time.time()
+    loss.backward()
+    t2 = time.time()
+    print(f'finish backward, using {t2-t1} s!')
+    # loss.step()

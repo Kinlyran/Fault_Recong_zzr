@@ -57,10 +57,12 @@ class Fault(Dataset):
         # mask = np.squeeze(mask,0)
         f.close()
         if mask is None:
-            return {'image': MetaTensor(image).unsqueeze(0)}
+            return {'image': MetaTensor(image).unsqueeze(0),
+                    'image_name': self.data_lst[index]}
         else:
             return {'image': MetaTensor(image).unsqueeze(0),
-                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0)}
+                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0),
+                    'image_name': self.data_lst[index]}
         
 
 

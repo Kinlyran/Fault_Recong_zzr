@@ -36,7 +36,7 @@ class SimMIMtrainer(pl.LightningModule):
         image = batch["image"]
         pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
         batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, MetaTensor(patches.as_tensor()[batch_range, masked_indices]))
+        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
 
         self.log("train/l1_loss", loss, batch_size=batch_size, sync_dist=True)
 
@@ -47,7 +47,7 @@ class SimMIMtrainer(pl.LightningModule):
         image = batch["image"]
         pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
         batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, MetaTensor(patches.as_tensor()[batch_range, masked_indices]))
+        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
 
         self.log("val/l1_loss", loss, batch_size=batch_size, sync_dist=True)
 

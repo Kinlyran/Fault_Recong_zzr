@@ -204,7 +204,8 @@ class MultiSegtrainer(pl.LightningModule):
     
     def predict_step(self, batch, batch_idx, dataloader_idx = 0):
         images = batch["image"]
-        
+        image_names = batch['image_name']
+
         roi_size = (128, 128, 128)
         sw_batch_size = 4
         outputs = sliding_window_inference(
@@ -213,9 +214,11 @@ class MultiSegtrainer(pl.LightningModule):
             sw_batch_size,
             self.forward,  # the output image will be cropped to the original image size
         )
-        
-        outputs = [self.post_trans(i) for i in decollate_batch(outputs)]
-        return outputs
+        outputs_pred = {}
+        for i, output in enumerate(decollate_batch(outputs)):
+            outputs_pred[image_names[i]] = self.post_trans(output)
+
+        return outputs_pred
         
 
 
