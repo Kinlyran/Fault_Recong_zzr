@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetune
-      version: unetr_base_vitmae_p16_m0.75_fault
+      version: unetr_base_vitmae_p16_m0.75_fault_random_aug
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -115,4 +115,4 @@ lr_scheduler:
     warmup_epochs: 300
     max_epochs: 3000
     eta_min: 0.0001
-ckpt_path: ./output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault/checkpoints/best.ckpt
+ckpt_path: null
