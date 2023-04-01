@@ -9,6 +9,24 @@ import numpy as np
 from monai.data import MetaTensor
 import h5py
 
+from monai.transforms import (
+    AsDiscrete,
+    AddChanneld,
+    Compose,
+    CropForegroundd,
+    LoadImaged,
+    Orientationd,
+    RandFlipd,
+    RandCropByPosNegLabeld,
+    RandSpatialCropSamplesd,
+    RandShiftIntensityd,
+    CenterSpatialCropd,
+    ScaleIntensityRanged,
+    Spacingd,
+    RandRotate90d,
+    ToTensord,
+)
+
 
 class Normalize:
     """
@@ -32,7 +50,11 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Normalize(min_value=-46924.76953125, max_value=55077.2109375)
+        self.base_transform = Normalize(min_value=-46924.76953125, max_value=55077.2109375)
+        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                    ])
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -48,8 +70,8 @@ class Fault(Dataset):
     def __getitem__(self, index):
         f = h5py.File(os.path.join(self.root_dir, self.split, self.data_lst[index]),'r') 
         image = f['raw'][:]
-        # apply transform
-        image = self.transform(image)
+        # apply base transform
+        image = self.base_transform(image)
         if 'label' in f.keys():
             mask = f['label'][:]
         else:
@@ -59,10 +81,15 @@ class Fault(Dataset):
         if mask is None:
             return {'image': MetaTensor(image).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        else:
+        elif self.split == 'train':
+            return self.transform({'image': MetaTensor(image).unsqueeze(0),
+                    'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
+        elif self.split == 'val':
             return {'image': MetaTensor(image).unsqueeze(0),
                     'label': MetaTensor(mask.astype(np.float16)).unsqueeze(0),
                     'image_name': self.data_lst[index]}
+
         
 
 
@@ -156,3 +183,10 @@ class FaultDataset(pl.LightningDataModule):
 
 
         
+if __name__ == '__main__':
+    data = FaultDataset(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop',
+                        batch_size=4)
+    data.setup()
+    for item in data.train_dataloader():
+        print(item)
+        # break
