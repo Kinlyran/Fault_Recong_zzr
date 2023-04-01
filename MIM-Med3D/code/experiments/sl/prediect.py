@@ -22,8 +22,7 @@ def predict(config_path, ckpt_path, output_path):
     for item in preds:
         for image_name in item.keys():
             pred = item[image_name]
-            pred = pred[0] # only 1 class
-            pred = pred.squeeze(0)
+            pred = pred.squeeze(0) # (128, 128, 128)
             with h5py.File(os.path.join(output_path, image_name), 'w') as f:
                 f['predictions'] = pred.cpu().numpy()
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
@@ -33,7 +32,7 @@ def predict(config_path, ckpt_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/code/configs/sl/fault/swin_unetr_base_supbaseline.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_fault/checkpoints/best.ckpt'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_fault/preds'
+    config_path = './code/configs/sl/fault/unetr_base_supbaseline.yaml'
+    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault/checkpoints/best.ckpt'
+    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault/preds'
     predict(config_path, ckpt_path, output_path)

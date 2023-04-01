@@ -116,4 +116,4 @@ lr_scheduler:
     warmup_epochs: 300
     max_epochs: 3000
     eta_min: 0.0001
-ckpt_path: null
+ckpt_path: ./output/Fault_Baseline/unetr_base_supbaseline_p16_fault/checkpoints/best.ckpt

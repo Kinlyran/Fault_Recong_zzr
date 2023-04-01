@@ -1,7 +1,7 @@
 metric:  Dice
 
-unetr-baseline: 0.2775
-unetr-pretrained: 0.2968
-swin-unetr-baseline: 0.2993
+unetr-baseline: 0.36865941923240136
+unetr-pretrained: 0.3550
+swin-unetr-baseline: 0.3899
 3d-unet: 0.4943
 

@@ -15,10 +15,8 @@ def post_eval(predict_path, gt_path):
             pred = f['predictions'][:]
         with h5py.File(os.path.join(gt_path, item), 'r') as f:
             gt = f['label'][:]
-        # pred[pred>=0.5] = 1
-        # pred[pred<0.5] = 0
-        pred = torch.FloatTensor(pred)
-        gt = torch.FloatTensor(gt)
+        pred = torch.FloatTensor(pred).unsqueeze(0)
+        gt = torch.FloatTensor(gt).unsqueeze(0)
         dice_metric(y_pred=pred, y=gt)
         dice = dice_metric.aggregate().item()
         dice_scores.append(dice)
@@ -28,7 +26,7 @@ def post_eval(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_fault/preds'
+    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_fault/preds'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
     post_eval(predict_path, gt_path)
     

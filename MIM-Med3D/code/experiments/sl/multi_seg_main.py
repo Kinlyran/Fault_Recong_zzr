@@ -216,7 +216,8 @@ class MultiSegtrainer(pl.LightningModule):
         )
         outputs_pred = {}
         for i, output in enumerate(decollate_batch(outputs)):
-            outputs_pred[image_names[i]] = self.post_trans(output)
+            output = self.post_trans(output)
+            outputs_pred[image_names[i]] = output
 
         return outputs_pred
         
