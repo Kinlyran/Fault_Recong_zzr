@@ -45,14 +45,17 @@ class Normalize:
 class Fault_Simulate(Dataset):
     def __init__(self,
                  root_dir,
-                 split):
+                 split,
+                 is_ssl=False):
         self.root_dir = root_dir
         self.split = split
+        self.is_ssl = is_ssl
         self.base_transform = Normalize(min_value=-7, max_value=7)
-        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
-                                    ])
+        if not is_ssl:
+            self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                        ])
         self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
 
     def __len__(self):
@@ -69,25 +72,29 @@ class Fault_Simulate(Dataset):
         output = {'image': torch.from_numpy(seis).unsqueeze(0),
                     'label': torch.from_numpy(fault).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        if self.split == 'train':
+        if self.split == 'train' and not self.is_ssl:
             return self.transform(output)
+        elif self.split == 'train' and self.is_ssl:
+            return output
         elif self.split == 'val':
             return output
 
 
 class Fault(Dataset):
     def __init__(self, 
-                 root_dir: str, 
-                 split: str = 'train',
-                 # convert_size=(96,96,96)
+                root_dir: str, 
+                split: str = 'train',
+                is_ssl=False
                  ):
         self.root_dir = root_dir
         self.split = split
+        self.is_ssl = is_ssl
         self.base_transform = Normalize(min_value=-46924.76953125, max_value=55077.2109375)
-        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
-                                    ])
+        if not is_ssl:
+            self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                        ])
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -114,10 +121,14 @@ class Fault(Dataset):
         if mask is None:
             return {'image': torch.from_numpy(image).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        elif self.split == 'train':
+        elif self.split == 'train' and not self.is_ssl:
             return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
+        elif self.split == 'train' and self.is_ssl:
+            return {'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
+                    'image_name': self.data_lst[index]}
         elif self.split == 'val':
             return {'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
@@ -131,7 +142,7 @@ class FaultDataset(pl.LightningDataModule):
         self,
         real_data_root_dir: str,
         simulate_data_root_dir: str,
-        # convert_size: tuple = (96, 96, 96),
+        is_ssl,
         batch_size: int = 1,
         val_batch_size: int = 1,
         num_workers: int = 4,
@@ -142,7 +153,7 @@ class FaultDataset(pl.LightningDataModule):
         super().__init__()
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
-        # self.convert_size = convert_size
+        self.is_ssl = is_ssl
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
         self.num_workers = num_workers
@@ -156,14 +167,14 @@ class FaultDataset(pl.LightningDataModule):
         # Assign Train split(s) for use in Dataloaders
         if stage in [None, "fit"]:
             self.train_ds = ConcatDataset(
-                [Fault(root_dir=self.real_data_root_dir, split='train'),
-                 Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train')]
+                [Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl),
+                 Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl)]
                 )
-            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val')
+            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
           
 
         if stage in [None, "test"]:
-            self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val')
+            self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
 
     def train_dataloader(self):
         if self.dist:

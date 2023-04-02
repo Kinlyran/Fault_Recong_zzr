@@ -99,6 +99,7 @@ data:
   init_args:
     real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
     simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
+    is_ssl: true
     batch_size: 4
     val_batch_size: 1
     num_workers: 8
