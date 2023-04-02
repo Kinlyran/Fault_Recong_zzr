@@ -100,7 +100,8 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
-    root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 4
     val_batch_size: 1
     num_workers: 8

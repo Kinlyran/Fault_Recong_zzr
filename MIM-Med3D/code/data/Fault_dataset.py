@@ -1,7 +1,7 @@
 from typing import Optional, Sequence, Union
 import os
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, ConcatDataset
 import torch.distributed as ptdist
 import pytorch_lightning as pl
 from torch.utils.data.distributed import DistributedSampler
@@ -66,10 +66,13 @@ class Fault_Simulate(Dataset):
         seis = seis.reshape((128, 128, 128))
         fault = fault.reshape((128, 128, 128))
         seis = self.base_transform(seis)
-        if self.split == 'train':
-            return self.transform({{'image': torch.from_numpy(seis).unsqueeze(0),
+        output = {'image': torch.from_numpy(seis).unsqueeze(0),
                     'label': torch.from_numpy(fault).unsqueeze(0),
-                    'image_name': self.data_lst[index]}})
+                    'image_name': self.data_lst[index]}
+        if self.split == 'train':
+            return self.transform(output)
+        elif self.split == 'val':
+            return output
 
 
 class Fault(Dataset):
@@ -126,7 +129,8 @@ class Fault(Dataset):
 class FaultDataset(pl.LightningDataModule):
     def __init__(
         self,
-        root_dir: str,
+        real_data_root_dir: str,
+        simulate_data_root_dir: str,
         # convert_size: tuple = (96, 96, 96),
         batch_size: int = 1,
         val_batch_size: int = 1,
@@ -136,7 +140,8 @@ class FaultDataset(pl.LightningDataModule):
         downsample_ratio=None
     ):
         super().__init__()
-        self.root_dir = root_dir
+        self.real_data_root_dir = real_data_root_dir
+        self.simulate_data_root_dir = simulate_data_root_dir
         # self.convert_size = convert_size
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
@@ -150,12 +155,15 @@ class FaultDataset(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign Train split(s) for use in Dataloaders
         if stage in [None, "fit"]:
-            self.train_ds = Fault(root_dir=self.root_dir, split='train')
-            self.valid_ds = Fault(root_dir=self.root_dir, split='val')
+            self.train_ds = ConcatDataset(
+                [Fault(root_dir=self.real_data_root_dir, split='train'),
+                 Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train')]
+                )
+            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val')
           
 
         if stage in [None, "test"]:
-            self.test_ds = Fault(root_dir=self.root_dir, split='val')
+            self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val')
 
     def train_dataloader(self):
         if self.dist:
