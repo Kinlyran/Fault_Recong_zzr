@@ -23,7 +23,7 @@ def predict(config_path, ckpt_path, output_path):
         for image_name in item.keys():
             pred = item[image_name]
             pred = pred.squeeze(0) # (128, 128, 128)
-            with h5py.File(os.path.join(output_path, image_name), 'w') as f:
+            with h5py.File(os.path.join(output_path, image_name.split('.')[0]+'.h5'), 'w') as f:
                 f['predictions'] = pred.cpu().numpy()
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
     # print(preds)
@@ -32,7 +32,7 @@ def predict(config_path, ckpt_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug/config.yaml'
-    ckpt_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug/checkpoints/best.ckpt'
-    output_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug/preds'
+    config_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug/config.yaml'
+    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug/checkpoints/best.ckpt'
+    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug/test_preds'
     predict(config_path, ckpt_path, output_path)

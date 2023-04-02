@@ -7,6 +7,7 @@ import pytorch_lightning as pl
 from torch.utils.data.distributed import DistributedSampler
 import numpy as np
 import h5py
+import segyio
 
 from monai.transforms import (
     AsDiscrete,
@@ -138,7 +139,21 @@ class Fault(Dataset):
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]}
 
-        
+class Fault_Simple(Dataset):
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        self.data_lst = os.listdir(self.root_dir)
+    def __len__(self):
+        return len(self.data_lst)
+    
+    def __getitem__(self, index):
+        image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
+        base_transform = Normalize(min_value=image.min(), max_value=image.max())
+        image = base_transform(image)
+        return {'image': torch.from_numpy(image).unsqueeze(0),
+                'image_name': self.data_lst[index]}
+
+
 
 
 class FaultDataset(pl.LightningDataModule):
@@ -146,6 +161,7 @@ class FaultDataset(pl.LightningDataModule):
         self,
         real_data_root_dir: str,
         simulate_data_root_dir: str,
+        test_data_root_dir: None,
         is_ssl,
         batch_size: int = 1,
         val_batch_size: int = 1,
@@ -157,6 +173,7 @@ class FaultDataset(pl.LightningDataModule):
         super().__init__()
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
+        self.test_data_root_dir = test_data_root_dir
         self.is_ssl = is_ssl
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
@@ -178,7 +195,10 @@ class FaultDataset(pl.LightningDataModule):
           
 
         if stage in [None, "test"]:
-            self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+            if self.test_data_root_dir is not None:
+                self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
+            else:
+                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
 
     def train_dataloader(self):
         if self.dist:
