@@ -41,7 +41,7 @@ trainer:
   check_val_every_n_epoch: 2
   fast_dev_run: false
   accumulate_grad_batches: null
-  max_epochs: 100
+  max_epochs: 1000
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -115,7 +115,7 @@ optimizer:
 lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
   init_args:
-    warmup_epochs: 10
-    max_epochs: 100
+    warmup_epochs: 100
+    max_epochs: 1000
     eta_min: 0.0001
 ckpt_path: null
