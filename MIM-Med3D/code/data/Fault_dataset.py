@@ -23,6 +23,7 @@ from monai.transforms import (
     ScaleIntensityRanged,
     Spacingd,
     RandRotate90d,
+    RandRotated,
     ToTensord,
 )
 
@@ -54,7 +55,9 @@ class Fault_Simulate(Dataset):
         if not is_ssl:
             self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                         RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                        RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                        # RandRotated(keys=["image", "label"], prob=0.10, )
                                         ])
         self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
 
@@ -93,7 +96,8 @@ class Fault(Dataset):
         if not is_ssl:
             self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                         RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,)
+                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                        RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1))
                                         ])
         # self.convert_size = convert_size
         if self.split == 'train':

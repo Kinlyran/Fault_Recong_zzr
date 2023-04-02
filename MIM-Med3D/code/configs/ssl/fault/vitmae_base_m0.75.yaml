@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Pretrained_Extra_Aug
+      name: Fault_Pretrained_ExtraData
       version: vitmae_base_m0.75_fault
       default_hp_metric: false
   # checkpoint_callback: null
