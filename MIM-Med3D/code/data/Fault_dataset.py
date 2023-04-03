@@ -160,8 +160,8 @@ class FaultDataset(pl.LightningDataModule):
     def __init__(
         self,
         real_data_root_dir: str,
-        simulate_data_root_dir: str,
         is_ssl,
+        simulate_data_root_dir=None,
         test_data_root_dir=None,
         batch_size: int = 1,
         val_batch_size: int = 1,
@@ -187,10 +187,13 @@ class FaultDataset(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign Train split(s) for use in Dataloaders
         if stage in [None, "fit"]:
-            self.train_ds = ConcatDataset(
-                [Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl),
-                 Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl)]
-                )
+            if self.simulate_data_root_dir is not None:
+                self.train_ds = ConcatDataset(
+                    [Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl),
+                    Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl)]
+                    )
+            else:
+                self.train_ds = Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl)
             self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
           
 
