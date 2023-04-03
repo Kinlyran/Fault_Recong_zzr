@@ -12,6 +12,7 @@ from monai.networks.nets import ViT
 from mmcv.runner import load_checkpoint
 from timm.models.layers import DropPath, trunc_normal_
 from monai.utils import ensure_tuple_rep, look_up_option, optional_import
+import math
 
 rearrange, _ = optional_import("einops", name="rearrange")
 
@@ -211,7 +212,8 @@ class SwinSimMIM(nn.Module):
         self.normalize = normalize
         self.masking_ratio = masking_ratio
 
-        self.encoder = SwinTransformer(in_chans=in_channels,
+        self.encoder = SwinTransformer(
+                                        in_chans=in_channels,
                                         embed_dim=feature_size,
                                         window_size=window_size,
                                         patch_size=patch_size,
@@ -228,7 +230,8 @@ class SwinSimMIM(nn.Module):
                                         downsample=look_up_option(downsample, MERGING_MODE) if isinstance(downsample, str) else downsample,
                                         use_v2=use_v2,
                                         pretrained=pretrained,
-                                        revise_keys=revise_keys)
+                                        revise_keys=revise_keys
+                                )
 
         # patch embedding block
         
@@ -244,16 +247,29 @@ class SwinSimMIM(nn.Module):
 
         # simple linear head
         conv_trans = Conv[Conv.CONVTRANS, 3]
-        self.conv3d_transpose = conv_trans(
-            self.num_features,
-            in_channels,
+        self.conv3d_transpose_0 = conv_trans(
+            in_channels=self.num_features,
+            out_channels=16,
             kernel_size=(
-                2 ** (self.num_layers + 1),
-                2 ** (self.num_layers + 1),
-                2 ** (self.num_layers + 1),
+                2 ** math.ceil((self.num_layers + 1) / 2),
+                2 ** math.ceil((self.num_layers + 1) / 2),
+                2 ** math.ceil((self.num_layers + 1) / 2),
             ),
-            stride=(2 ** (self.num_layers + 1), 2 ** (self.num_layers + 1), 2 ** (self.num_layers + 1),),
+            stride=(2 ** math.ceil((self.num_layers + 1) / 2), 
+                    2 ** math.ceil((self.num_layers + 1) / 2), 
+                    2 ** math.ceil((self.num_layers + 1) / 2)),
         )
+        self.conv3d_transpose_1 = conv_trans(
+            in_channels=16,
+            out_channels=in_channels,
+            kernel_size=(2 ** int((self.num_layers + 1) / 2),
+                         2 ** int((self.num_layers + 1) / 2),
+                         2 ** int((self.num_layers + 1) / 2)),
+            stride=(2 ** int((self.num_layers + 1) / 2),
+                    2 ** int((self.num_layers + 1) / 2),
+                    2 ** int((self.num_layers + 1) / 2))
+        )  
+
         
     def forward(self, img):
         # B, C, D, H, W = img.shape
@@ -303,7 +319,6 @@ class SwinSimMIM(nn.Module):
         tokens = torch.where(masked_bool_mask[..., None], mask_tokens, tokens) # (B, num_patches, embeding_dim)
         tokens = tokens.view(batch, x_1, x_2, x_3, embed_dim) # (B, x, x, x, embed_dim)
         tokens = tokens.permute(0, 4, 1, 2, 3)
-        
         # Finish mask , continue forward.......
         x0 = self.encoder.pos_drop(tokens) # (B, num_patches, embeding_dim)
         x0_out = self.encoder.proj_out(x0, self.normalize)
@@ -323,22 +338,19 @@ class SwinSimMIM(nn.Module):
             x3 = self.encoder.layers4c[0](x3.contiguous())
         x4 = self.encoder.layers4[0](x3.contiguous())
         x4_out = self.encoder.proj_out(x4, self.normalize)
-        tokens = x4_out
-        
         # upsample
-        pred_pixel_values = self.conv3d_transpose(tokens)
-
+        pred_pixel_values_ = self.conv3d_transpose_0(x4_out)
+        pred_pixel_values_ = self.conv3d_transpose_1(pred_pixel_values_)
+    
+        
         pred_pixel_values = rearrange(
-            pred_pixel_values,
+            pred_pixel_values_,
             "b c (d p1) (h p2) (w p3) -> b (d h w) (p1 p2 p3 c)",
             p1=self.encoder.patch_size[0],
             p2=self.encoder.patch_size[1],
             p3=self.encoder.patch_size[2],
         )
-        
-        pred_pixel_values = pred_pixel_values[batch_range, masked_indices]
-        
-
+        pred_pixel_values = pred_pixel_values[batch_range, masked_indices]              
         return pred_pixel_values, patches, batch_range, masked_indices
 
 
@@ -346,7 +358,7 @@ if __name__ == "__main__":
     import time
     
     # config
-    img_size = [96, 96, 96]
+    img_size = [128, 128, 128]
     in_channels = 1
     depths = [2, 2, 2, 2]
     num_heads = [3, 6, 12, 24]
@@ -362,7 +374,8 @@ if __name__ == "__main__":
     pretrained = None
     revise_keys = []
     
-    device = 'cuda'
+    device = 'cuda:0'
+    # device = 'cpu'
     
     model = SwinSimMIM(img_size,
                         in_channels,
@@ -384,12 +397,13 @@ if __name__ == "__main__":
     loss_function = torch.nn.L1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
     model.train()
-    img = torch.randn(2, 1, 96, 96, 96).to(device)
+    print('start training...')
+    t1 = time.time()
+    img = torch.randn(2, 1, 128, 128, 128).to(device)
     pred_pixel_values, patches, batch_range, masked_indices = model(img)
     loss = loss_function(pred_pixel_values, patches[batch_range, masked_indices,:])
-    print('start backward...')
-    t1 = time.time()
     loss.backward()
+    optimizer.step()
     t2 = time.time()
-    print(f'finish backward, using {t2-t1} s!')
+    print(f'finish training, using {t2-t1} s!')
     # loss.step()

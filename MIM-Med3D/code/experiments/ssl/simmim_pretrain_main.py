@@ -10,7 +10,6 @@ from torch.nn import L1Loss
 # from utils.schedulers import LinearWarmupCosineAnnealingLR
 import data
 import optimizers
-from monai.data import MetaTensor
 
 
 class SimMIMtrainer(pl.LightningModule):
