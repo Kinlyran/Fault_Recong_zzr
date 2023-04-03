@@ -39,7 +39,7 @@ def post_eval(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug/preds'
+    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug_new/preds'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
     post_eval(predict_path, gt_path)
     
