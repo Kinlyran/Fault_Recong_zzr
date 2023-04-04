@@ -32,7 +32,7 @@ def predict(config_path, ckpt_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug_new/config.yaml'
-    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug_new/checkpoints/best.ckpt'
-    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_fault_random_aug_new/preds'
+    config_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug_new/config.yaml'
+    ckpt_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug_new/checkpoints/best.ckpt'
+    output_path = './output/Fault_Finetune/unetr_base_vitmae_p16_m0.75_fault_random_aug_new/preds'
     predict(config_path, ckpt_path, output_path)
