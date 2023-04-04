@@ -6,8 +6,8 @@ from einops import repeat
 
 import numpy as np
 # from .swin_3d import SwinTransformer3D
-from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
-from monai.networks.layers import Conv
+from swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
+# from monai.networks.layers import Conv
 from monai.networks.nets import ViT
 from mmcv.runner import load_checkpoint
 from timm.models.layers import DropPath, trunc_normal_
@@ -245,30 +245,14 @@ class SwinSimMIM(nn.Module):
         # masked tokens
         self.mask_token = nn.Parameter(torch.randn(feature_size))
 
-        # simple linear head
-        conv_trans = Conv[Conv.CONVTRANS, 3]
-        self.conv3d_transpose_0 = conv_trans(
-            in_channels=self.num_features,
-            out_channels=16,
-            kernel_size=(
-                2 ** math.ceil((self.num_layers + 1) / 2),
-                2 ** math.ceil((self.num_layers + 1) / 2),
-                2 ** math.ceil((self.num_layers + 1) / 2),
-            ),
-            stride=(2 ** math.ceil((self.num_layers + 1) / 2), 
-                    2 ** math.ceil((self.num_layers + 1) / 2), 
-                    2 ** math.ceil((self.num_layers + 1) / 2)),
-        )
-        self.conv3d_transpose_1 = conv_trans(
-            in_channels=16,
-            out_channels=in_channels,
-            kernel_size=(2 ** int((self.num_layers + 1) / 2),
-                         2 ** int((self.num_layers + 1) / 2),
-                         2 ** int((self.num_layers + 1) / 2)),
-            stride=(2 ** int((self.num_layers + 1) / 2),
-                    2 ** int((self.num_layers + 1) / 2),
-                    2 ** int((self.num_layers + 1) / 2))
-        )  
+        # simple upsample head
+        self.upsample_conv = nn.Sequential(
+                nn.ConvTranspose3d(self.num_features, self.num_features // 2, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
+                nn.ConvTranspose3d(self.num_features // 2, self.num_features // 4, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
+                nn.ConvTranspose3d(self.num_features // 4, self.num_features // 8, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
+                nn.ConvTranspose3d(self.num_features // 8, self.num_features // 16, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
+                nn.ConvTranspose3d(self.num_features // 16, in_channels, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
+            )
 
         
     def forward(self, img):
@@ -339,8 +323,7 @@ class SwinSimMIM(nn.Module):
         x4 = self.encoder.layers4[0](x3.contiguous())
         x4_out = self.encoder.proj_out(x4, self.normalize)
         # upsample
-        pred_pixel_values_ = self.conv3d_transpose_0(x4_out)
-        pred_pixel_values_ = self.conv3d_transpose_1(pred_pixel_values_)
+        pred_pixel_values_ = self.upsample_conv(x4_out)
     
         
         pred_pixel_values = rearrange(
@@ -374,8 +357,8 @@ if __name__ == "__main__":
     pretrained = None
     revise_keys = []
     
-    device = 'cuda:0'
-    # device = 'cpu'
+    # device = 'cuda:0'
+    device = 'cpu'
     
     model = SwinSimMIM(img_size,
                         in_channels,
