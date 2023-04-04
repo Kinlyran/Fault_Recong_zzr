@@ -64,6 +64,7 @@ class MultiSegtrainer(pl.LightningModule):
             on_epoch=False,
             prog_bar=True,
             logger=True,
+            sync_dist=True
         )
 
         return {"loss": loss}
@@ -77,6 +78,7 @@ class MultiSegtrainer(pl.LightningModule):
             on_epoch=True,
             prog_bar=True,
             logger=True,
+            sync_dist=True
         )
         self.epoch_loss_values.append(avg_loss.detach().cpu().numpy())
 
@@ -110,6 +112,7 @@ class MultiSegtrainer(pl.LightningModule):
             on_epoch=False,
             prog_bar=True,
             logger=True,
+            sync_dist=True
         )
 
         return {"val_loss": loss, "val_number": len(outputs)}
@@ -130,6 +133,7 @@ class MultiSegtrainer(pl.LightningModule):
             on_epoch=True,
             prog_bar=True,
             logger=True,
+            sync_dist=True
         )
         self.log(
             "val/dice_score_avg",
@@ -138,6 +142,7 @@ class MultiSegtrainer(pl.LightningModule):
             on_epoch=True,
             prog_bar=True,
             logger=True,
+            sync_dist=True
         )
         self.logger.log_hyperparams(
             params={
