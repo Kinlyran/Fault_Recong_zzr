@@ -2,6 +2,6 @@ metric:  Dice Acc
 
 unetr-baseline: 41.89, 95.77
 unetr-pretrained: 41.49, 95.87
-# swin-unetr-baseline: 34.31
+swin-unetr-baseline: 36.12 94.94
 # 3d-unet: 56.11
 
