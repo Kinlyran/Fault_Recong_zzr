@@ -6,18 +6,12 @@ from monai.networks.nets import SegResNet
 from monai.data import decollate_batch
 import numpy as np
 import torch
+import pytorch_lightning as pl
+from pytorch_lightning.cli import LightningCLI
 import sys
 sys.path.insert(0,'./code')
-import data
-import optimizers
 from models import UNETR, SwinUNETR
 
-# import mlflow
-import pytorch_lightning as pl
-
-# from pytorch_lightning import Trainer
-# from pytorch_lightning.loggers import MLFlowLogger
-from pytorch_lightning.cli import LightningCLI
 
 
 class SingleSegtrainer(pl.LightningModule):
