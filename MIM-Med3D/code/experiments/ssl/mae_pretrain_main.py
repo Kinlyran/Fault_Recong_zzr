@@ -1,16 +1,10 @@
 import torch
 import pytorch_lightning as pl
 from pytorch_lightning.cli import LightningCLI
-
-# from models import MAE
 from torch.nn import L1Loss
 import sys
 sys.path.insert(0,'./code')
 from models import MAE
-# from monai.inferers import SlidingWindowInferer
-# from utils.schedulers import LinearWarmupCosineAnnealingLR
-import data
-import optimizers
 
 
 class MAEtrainer(pl.LightningModule):

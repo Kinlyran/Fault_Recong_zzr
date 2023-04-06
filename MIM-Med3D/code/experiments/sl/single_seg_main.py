@@ -1,5 +1,3 @@
-from typing import Union, Optional, Sequence
-
 from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
 from monai.transforms import AsDiscrete
@@ -12,7 +10,7 @@ import sys
 sys.path.insert(0,'./code')
 import data
 import optimizers
-from models import UNETR, UperNetSwin, UperNetVAN, SwinUNETR
+from models import UNETR, SwinUNETR
 
 # import mlflow
 import pytorch_lightning as pl
@@ -32,10 +30,6 @@ class SingleSegtrainer(pl.LightningModule):
             self.model = UNETR(**model_dict)
         elif model_name == "segresnet":
             self.model = SegResNet(**model_dict)
-        elif model_name.startswith("upernet_swin"):
-            self.model = UperNetSwin(**model_dict)
-        elif model_name.startswith("upernet_van"):
-            self.model = UperNetVAN(**model_dict)
         elif model_name == "swin_unetr":
             self.model = SwinUNETR(**model_dict)
 
