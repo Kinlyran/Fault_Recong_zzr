@@ -142,8 +142,8 @@ class SingleSegtrainer(pl.LightningModule):
             params={
                 "model": self.model_name,
                 **self.model_dict,
-                "data": self.trainer.datamodule.json_path,
-                "ds_ratio": self.trainer.datamodule.downsample_ratio,
+                # "data": self.trainer.datamodule.json_path,
+                # "ds_ratio": self.trainer.datamodule.downsample_ratio,
                 "batch_size": self.trainer.datamodule.batch_size,
                 "distribution": self.trainer.datamodule.dist,
                 # "benchmark": self.trainer.benchmark,
