@@ -5,6 +5,8 @@ from torch.nn import L1Loss
 import sys
 sys.path.insert(0,'./code')
 from models import MAE
+import optimizers
+import data
 
 
 class MAEtrainer(pl.LightningModule):

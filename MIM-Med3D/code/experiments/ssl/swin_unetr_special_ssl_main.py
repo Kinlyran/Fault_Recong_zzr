@@ -7,6 +7,8 @@ sys.path.insert(0,'./code')
 from models import SSLHead
 from losses import SwinUNETR_SSL_Loss
 from data import aug_rand, rot_rand
+import optimizers
+import data
 
 
 class SwinUnetr_trainer(pl.LightningModule):

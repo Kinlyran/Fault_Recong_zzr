@@ -6,6 +6,8 @@ import sys
 sys.path.insert(0, './code')
 from models import ViTSimMIM, SwinSimMIM
 from torch.nn import L1Loss
+import optimizers
+import data
 
 
 class SimMIMtrainer(pl.LightningModule):

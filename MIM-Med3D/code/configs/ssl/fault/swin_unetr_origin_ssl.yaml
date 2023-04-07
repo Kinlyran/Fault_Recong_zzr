@@ -13,7 +13,7 @@ trainer:
       - class_path: pytorch_lightning.callbacks.ModelCheckpoint
         init_args:
           filename: best
-          monitor: val/l1_loss_avg
+          monitor: val/recon_loss_avg
           mode: min
           # save_last: true
           save_weights_only: true
@@ -77,26 +77,18 @@ trainer:
   multiple_trainloader_mode: max_size_cycle
   # stochastic_weight_avg: false
 model:
-  class_path: __main__.SimMIMtrainer
+  class_path: __main__.SwinUnetr_trainer
   init_args:
-    model_name: swinsimmim_base
+    train_batch_size: 4
+    val_batch_size: 1
     model_dict:
-      img_size: [128, 128, 128]
       in_channels: 1
-      depths: [2, 2, 2, 2]
-      num_heads: [3, 6, 12, 24]
       feature_size: 48
-      drop_rate: 0.0
-      attn_drop_rate: 0.0
       dropout_path_rate: 0.0 
-      normalize: true
       use_checkpoint: false
       spatial_dims: 3
-      downsample: merging
-      use_v2: false
-      pretrained: null
-      revise_keys: []
-      masking_ratio: 0.75
+      upsample: deconv
+      dim: 768
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:

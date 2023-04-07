@@ -12,6 +12,8 @@ import sys
 sys.path.insert(0,'./code')
 from models import UNETR, SwinUNETR
 from metrics import dice_coefficient_batch
+import optimizers
+import data
 
 class MultiSegtrainer(pl.LightningModule):
     def __init__(

@@ -12,12 +12,12 @@
 import torch
 import torch.nn as nn
 
-from swin_unetr import SwinTransformer
+from .swin_unetr import SwinTransformer
 from monai.utils import ensure_tuple_rep
 
 
 class SSLHead(nn.Module):
-    def __init__(self, spatial_dims, in_channels, feature_size, dropout_path_rate, use_checkpoint, upsample="deconv", dim=768):
+    def __init__(self, in_channels, feature_size, dropout_path_rate, use_checkpoint, spatial_dims, upsample="deconv", dim=768):
         super(SSLHead, self).__init__()
         patch_size = ensure_tuple_rep(2, spatial_dims)
         window_size = ensure_tuple_rep(7, spatial_dims)

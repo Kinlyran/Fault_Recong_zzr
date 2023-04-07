@@ -11,6 +11,8 @@ from pytorch_lightning.cli import LightningCLI
 import sys
 sys.path.insert(0,'./code')
 from models import UNETR, SwinUNETR
+import optimizers
+import data
 
 
 
