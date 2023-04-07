@@ -33,7 +33,7 @@ class Contrast(torch.nn.Module):
         return torch.sum(-torch.log(nom / torch.sum(denom, dim=1))) / (2 * self.batch_size)
 
 
-class Loss(torch.nn.Module):
+class SwinUNETR_SSL_Loss(torch.nn.Module):
     def __init__(self, batch_size):
         super().__init__()
         self.rot_loss = torch.nn.CrossEntropyLoss()
