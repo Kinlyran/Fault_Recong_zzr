@@ -98,7 +98,7 @@ class Fault(Dataset):
             self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                         RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                         RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                        RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1))
+                                        # RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1))
                                         ])
         # self.convert_size = convert_size
         if self.split == 'train':
@@ -213,8 +213,6 @@ class FaultDataset(pl.LightningDataModule):
             shuffle=False,
             sampler=DistributedSampler(self.train_ds),
             drop_last=False,
-            # collate_fn=pad_list_data_collate,
-            # prefetch_factor=4,
         )
         else:
             dataloader = torch.utils.data.DataLoader(
@@ -223,38 +221,41 @@ class FaultDataset(pl.LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=True,
             shuffle=True,
-            # sampler=DistributedSampler(self.train_ds),
             drop_last=False,
-            # collate_fn=pad_list_data_collate,
-            # prefetch_factor=4,
         )
             
         return dataloader
 
     def val_dataloader(self):
-        return torch.utils.data.DataLoader(
+        if self.dist:
+            dataloader = torch.utils.data.DataLoader(
             self.valid_ds,
             batch_size=self.val_batch_size,
             num_workers=self.num_workers,
             pin_memory=True,
             shuffle=False,
-            # sampler=DistributedSampler(self.valid_ds),
+            sampler=DistributedSampler(self.valid_ds, shuffle=False, drop_last=False),
             drop_last=False,
-            # collate_fn=pad_list_data_collate,
-            # prefetch_factor=4,
         )
-
-    def test_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.test_ds,
+        else:
+            dataloader = torch.utils.data.DataLoader(
+            self.valid_ds,
             batch_size=self.val_batch_size,
             num_workers=self.num_workers,
             pin_memory=True,
             shuffle=False,
-            # sampler=DistributedSampler(self.test_ds),
             drop_last=False,
-            # collate_fn=pad_list_data_collate,
-            # prefetch_factor=4,
+        )
+        return dataloader
+
+    def test_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.test_ds,
+            batch_size=1,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            shuffle=False,
+            drop_last=False,
         )
 
 

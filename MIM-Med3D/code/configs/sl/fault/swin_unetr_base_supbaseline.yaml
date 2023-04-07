@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Baseline
-      version: swin_unetr_base_supbaseline_p16_v0
+      version: swin_unetr_base_supbaseline_p16_v01
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
