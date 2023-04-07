@@ -97,7 +97,7 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: ./output/Fault_Pretrained_NoExtra/swinsimmim_base_m0.75_v0/checkpoints/vitsimmim_base_p16_m0.75_btcv24.ckpt
+      pretrained: ./output/Fault_Pretrained_NoExtra/swinsimmim_base_m0.75_v0/checkpoints/best.ckpt
       revise_keys: [['model.encoder.', '']]
 data:
   class_path: data.Fault_dataset.FaultDataset
