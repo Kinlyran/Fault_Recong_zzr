@@ -35,8 +35,6 @@ class SingleSegtrainer(pl.LightningModule):
         self.dice_metric = DiceMetric(
             include_background=True, reduction="mean", get_not_nans=False
         )
-        self.best_val_dice = 0
-        self.best_val_epoch = 0
         # self.dice_vals = []
         self.metric_values = []
         self.epoch_loss_values = []
@@ -155,15 +153,6 @@ class SingleSegtrainer(pl.LightningModule):
             metrics={"dice_loss": mean_val_loss, "dice_score": mean_val_dice},
         )
 
-        if mean_val_dice > self.best_val_dice:
-            self.best_val_dice = mean_val_dice
-            self.best_val_epoch = self.current_epoch
-        print(
-            f"current epoch: {self.current_epoch} "
-            f"current mean dice: {mean_val_dice:.4f}"
-            f"\nbest mean dice: {self.best_val_dice:.4f} "
-            f"at epoch: {self.best_val_epoch}"
-        )
         self.metric_values.append(mean_val_dice)
 
     def test_step(self, batch, batch_idx):

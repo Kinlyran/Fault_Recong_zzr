@@ -37,8 +37,6 @@ class MultiSegtrainer(pl.LightningModule):
         self.post_trans = Compose(
             [EnsureType(), Activations(sigmoid=True), AsDiscrete(threshold=0.5)]
         )
-        self.best_val_dice = 0
-        self.best_val_epoch = 0
         self.dice_vals = []
         # self.dice_vals_tc = []
         # self.dice_vals_wt = []
@@ -158,15 +156,6 @@ class MultiSegtrainer(pl.LightningModule):
             metrics={"dice_loss": mean_val_loss, "dice_score": mean_val_dice},
         )
 
-        if mean_val_dice > self.best_val_dice:
-            self.best_val_dice = mean_val_dice
-            self.best_val_epoch = self.current_epoch
-        print(
-            f"current epoch: {self.current_epoch} "
-            f"current mean dice: {mean_val_dice:.4f}"
-            f"\nbest mean dice: {self.best_val_dice:.4f} "
-            f"at epoch: {self.best_val_epoch}"
-        )
         self.metric_values.append(mean_val_dice)
 
     def test_step(self, batch, batch_idx):
