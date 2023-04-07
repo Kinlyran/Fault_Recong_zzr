@@ -98,7 +98,7 @@ class SwinUnetr_trainer(pl.LightningModule):
 
         self.logger.log_hyperparams(
             params={
-                "model": self.model_name,
+                "model": 'SwinUNETR',
                 **self.model_dict,
                 "batch_size": self.trainer.datamodule.batch_size,
                 "distribution": self.trainer.datamodule.dist,

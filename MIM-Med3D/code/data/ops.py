@@ -43,9 +43,10 @@ def patch_rand_drop(x, x_rep=None, max_drop=0.3, max_block_sz=0.25, tolr=0.05):
 
 
 def rot_rand(x_s):
+    device = x_s.device
     img_n = x_s.size()[0]
     x_aug = x_s.detach().clone()
-    x_rot = torch.zeros(img_n).long()
+    x_rot = torch.zeros(img_n).long().to(device)
     for i in range(img_n):
         x = x_s[i]
         orientation = np.random.randint(0, 4)
