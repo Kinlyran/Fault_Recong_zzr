@@ -79,7 +79,7 @@ trainer:
 model:
   class_path: __main__.SwinUnetr_trainer
   init_args:
-    train_batch_size: 1
+    train_batch_size: 2
     val_batch_size: 1
     model_dict:
       in_channels: 1
@@ -95,7 +95,7 @@ data:
     real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/crop
     # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     is_ssl: true
-    batch_size: 1
+    batch_size: 2
     val_batch_size: 1
     num_workers: 8
     dist: true
