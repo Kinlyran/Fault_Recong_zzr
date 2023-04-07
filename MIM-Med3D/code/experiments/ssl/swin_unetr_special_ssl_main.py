@@ -6,67 +6,104 @@ import sys
 sys.path.insert(0,'./code')
 from models import SSLHead
 from losses import SwinUNETR_SSL_Loss
+from data import aug_rand, rot_rand
 
 
 class SwinUnetr_trainer(pl.LightningModule):
     """Pretraining on 3D Imaging with Masked Auto Encoder"""
 
     def __init__(
-        self, model_dict: dict, train_batch_size
+        self, model_dict: dict, train_batch_size, val_batch_size
     ):
         super().__init__()
         self.model_dict = model_dict
 
         self.model = SSLHead(**model_dict)
 
-        self.ssl_loss = SwinUNETR_SSL_Loss(batch_size=train_batch_size)
+        self.ssl_loss_train = SwinUNETR_SSL_Loss(batch_size=train_batch_size)
+        self.ssl_loss_val = SwinUNETR_SSL_Loss(batch_size=val_batch_size)
         # self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
         # --------------------------
-        image = batch["image"]
-        pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
-        batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
+        x = batch["image"]
+        batch_size = x.shape[0]
+        x1, rot1 = rot_rand(x)
+        x2, rot2 = rot_rand(x)
+        x1_augment = aug_rand(x1)
+        x2_augment = aug_rand(x2)
+        x1_augment = x1_augment
+        x2_augment = x2_augment
+        
+        rot1_p, contrastive1_p, rec_x1 = self.model(x1_augment)
+        rot2_p, contrastive2_p, rec_x2 = self.model(x2_augment)
+        rot_p = torch.cat([rot1_p, rot2_p], dim=0)
+        rots = torch.cat([rot1, rot2], dim=0)
+        imgs_recon = torch.cat([rec_x1, rec_x2], dim=0)
+        imgs = torch.cat([x1, x2], dim=0)
+        loss, losses_tasks = self.ssl_loss_train(rot_p, rots, contrastive1_p, contrastive2_p, imgs_recon, imgs)
 
-        self.log("train/l1_loss", loss, batch_size=batch_size, sync_dist=True)
-
+        self.log("train/total_loss", loss, batch_size=batch_size, sync_dist=True)
+        self.log("train/rot_loss", losses_tasks[0], batch_size=batch_size, sync_dist=True)
+        self.log("train/contrast_loss", losses_tasks[1], batch_size=batch_size, sync_dist=True)
+        self.log("train/recon_loss", losses_tasks[2], batch_size=batch_size, sync_dist=True)
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
         # --------------------------
-        image = batch["image"]
-        pred_pixel_values, patches, batch_range, masked_indices = self.model(image)
-        batch_size = pred_pixel_values.shape[0]
-        loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
+        val_inputs = batch["image"]
+        batch_size = val_inputs.shape[0]
+        x1, rot1 = rot_rand(val_inputs)
+        x2, rot2 = rot_rand(val_inputs)
+        x1_augment = aug_rand(x1)
+        x2_augment = aug_rand(x2)
+        rot1_p, contrastive1_p, rec_x1 = self.model(x1_augment)
+        rot2_p, contrastive2_p, rec_x2 = self.model(x2_augment)
+        rot_p = torch.cat([rot1_p, rot2_p], dim=0)
+        rots = torch.cat([rot1, rot2], dim=0)
+        imgs_recon = torch.cat([rec_x1, rec_x2], dim=0)
+        imgs = torch.cat([x1, x2], dim=0)
+        loss, losses_tasks = self.ssl_loss_val(rot_p, rots, contrastive1_p, contrastive2_p, imgs_recon, imgs)
 
-        self.log("val/l1_loss", loss, batch_size=batch_size, sync_dist=True)
+        self.log("val/total_loss", loss, batch_size=batch_size, sync_dist=True)
+        self.log("val/rot_loss", losses_tasks[0], batch_size=batch_size, sync_dist=True)
+        self.log("val/contrast_loss", losses_tasks[1], batch_size=batch_size, sync_dist=True)
+        self.log("val/recon_loss", losses_tasks[2], batch_size=batch_size, sync_dist=True)
 
-        return {"val_loss": loss, "val_number": batch_size}
+        return {"val_total_loss": loss, 
+                "val_rot_loss": losses_tasks[0],
+                "val_contrast_loss": losses_tasks[1],
+                "val_recon_loss": losses_tasks[2],
+                "val_number": batch_size}
 
     def validation_epoch_end(self, outputs):
-        val_loss, num_items = 0, 0
+        val_total_loss, val_rot_loss, val_contrast_loss, val_recon_loss, num_items = 0., 0., 0., 0., 0
         for output in outputs:
-            val_loss += output["val_loss"].sum().item()
+            val_total_loss += output["val_total_loss"].sum().item()
+            val_rot_loss += output["val_rot_loss"].sum().item()
+            val_contrast_loss += output["val_contrast_loss"].sum().item()
+            val_recon_loss += output["val_recon_loss"].sum().item()
             num_items += output["val_number"]
-        mean_val_loss = torch.tensor(val_loss / len(outputs))
-        self.log(
-            "val/l1_loss_avg", mean_val_loss, sync_dist=True,
-        )
+        mean_val_total_loss = torch.tensor(val_total_loss / len(outputs))
+        mean_val_rot_loss = torch.tensor(val_rot_loss / len(outputs))
+        mean_val_contrast_loss = torch.tensor(val_contrast_loss / len(outputs))
+        mean_val_recon_loss = torch.tensor(val_recon_loss / len(outputs))
+        
+        self.log("val/total_loss_avg", mean_val_total_loss, sync_dist=True)
+        self.log("val/rot_loss_avg", mean_val_rot_loss, sync_dist=True)
+        self.log("val/contrast_loss_avg", mean_val_contrast_loss, sync_dist=True)
+        self.log("val/recon_loss_avg", mean_val_recon_loss, sync_dist=True)
 
         self.logger.log_hyperparams(
             params={
                 "model": self.model_name,
                 **self.model_dict,
-                # "data": self.trainer.datamodule.json_path,
-                # "ds_ratio": self.trainer.datamodule.downsample_ratio,
                 "batch_size": self.trainer.datamodule.batch_size,
                 "distribution": self.trainer.datamodule.dist,
-                # "benchmark": self.trainer.benchmark,
                 "max_epochs": self.trainer.max_epochs,
                 "precision": self.trainer.precision,
             },
-            metrics={"l1_loss": mean_val_loss},
+            metrics={"total_loss": mean_val_total_loss},
         )
 
 

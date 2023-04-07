@@ -12,7 +12,7 @@ trainer:
   callbacks:
       - class_path: pytorch_lightning.callbacks.ModelCheckpoint
         init_args:
-          filename: vitsimmim_base_p16_m0.75_btcv24
+          filename: best
           monitor: val/l1_loss_avg
           mode: min
           # save_last: true

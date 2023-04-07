@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Pretrained_NoExtra
-      version: swinsimmim_base_m0.75_v0
+      version: swin_unetr_origin_ssl_v0000
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
