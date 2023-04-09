@@ -52,8 +52,8 @@ trainer:
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
   log_every_n_steps: 5
-  # strategy: ddp
-  sync_batchnorm: false
+  strategy: ddp
+  sync_batchnorm: true
   precision: 16
   enable_model_summary: true
   # weights_summary: top
@@ -106,7 +106,7 @@ data:
     batch_size: 4
     val_batch_size: 1
     num_workers: 8
-    dist: false
+    dist: true
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
