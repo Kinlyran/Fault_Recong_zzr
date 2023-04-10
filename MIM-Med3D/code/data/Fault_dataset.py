@@ -93,7 +93,7 @@ class Fault(Dataset):
         self.root_dir = root_dir
         self.split = split
         self.is_ssl = is_ssl
-        self.base_transform = Normalize(min_value=-46924.76953125, max_value=55077.2109375)
+        self.base_transform = Normalize(min_value=-40778.828125, max_value=52801.55078125)
         if not is_ssl:
             self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                         RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),

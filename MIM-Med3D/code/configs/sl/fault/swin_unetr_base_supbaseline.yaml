@@ -102,8 +102,8 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
-    real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/crop
-    # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
+    real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/labeled_real_data/crop
+    simulate_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault//simulate_data
     is_ssl: false
     batch_size: 2
     val_batch_size: 1
