@@ -53,7 +53,10 @@ trainer:
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
   log_every_n_steps: 5
-  strategy: ddp
+  strategy:
+    class_path: pytorch_lightning.strategies.DDPStrategy
+    init_args: 
+      find_unused_parameters: false
   sync_batchnorm: true
   precision: 16
   enable_model_summary: true
@@ -103,7 +106,7 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/labeled_real_data/crop
-    simulate_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault//simulate_data
+    simulate_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/simulate_data
     is_ssl: false
     batch_size: 2
     val_batch_size: 1
