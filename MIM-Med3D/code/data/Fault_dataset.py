@@ -36,13 +36,14 @@ class Fault_Simulate(Dataset):
                  split,):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
                                 RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
                                 NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
+        self.val_transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
         self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
 
     def __len__(self):
@@ -59,9 +60,9 @@ class Fault_Simulate(Dataset):
                     'label': torch.from_numpy(fault).unsqueeze(0),
                     'image_name': self.data_lst[index]}
         if self.split == 'train':
-            return self.transform(output)
+            return self.train_transform(output)
         elif self.split == 'val':
-            return output
+            return self.val_transform(output)
 
 
 class Fault(Dataset):
@@ -71,13 +72,14 @@ class Fault(Dataset):
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
                                 RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
                                 NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
+        self.val_transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -100,16 +102,16 @@ class Fault(Dataset):
         # mask = np.squeeze(mask,0)
         f.close()
         if mask is None:
-            return {'image': torch.from_numpy(image).unsqueeze(0),
-                    'image_name': self.data_lst[index]}
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
         elif self.split == 'train':
-            return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
+            return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
         elif self.split == 'val':
-            return {'image': torch.from_numpy(image).unsqueeze(0),
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
-                    'image_name': self.data_lst[index]}
+                    'image_name': self.data_lst[index]})
 
 class Fault_Simple(Dataset):
     def __init__(self, root_dir):
