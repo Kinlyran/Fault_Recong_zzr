@@ -35,7 +35,13 @@ class SimMIMtrainer(pl.LightningModule):
         batch_size = pred_pixel_values.shape[0]
         loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
 
-        self.log("train/l1_loss", loss, batch_size=batch_size, sync_dist=True)
+        self.log("train/l1_loss", loss, 
+                batch_size=batch_size,
+                on_step=True,
+                on_epoch=False,
+                prog_bar=True,
+                logger=True,
+                sync_dist=True)
 
         return {"loss": loss}
 
@@ -46,7 +52,13 @@ class SimMIMtrainer(pl.LightningModule):
         batch_size = pred_pixel_values.shape[0]
         loss = self.recon_loss(pred_pixel_values, patches[batch_range, masked_indices])
 
-        self.log("val/l1_loss", loss, batch_size=batch_size, sync_dist=True)
+        self.log("val/l1_loss", loss, 
+                batch_size=batch_size,
+                on_step=True,
+                on_epoch=False,
+                prog_bar=True,
+                logger=True,
+                sync_dist=True)
 
         return {"val_loss": loss, "val_number": batch_size}
 
@@ -58,7 +70,12 @@ class SimMIMtrainer(pl.LightningModule):
         mean_val_loss = torch.tensor(val_loss / len(outputs))
 
         self.log(
-            "val/l1_loss_avg", mean_val_loss, sync_dist=True,
+            "val/l1_loss_avg", mean_val_loss, 
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True
         )
         self.logger.log_hyperparams(
             params={

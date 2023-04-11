@@ -12,7 +12,7 @@ import data
 
 
 class SwinUnetr_trainer(pl.LightningModule):
-    """Pretraining on 3D Imaging with Masked Auto Encoder"""
+    """Pretraining on 3D Imaging with Swin-UNETR Origin ssl tasks"""
 
     def __init__(
         self, model_dict: dict, train_batch_size, val_batch_size
@@ -45,10 +45,10 @@ class SwinUnetr_trainer(pl.LightningModule):
         imgs = torch.cat([x1, x2], dim=0)
         loss, losses_tasks = self.ssl_loss_train(rot_p, rots, contrastive1_p, contrastive2_p, imgs_recon, imgs)
 
-        self.log("train/total_loss", loss, batch_size=batch_size, sync_dist=True)
-        self.log("train/rot_loss", losses_tasks[0], batch_size=batch_size, sync_dist=True)
-        self.log("train/contrast_loss", losses_tasks[1], batch_size=batch_size, sync_dist=True)
-        self.log("train/recon_loss", losses_tasks[2], batch_size=batch_size, sync_dist=True)
+        self.log("train/total_loss", loss, batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("train/rot_loss", losses_tasks[0], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("train/contrast_loss", losses_tasks[1], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("train/recon_loss", losses_tasks[2], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
@@ -67,10 +67,10 @@ class SwinUnetr_trainer(pl.LightningModule):
         imgs = torch.cat([x1, x2], dim=0)
         loss, losses_tasks = self.ssl_loss_val(rot_p, rots, contrastive1_p, contrastive2_p, imgs_recon, imgs)
 
-        self.log("val/total_loss", loss, batch_size=batch_size, sync_dist=True)
-        self.log("val/rot_loss", losses_tasks[0], batch_size=batch_size, sync_dist=True)
-        self.log("val/contrast_loss", losses_tasks[1], batch_size=batch_size, sync_dist=True)
-        self.log("val/recon_loss", losses_tasks[2], batch_size=batch_size, sync_dist=True)
+        self.log("val/total_loss", loss, batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/rot_loss", losses_tasks[0], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/contrast_loss", losses_tasks[1], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/recon_loss", losses_tasks[2], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
 
         return {"val_total_loss": loss, 
                 "val_rot_loss": losses_tasks[0],
@@ -91,10 +91,10 @@ class SwinUnetr_trainer(pl.LightningModule):
         mean_val_contrast_loss = torch.tensor(val_contrast_loss / len(outputs))
         mean_val_recon_loss = torch.tensor(val_recon_loss / len(outputs))
         
-        self.log("val/total_loss_avg", mean_val_total_loss, sync_dist=True)
-        self.log("val/rot_loss_avg", mean_val_rot_loss, sync_dist=True)
-        self.log("val/contrast_loss_avg", mean_val_contrast_loss, sync_dist=True)
-        self.log("val/recon_loss_avg", mean_val_recon_loss, sync_dist=True)
+        self.log("val/total_loss_avg", mean_val_total_loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/rot_loss_avg", mean_val_rot_loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/contrast_loss_avg", mean_val_contrast_loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val/recon_loss_avg", mean_val_recon_loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
 
         self.logger.log_hyperparams(
             params={
