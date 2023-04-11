@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Pretrained_NoExtra
+      name: Fault_Pretrained_Extra
       version: vitmae_base_m0.75
       default_hp_metric: false
   # checkpoint_callback: null
@@ -101,6 +101,7 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 4
     val_batch_size: 1
     num_workers: 8
