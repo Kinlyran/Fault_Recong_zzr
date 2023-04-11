@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Baseline
-      version: unetr_base_supbaseline_p16_fault
+      version: unetr_base_supbaseline_p16_v01
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -30,7 +30,7 @@ trainer:
   num_nodes: 1
   devices: -1
   accelerator: gpu
-  auto_select_gpus: false
+  # auto_select_gpus: false
   tpu_cores: null
   ipus: null
   # log_gpu_memory: null
