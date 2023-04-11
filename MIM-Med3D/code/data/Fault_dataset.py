@@ -25,41 +25,24 @@ from monai.transforms import (
     Spacingd,
     RandRotate90d,
     RandRotated,
+    NormalizeIntensityd,
     ToTensord,
 )
-
-
-class Normalize:
-    """
-    Apply simple min-max scaling to a given input tensor, i.e. shrinks the range of the data in a fixed range of [-1, 1].
-    """
-
-    def __init__(self, min_value, max_value, **kwargs):
-        assert max_value > min_value
-        self.min_value = min_value
-        self.value_range = max_value - min_value
-
-    def __call__(self, m):
-        norm_0_1 = (m - self.min_value) / self.value_range
-        return np.clip(2 * norm_0_1 - 1, -1, 1)
 
 
 class Fault_Simulate(Dataset):
     def __init__(self,
                  root_dir,
-                 split,
-                 is_ssl=False):
+                 split,):
         self.root_dir = root_dir
         self.split = split
-        self.is_ssl = is_ssl
-        self.base_transform = Normalize(min_value=-7, max_value=7)
-        if not is_ssl:
-            self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                        RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
-                                        # RandRotated(keys=["image", "label"], prob=0.10, )
-                                        ])
+        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+                                    # RandRotated(keys=["image", "label"], prob=0.10, )
+                                    ])
         self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
 
     def __len__(self):
@@ -72,14 +55,11 @@ class Fault_Simulate(Dataset):
         # reshape into 128 * 128 * 128
         seis = seis.reshape((128, 128, 128))
         fault = fault.reshape((128, 128, 128))
-        seis = self.base_transform(seis)
         output = {'image': torch.from_numpy(seis).unsqueeze(0),
                     'label': torch.from_numpy(fault).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        if self.split == 'train' and not self.is_ssl:
+        if self.split == 'train':
             return self.transform(output)
-        elif self.split == 'train' and self.is_ssl:
-            return output
         elif self.split == 'val':
             return output
 
@@ -88,18 +68,16 @@ class Fault(Dataset):
     def __init__(self, 
                 root_dir: str, 
                 split: str = 'train',
-                is_ssl=False
                  ):
         self.root_dir = root_dir
         self.split = split
-        self.is_ssl = is_ssl
-        self.base_transform = Normalize(min_value=-40778.828125, max_value=52801.55078125)
-        if not is_ssl:
-            self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                        RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                        # RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1))
-                                        ])
+        self.transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+                                    # RandRotated(keys=["image", "label"], prob=0.10, )
+                                    ])
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -115,8 +93,6 @@ class Fault(Dataset):
     def __getitem__(self, index):
         f = h5py.File(os.path.join(self.root_dir, self.split, self.data_lst[index]),'r') 
         image = f['raw'][:]
-        # apply base transform
-        image = self.base_transform(image)
         if 'label' in f.keys():
             mask = f['label'][:]
         else:
@@ -126,14 +102,10 @@ class Fault(Dataset):
         if mask is None:
             return {'image': torch.from_numpy(image).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        elif self.split == 'train' and not self.is_ssl:
+        elif self.split == 'train':
             return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
-        elif self.split == 'train' and self.is_ssl:
-            return {'image': torch.from_numpy(image).unsqueeze(0),
-                    'label': torch.from_numpy(mask).unsqueeze(0),
-                    'image_name': self.data_lst[index]}
         elif self.split == 'val':
             return {'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
@@ -143,15 +115,14 @@ class Fault_Simple(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.data_lst = os.listdir(self.root_dir)
+        self.transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
     def __len__(self):
         return len(self.data_lst)
     
     def __getitem__(self, index):
         image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
-        base_transform = Normalize(min_value=image.min(), max_value=image.max())
-        image = base_transform(image)
-        return {'image': torch.from_numpy(image).unsqueeze(0),
-                'image_name': self.data_lst[index]}
+        return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
+                                'image_name': self.data_lst[index]})
 
 
 
@@ -160,7 +131,6 @@ class FaultDataset(pl.LightningDataModule):
     def __init__(
         self,
         real_data_root_dir: str,
-        is_ssl,
         simulate_data_root_dir=None,
         test_data_root_dir=None,
         batch_size: int = 1,
@@ -174,7 +144,6 @@ class FaultDataset(pl.LightningDataModule):
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
         self.test_data_root_dir = test_data_root_dir
-        self.is_ssl = is_ssl
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
         self.num_workers = num_workers
@@ -189,19 +158,19 @@ class FaultDataset(pl.LightningDataModule):
         if stage in [None, "fit"]:
             if self.simulate_data_root_dir is not None:
                 self.train_ds = ConcatDataset(
-                    [Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl),
-                    Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl)]
+                    [Fault(root_dir=self.real_data_root_dir, split='train'),
+                    Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train')]
                     )
             else:
-                self.train_ds = Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl)
-            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+                self.train_ds = Fault(root_dir=self.real_data_root_dir, split='train')
+            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val')
           
 
         if stage in [None, "test"]:
             if self.test_data_root_dir is not None:
                 self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
             else:
-                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val')
 
     def train_dataloader(self):
         if self.dist:
