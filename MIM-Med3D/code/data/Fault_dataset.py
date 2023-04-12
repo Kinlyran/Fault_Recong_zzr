@@ -43,7 +43,7 @@ class Fault_Simulate(Dataset):
                                 NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
-        self.val_transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+        self.val_transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
         self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
 
     def __len__(self):
@@ -76,10 +76,10 @@ class Fault(Dataset):
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
                                 RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
-                                NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+                                NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
-        self.val_transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+        self.val_transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
@@ -117,7 +117,7 @@ class Fault_Simple(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.data_lst = os.listdir(self.root_dir)
-        self.transform = NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
+        self.transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
     def __len__(self):
         return len(self.data_lst)
     
@@ -139,8 +139,6 @@ class FaultDataset(pl.LightningDataModule):
         val_batch_size: int = 1,
         num_workers: int = 4,
         dist: bool = False,
-        json_path = None,
-        downsample_ratio=None
     ):
         super().__init__()
         self.real_data_root_dir = real_data_root_dir
@@ -150,8 +148,6 @@ class FaultDataset(pl.LightningDataModule):
         self.val_batch_size = val_batch_size
         self.num_workers = num_workers
         self.dist = dist
-        self.json_path = json_path
-        self.downsample_ratio = downsample_ratio
 
 
 
@@ -232,9 +228,14 @@ class FaultDataset(pl.LightningDataModule):
 
         
 if __name__ == '__main__':
-    data = FaultDataset(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop',
-                        batch_size=4)
+    data = FaultDataset(real_data_root_dir='/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop',
+        simulate_data_root_dir=None,
+        test_data_root_dir=None,
+        batch_size=4,
+        val_batch_size=1,
+        num_workers= 4,
+        dist=False,)
     data.setup()
     for item in data.train_dataloader():
-        print(item)
-        # break
+        print(item['image'])
+        break
