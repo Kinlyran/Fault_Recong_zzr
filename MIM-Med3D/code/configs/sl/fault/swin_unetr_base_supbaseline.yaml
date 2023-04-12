@@ -30,7 +30,7 @@ trainer:
   num_nodes: 1
   devices: -1
   accelerator: gpu
-  auto_select_gpus: false
+  # auto_select_gpus: false
   tpu_cores: null
   ipus: null
   # log_gpu_memory: null
@@ -53,11 +53,8 @@ trainer:
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
   log_every_n_steps: 5
-  strategy:
-    class_path: pytorch_lightning.strategies.DDPStrategy
-    init_args: 
-      find_unused_parameters: false
-  sync_batchnorm: true
+  # strategy: ddp
+  sync_batchnorm: false
   precision: 16
   enable_model_summary: true
   # weights_summary: top
@@ -105,13 +102,12 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
-    real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/labeled_real_data/crop
-    simulate_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/simulate_data
-    is_ssl: false
+    real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
-    dist: true
+    dist: false
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
