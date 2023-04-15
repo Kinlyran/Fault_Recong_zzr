@@ -119,5 +119,7 @@ mmseg/.mim
 # Pytorch
 *.pth
 
+# add
 cache/
 test_results/
+output/
