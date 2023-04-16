@@ -101,7 +101,7 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
-    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
+    # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
@@ -110,7 +110,7 @@ optimizer:
   class_path: torch.optim.AdamW
   init_args:
     lr: 0.0003
-    weight_decay: 0.00001
+    weight_decay: 0.0
 lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
   init_args:
