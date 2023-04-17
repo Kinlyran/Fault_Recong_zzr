@@ -84,7 +84,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=2,
+    samples_per_gpu=4,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -105,7 +105,7 @@ data = dict(
         ann_dir='val/ann',
         pipeline=test_pipeline))
 log_config = dict(
-    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=True)])
+    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=False)])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
@@ -130,8 +130,8 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='EpochBasedRunner', max_epochs=20)
-checkpoint_config = dict(by_epoch=True, interval=1, max_keep_ckpts=2)
-evaluation = dict(interval=1, metric='mDice', pre_eval=True, save_best='mDice')
+runner = dict(type='IterBasedRunner', max_iters=160000)
+checkpoint_config = dict(by_epoch=False, interval=16000, max_keep_ckpts=2)
+evaluation = dict(interval=16000, metric='mDice', pre_eval=True, save_best='mDice')
 auto_resume = False
 workflow = [('train', 1)]

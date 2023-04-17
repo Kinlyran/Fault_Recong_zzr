@@ -22,11 +22,11 @@ def main():
             # label = label.squeeze(0)
         num_id = int(item.split('.')[0])
         for i in range(128):
-            image_slice = image_cube[:,i,:]
+            image_slice = image_cube[:,:,i]
             # [0-1] scale
             image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
             image_slice = image_slice * 255
-            label_slice = label[:,i,:]
+            label_slice = label[:,:,i]
             cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
             cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
             
@@ -41,11 +41,11 @@ def main():
             # label = label.squeeze(0)
         num_id = int(item.split('.')[0])
         for i in range(128):
-            image_slice = image_cube[:,i,:]
+            image_slice = image_cube[:,:,i]
             # [0-1] scale
             image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
             image_slice = image_slice * 255
-            label_slice = label[:,i,:]
+            label_slice = label[:,:,i]
             cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
             cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
     
