@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Pretrained_Extra
+      name: Fault_Pretrained_NoExtra
       version: vitsimmim_base_m0.75
       default_hp_metric: false
   # checkpoint_callback: null
@@ -51,7 +51,7 @@ trainer:
   limit_predict_batches: 1.0
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
-  log_every_n_steps: 5
+  log_every_n_steps: 1
   # strategy: ddp
   sync_batchnorm: false
   precision: 16
@@ -98,8 +98,8 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
-    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
-    batch_size: 4
+    # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
+    batch_size: 2
     val_batch_size: 1
     num_workers: 8
     dist: false
@@ -107,7 +107,7 @@ optimizer:
   class_path: torch.optim.AdamW
   init_args:
     lr: 0.0003
-    weight_decay: 0.00001
+    weight_decay: 0.0
 lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
   init_args:
