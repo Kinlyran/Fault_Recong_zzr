@@ -10,7 +10,7 @@ def main(root_dir, save_dir):
         os.makedirs(os.path.join(save_dir, "image"))
         os.makedirs(os.path.join(save_dir, "ann"))
         
-    for idx in range(172):
+    for idx in range(173):
         feature = np.fromfile(os.path.join(root_dir,f'GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50_Feature{str(idx)}.bin'), dtype=np.double).reshape(128, 128)
         feature = (feature - feature.min()) / (feature.max() - feature.min())
         feature = (255 * feature).astype(np.uint8)
@@ -21,7 +21,7 @@ def main(root_dir, save_dir):
         cv2.imwrite(feature_save_path, feature)
         cv2.imwrite(label_save_path, label)
     # split data
-    all_data = [str(i) for i in range(172)]
+    all_data = [str(i) for i in range(173)]
     ratio = 0.9
     train_lst = random.sample(all_data, int(ratio * len(all_data)))
     val_lst = [item for item in all_data if item not in train_lst]
