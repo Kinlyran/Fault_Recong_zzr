@@ -9,7 +9,7 @@ import numpy as np
 from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
 # from monai.networks.layers import Conv
 from monai.networks.nets import ViT
-from mmcv.runner import load_checkpoint
+from mmengine.runner import load_checkpoint
 from timm.models.layers import DropPath, trunc_normal_
 from monai.utils import ensure_tuple_rep, look_up_option, optional_import
 import math

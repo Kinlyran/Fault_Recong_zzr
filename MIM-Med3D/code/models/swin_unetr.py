@@ -25,7 +25,7 @@ from monai.networks.blocks import MLPBlock as Mlp
 from monai.networks.blocks import PatchEmbed, UnetOutBlock, UnetrBasicBlock, UnetrUpBlock
 from monai.networks.layers import DropPath, trunc_normal_
 from monai.utils import ensure_tuple_rep, look_up_option, optional_import
-from mmcv.runner import load_checkpoint
+from mmengine.runner import load_checkpoint
 
 rearrange, _ = optional_import("einops", name="rearrange")
 

@@ -10,7 +10,7 @@ from monai.networks.blocks.unetr_block import (
 )
 from monai.networks.nets.vit import ViT
 from monai.utils import ensure_tuple_rep
-from mmcv.runner import load_checkpoint
+from mmengine.runner import load_checkpoint
 
 
 class UNETR(nn.Module):
