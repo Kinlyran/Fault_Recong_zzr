@@ -55,7 +55,7 @@ model = dict(
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
 data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
-img_norm_cfg = dict(mean=0, std=1, to_rgb=False)
+img_norm_cfg = dict(mean=126.68, std=41.92, to_rgb=False)
 # crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged', to_float32=True, simple_standard=False),
