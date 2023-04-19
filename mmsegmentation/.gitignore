@@ -120,4 +120,4 @@ mmseg/.mim
 *.pth
 
 # add
-./output
+output/
