@@ -61,7 +61,7 @@ class Fault_Simulate(Dataset):
                     'image_name': self.data_lst[index]}
         if self.split == 'train':
             return self.train_transform(output)
-        elif self.split == 'val':
+        elif self.split == 'validation':
             return self.val_transform(output)
 
 
@@ -132,7 +132,7 @@ class Fault_Simple(Dataset):
 class FaultDataset(pl.LightningDataModule):
     def __init__(
         self,
-        real_data_root_dir: str,
+        real_data_root_dir=None,
         simulate_data_root_dir=None,
         test_data_root_dir=None,
         batch_size: int = 1,
@@ -155,12 +155,15 @@ class FaultDataset(pl.LightningDataModule):
         # Assign Train split(s) for use in Dataloaders
         if stage in [None, "fit"]:
             train_ds = []
+            valid_ds = []
             if self.simulate_data_root_dir is not None:
                 train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train'))
+                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation'))
             if self.real_data_root_dir is not None:
                 train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train'))
+                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='validation'))
             self.train_ds = ConcatDataset(train_ds)
-            self.valid_ds = Fault(root_dir=self.real_data_root_dir, split='val')
+            self.valid_ds = ConcatDataset(valid_ds)
           
 
         if stage in [None, "test"]:
