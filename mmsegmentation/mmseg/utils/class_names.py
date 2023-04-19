@@ -416,7 +416,13 @@ def lip_palette():
         'Dress', 'Coat', 'Socks', 'Pants', 'Jumpsuits', 'Scarf', 'Skirt',
         'Face', 'Left-arm', 'Right-arm', 'Left-leg', 'Right-leg', 'Left-shoe',
         'Right-shoe'
-    ]
+    ]   
+
+def fault_classes():
+    return ['background', 'Fault' ]
+
+def fault_palette():
+    return [[120, 120, 120], [6, 230, 230]]
 
 
 dataset_aliases = {
@@ -435,7 +441,8 @@ dataset_aliases = {
     'stare': ['stare', 'STARE'],
     'lip': ['LIP', 'lip'],
     'mapillary_v1': ['mapillary_v1'],
-    'mapillary_v2': ['mapillary_v2']
+    'mapillary_v2': ['mapillary_v2'],
+    'fault': ['fault']
 }
 
 

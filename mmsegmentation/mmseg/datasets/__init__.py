@@ -34,7 +34,6 @@ from .transforms import (CLAHE, AdjustGamma, BioMedical3DPad,
                          ResizeToMultiple, RGB2Gray, SegRescale)
 from .voc import PascalVOCDataset
 from .fault import FaultDataset
-
 # yapf: enable
 __all__ = [
     'BaseSegDataset', 'BioMedical3DRandomCrop', 'BioMedical3DRandomFlip',
