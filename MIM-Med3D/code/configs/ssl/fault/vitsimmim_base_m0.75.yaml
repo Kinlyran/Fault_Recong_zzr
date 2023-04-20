@@ -101,12 +101,12 @@ data:
     simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 32
     val_batch_size: 1
-    num_workers: 8
+    num_workers: 16
     dist: false
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
-    lr: 0.0001
+    lr: 0.00001
     weight_decay: 0.0
 lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
