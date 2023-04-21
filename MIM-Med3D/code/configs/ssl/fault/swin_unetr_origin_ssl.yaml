@@ -92,6 +92,7 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
+    is_ssl: true
     real_data_root_dir: /root/paddlejob/workspace/env_run/output/dataset/Fault/crop
     # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     is_ssl: true

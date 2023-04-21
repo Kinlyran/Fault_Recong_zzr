@@ -102,6 +102,7 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
+    is_ssl: false
     real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
     simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 2

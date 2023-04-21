@@ -35,7 +35,7 @@ trainer:
   # log_gpu_memory: null
   # progress_bar_refresh_rate: null
   enable_progress_bar: true
-  overfit_batches: 0.0
+  overfit_batches: 1
   track_grad_norm: -1
   check_val_every_n_epoch: 2
   fast_dev_run: false
@@ -100,16 +100,17 @@ model:
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
-    real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    is_ssl: true
+    # real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
     simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
     batch_size: 32
     val_batch_size: 1
-    num_workers: 16
+    num_workers: 0
     dist: false
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
-    lr: 0.00001
+    lr: 0.0001
     weight_decay: 0.0
 lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR

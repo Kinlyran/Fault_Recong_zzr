@@ -33,9 +33,11 @@ from monai.transforms import (
 class Fault_Simulate(Dataset):
     def __init__(self,
                  root_dir,
-                 split,):
+                 split,
+                 is_ssl=False):
         self.root_dir = root_dir
         self.split = split
+        self.is_ssl = is_ssl
         self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
@@ -59,8 +61,10 @@ class Fault_Simulate(Dataset):
         output = {'image': torch.from_numpy(seis).unsqueeze(0),
                     'label': torch.from_numpy(fault).unsqueeze(0),
                     'image_name': self.data_lst[index]}
-        if self.split == 'train':
+        if self.split == 'train' and not self.is_ssl:
             return self.train_transform(output)
+        elif self.split == 'train' and self.is_ssl:
+            return self.val_transform(output)
         elif self.split == 'validation':
             return self.val_transform(output)
 
@@ -69,9 +73,10 @@ class Fault(Dataset):
     def __init__(self, 
                 root_dir: str, 
                 split: str = 'train',
-                 ):
+                is_ssl=False):
         self.root_dir = root_dir
         self.split = split
+        self.is_ssl = is_ssl
         self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
@@ -104,10 +109,15 @@ class Fault(Dataset):
         if mask is None:
             return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'image_name': self.data_lst[index]})
-        elif self.split == 'train':
+        elif self.split == 'train' and not self.is_ssl:
             return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
+        elif self.split == 'train' and self.is_ssl:
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
+
         elif self.split == 'val':
             return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
@@ -132,6 +142,7 @@ class Fault_Simple(Dataset):
 class FaultDataset(pl.LightningDataModule):
     def __init__(
         self,
+        is_ssl=False,
         real_data_root_dir=None,
         simulate_data_root_dir=None,
         test_data_root_dir=None,
@@ -141,6 +152,7 @@ class FaultDataset(pl.LightningDataModule):
         dist: bool = False,
     ):
         super().__init__()
+        self.is_ssl = is_ssl
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
         self.test_data_root_dir = test_data_root_dir
@@ -157,11 +169,11 @@ class FaultDataset(pl.LightningDataModule):
             train_ds = []
             valid_ds = []
             if self.simulate_data_root_dir is not None:
-                train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train'))
-                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation'))
+                train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl))
+                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
             if self.real_data_root_dir is not None:
-                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train'))
-                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val'))
+                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl))
+                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl))
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
           
@@ -170,7 +182,7 @@ class FaultDataset(pl.LightningDataModule):
             if self.test_data_root_dir is not None:
                 self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
             else:
-                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val')
+                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
 
     def train_dataloader(self):
         if self.dist:
@@ -226,18 +238,3 @@ class FaultDataset(pl.LightningDataModule):
             shuffle=False,
             drop_last=False,
         )
-
-
-        
-if __name__ == '__main__':
-    data = FaultDataset(real_data_root_dir='/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop',
-        simulate_data_root_dir=None,
-        test_data_root_dir=None,
-        batch_size=4,
-        val_batch_size=1,
-        num_workers= 4,
-        dist=False,)
-    data.setup()
-    for item in data.train_dataloader():
-        print(item['image'])
-        break
