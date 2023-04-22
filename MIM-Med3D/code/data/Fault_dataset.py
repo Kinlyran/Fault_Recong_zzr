@@ -91,7 +91,7 @@ class Fault(Dataset):
         elif self.split == 'val':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'val'))
         else:
-            raise ValueError('Only support split = train or val')
+            raise ValueError('Only support split = train/val')
         
     
     def __len__(self):
