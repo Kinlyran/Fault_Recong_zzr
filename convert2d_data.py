@@ -4,8 +4,8 @@ import os
 from tqdm import tqdm
 
 def main():
-    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop'
-    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
+    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop'
+    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
     if not os.path.exists(dst_path):
         os.makedirs(os.path.join(dst_path, 'train', 'image'))
         os.makedirs(os.path.join(dst_path, 'train', 'ann'))
