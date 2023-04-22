@@ -102,6 +102,7 @@ class Fault(Dataset):
         image = f['raw'][:]
         if 'label' in f.keys():
             mask = f['label'][:]
+            mask = mask.astype(np.float32)
         else:
             mask = None
         # mask = np.squeeze(mask,0)
@@ -145,6 +146,7 @@ class FaultDataset(pl.LightningDataModule):
         is_ssl=False,
         real_data_root_dir=None,
         simulate_data_root_dir=None,
+        public_data_root_dir=None,
         test_data_root_dir=None,
         batch_size: int = 1,
         val_batch_size: int = 1,
@@ -155,6 +157,7 @@ class FaultDataset(pl.LightningDataModule):
         self.is_ssl = is_ssl
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
+        self.public_data_root_dir = public_data_root_dir
         self.test_data_root_dir = test_data_root_dir
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
@@ -170,10 +173,14 @@ class FaultDataset(pl.LightningDataModule):
             valid_ds = []
             if self.simulate_data_root_dir is not None:
                 train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl))
-                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
+                # valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
             if self.real_data_root_dir is not None:
                 train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl))
                 valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl))
+            if self.public_data_root_dir is not None:
+                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl))
+                # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl))
+                
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
           
