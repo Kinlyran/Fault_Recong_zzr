@@ -6,48 +6,52 @@ from tqdm import tqdm
 import random
 
 
-
-def dat2h5():
-    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data'
-    seis_data = segyio.tools.cube(os.path.join(data_path, 'mig_fill.sgy'))
-    # precess missing value
-    seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
-    # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
-    label = segyio.tools.cube(os.path.join(data_path, 'label_fill.sgy'))
-    label.astype(np.uint8)
-    print(f'min value is {seis_data.min()}, max value is {seis_data.max()}')
-
-    slice_builder = SliceBuilder(raw_dataset=seis_data,
+def get_slice(seis, fault, save_path):
+    slice_builder = SliceBuilder(raw_dataset=seis,
                                  label_dataset=None,
                                  weight_dataset=None,
                                  patch_shape=(128, 128, 128),
                                  stride_shape=(128, 128, 128))
     crop_cubes_pos = slice_builder.raw_slices
-    train_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/train'
-    val_save_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop/val'
-    if not os.path.exists(train_save_path):
-        os.makedirs(train_save_path)
-    if not os.path.exists(val_save_path):
-        os.makedirs(val_save_path)
-    split_ratio = 0.9
-    train_split = random.sample([i for i in range(len(crop_cubes_pos))], int(split_ratio * len(crop_cubes_pos)))
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     for i, pos in enumerate(crop_cubes_pos):
         x_range = pos[0]
         y_range = pos[1]
         z_range = pos[2]
         print(f'Processing num {i} slice')
-        seis_cube_crop = seis_data[x_range, y_range, z_range]
-        label_cube_crop = label[x_range, y_range, z_range]
-        if i in train_split:
-            f = h5py.File(os.path.join(train_save_path, f'{i}.h5'),'w') 
+        seis_cube_crop = seis[x_range, y_range, z_range]
+        label_cube_crop = fault[x_range, y_range, z_range]
+        if np.sum(label_cube_crop) >= 0.03 * (128 ** 3):
+            f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
             f['raw'] = seis_cube_crop
             f['label'] = label_cube_crop
             f.close() 
-        else:
-            f = h5py.File(os.path.join(val_save_path, f'{i}.h5'),'w') 
-            f['raw'] = seis_cube_crop
-            f['label'] = label_cube_crop
-            f.close() 
+        
+
+
+def dat2h5():
+    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
+    # seis_data = segyio.tools.cube(os.path.join(data_path, 'mig_fill.sgy'))
+    # precess missing value
+    # seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
+    # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
+    # label = segyio.tools.cube(os.path.join(data_path, 'label_fill.sgy'))
+    # label.astype(np.uint8)
+    print('loading seis train data')
+    seis_train = np.load(os.path.join(data_path, 'precessed', 'seistrain.npy'))
+    fault_train = np.load(os.path.join(data_path, 'precessed', 'faulttrain.npy'))
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop', 'train'))
+    del seis_train
+    del fault_train
+    
+    print('loading seis val data')
+    seis_val = np.load(os.path.join(data_path, 'precessed','seisval.npy'))
+    fault_val = np.load(os.path.join(data_path, 'precessed', 'faultval.npy'))
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
+    del seis_val
+    del fault_val
+    
 
 class SliceBuilder:
     """

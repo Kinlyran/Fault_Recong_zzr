@@ -2,6 +2,7 @@ import h5py
 import cv2
 import os
 from tqdm import tqdm
+import numpy as np
 
 def main():
     scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop'
@@ -22,13 +23,15 @@ def main():
             # label = label.squeeze(0)
         num_id = int(item.split('.')[0])
         for i in range(128):
-            image_slice = image_cube[:,:,i]
-            # [0-1] scale
-            image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
-            image_slice = image_slice * 255
             label_slice = label[:,:,i]
-            cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
-            cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
+            if np.sum(label_slice) > 0.03 * 128 * 128:
+                image_slice = image_cube[:,:,i]
+                # [0-1] scale
+                image_slice = (image_slice - image_slice.min()) / (image_slice.max() - image_slice.min())
+                image_slice = image_slice * 255
+                
+                cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
+                cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
             
             
     
