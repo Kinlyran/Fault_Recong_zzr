@@ -11,7 +11,7 @@ def get_slice(seis, fault, save_path):
                                  label_dataset=None,
                                  weight_dataset=None,
                                  patch_shape=(128, 128, 128),
-                                 stride_shape=(128, 128, 128))
+                                 stride_shape=(64, 64, 64))
     crop_cubes_pos = slice_builder.raw_slices
     if not os.path.exists(save_path):
         os.makedirs(save_path)
