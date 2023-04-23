@@ -4,7 +4,7 @@ import os
 from tqdm import tqdm
 import numpy as np
 
-def main():
+def main_v0():
     scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop'
     dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
     if not os.path.exists(dst_path):
@@ -52,8 +52,45 @@ def main():
             cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'cube_{num_id}_slice_{i}.png'), image_slice)
             cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'cube_{num_id}_slice_{i}.png'), label_slice)
     
-
+def main_v1():
+    scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed'
+    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+    if not os.path.exists(dst_path):
+        os.makedirs(os.path.join(dst_path, 'train', 'image'))
+        os.makedirs(os.path.join(dst_path, 'train', 'ann'))
+        os.makedirs(os.path.join(dst_path, 'val', 'image'))
+        os.makedirs(os.path.join(dst_path, 'val', 'ann'))
+    print('loading seis train data')
+    seis_train = np.load(os.path.join(scr_root_path, 'seistrain.npy'))
+    fault_train = np.load(os.path.join(scr_root_path, 'faulttrain.npy'))
+    assert seis_train.shape == fault_train.shape
+    for i in tqdm(range(seis_train.shape[0])):
+        seis_slice = seis_train[i,:,:]
+        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        fault_slice = fault_train[i,:,:]
+        # convert to gray
+        seis_slice = 255 * seis_slice
+        cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'{i}.png'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
+    del seis_train
+    del fault_train
+    
+    print('loading seis val data')
+    seis_val = np.load(os.path.join(scr_root_path,'seisval.npy'))
+    fault_val = np.load(os.path.join(scr_root_path, 'faultval.npy'))
+    assert seis_val.shape == fault_val.shape
+    seis_val = (seis_val - seis_val.min()) / (seis_val.max() - seis_val.min())
+    for i in tqdm(range(seis_val.shape[0])):
+        seis_slice = seis_val[i,:,:]
+        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        fault_slice = fault_val[i,:,:]
+        # convert to gray
+        seis_slice = 255 * seis_slice
+        cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'{i}.png'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{i}.png'), fault_slice)
+    del seis_val
+    del fault_val
 
 
 if __name__ == '__main__':
-    main()
+    main_v1()

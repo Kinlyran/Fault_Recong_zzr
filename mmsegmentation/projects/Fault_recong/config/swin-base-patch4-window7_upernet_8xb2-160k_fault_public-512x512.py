@@ -66,23 +66,23 @@ model = dict(
         loss_decode=dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.4)),
     train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+    test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
 data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
-    dict(type='LoadAnnotations', reduce_zero_label=False),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
-    # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
+    dict(type='LoadAnnotations'),
+    dict(type='Resize', scale=(3174, 1537), keep_ratio=True),
+    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
     dict(type='PackSegInputs')
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
-    dict(type='LoadAnnotations', reduce_zero_label=False),
+    dict(type='Resize', scale=(3174, 1537), keep_ratio=True),
+    dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
 img_ratios = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
