@@ -3,6 +3,7 @@ import cv2
 import os
 from tqdm import tqdm
 import numpy as np
+import segyio
 
 def main_v0():
     scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop'
@@ -91,6 +92,38 @@ def main_v1():
     del seis_val
     del fault_val
 
+def main_v2():
+    data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data'
+    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
+    if not os.path.exists(dst_path):
+        os.makedirs(os.path.join(dst_path, 'train', 'image'))
+        os.makedirs(os.path.join(dst_path, 'train', 'ann'))
+        os.makedirs(os.path.join(dst_path, 'val', 'image'))
+        os.makedirs(os.path.join(dst_path, 'val', 'ann'))
+    seis_data = segyio.tools.cube(os.path.join(data_root, 'mig_fill.sgy'))
+    # precess missing value
+    # seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
+    # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
+    fault = segyio.tools.cube(os.path.join(data_root, 'label_fill.sgy'))
+    fault = fault.astype(np.uint8)
+    for i in range(673):
+        seis_slice = seis_data[:,:,i]
+        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        fault_slice = fault[:,:,i]
+        # convert to gray
+        seis_slice = 255 * seis_slice
+        cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'{i}.png'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
+    for i in range(673,801):
+        seis_slice = seis_data[:,:,i]
+        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        fault_slice = fault[:,:,i]
+        # convert to gray
+        seis_slice = 255 * seis_slice
+        cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'{i}.png'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{i}.png'), fault_slice)
+        
+    
 
 if __name__ == '__main__':
-    main_v1()
+    main_v2()

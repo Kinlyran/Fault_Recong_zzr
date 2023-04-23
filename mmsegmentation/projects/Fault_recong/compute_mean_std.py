@@ -12,5 +12,5 @@ def main(root_path):
     print(f'std is {np.std(imgs)}')
 
 if __name__ == '__main__':
-    root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+    root_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
     main(root_path)

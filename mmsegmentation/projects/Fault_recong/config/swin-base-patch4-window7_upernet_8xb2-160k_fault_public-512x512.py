@@ -2,8 +2,8 @@ norm_cfg = dict(type='SyncBN', requires_grad=True)
 backbone_norm_cfg = dict(type='LN', requires_grad=True)
 data_preprocessor = dict(
     type='SegDataPreProcessor',
-    mean=125.64,
-    std=37.83,
+    mean=123.39903247308624,
+    std=30.522013498085645,
     bgr_to_rgb=False,
     pad_val=0,
     seg_pad_val=0,
@@ -66,22 +66,22 @@ model = dict(
         loss_decode=dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.4)),
     train_cfg=dict(),
-    test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
+    test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', scale=(3174, 1537), keep_ratio=True),
-    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
+    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
     dict(type='PackSegInputs')
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
-    dict(type='Resize', scale=(3174, 1537), keep_ratio=True),
+    dict(type='Resize', scale=(512, 512), keep_ratio=True),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
