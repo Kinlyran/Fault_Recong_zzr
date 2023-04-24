@@ -7,7 +7,7 @@ import segyio
 
 def main_v0():
     scr_root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop'
-    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+    dst_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
     if not os.path.exists(dst_path):
         os.makedirs(os.path.join(dst_path, 'train', 'image'))
         os.makedirs(os.path.join(dst_path, 'train', 'ann'))
@@ -126,4 +126,4 @@ def main_v2():
     
 
 if __name__ == '__main__':
-    main_v2()
+    main_v0()

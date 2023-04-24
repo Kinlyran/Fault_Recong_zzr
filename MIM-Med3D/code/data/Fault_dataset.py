@@ -173,13 +173,13 @@ class FaultDataset(pl.LightningDataModule):
             valid_ds = []
             if self.simulate_data_root_dir is not None:
                 train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl))
-                # valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
+                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
             if self.real_data_root_dir is not None:
                 train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl))
                 valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl))
             if self.public_data_root_dir is not None:
                 train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl))
-                # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl))
+                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)

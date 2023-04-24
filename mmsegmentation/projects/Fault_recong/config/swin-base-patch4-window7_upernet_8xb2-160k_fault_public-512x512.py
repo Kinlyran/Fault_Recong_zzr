@@ -68,7 +68,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices'
+data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
