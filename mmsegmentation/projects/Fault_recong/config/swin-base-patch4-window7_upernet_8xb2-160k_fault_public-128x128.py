@@ -104,7 +104,7 @@ tta_pipeline = [
 ]
 """
 train_dataloader = dict(
-    batch_size=8,
+    batch_size=16,
     num_workers=4,
     persistent_workers=True,
     sampler=dict(type='InfiniteSampler', shuffle=True),
@@ -115,7 +115,7 @@ train_dataloader = dict(
             img_path='train/image', seg_map_path='train/ann'),
         pipeline=train_pipeline))
 val_dataloader = dict(
-    batch_size=1,
+    batch_size=16,
     num_workers=4,
     persistent_workers=True,
     sampler=dict(type='DefaultSampler', shuffle=False),
