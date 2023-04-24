@@ -7,7 +7,7 @@ data_preprocessor = dict(
     bgr_to_rgb=False,
     pad_val=0,
     seg_pad_val=0,
-    size=(512, 512))
+    size=(128, 128))
 checkpoint_file = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
 model = dict(
     type='EncoderDecoder',
@@ -69,11 +69,11 @@ model = dict(
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
 data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
-crop_size = (512, 512)
+# crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    dict(type='Resize', scale=(128, 128), keep_ratio=True),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
@@ -81,11 +81,12 @@ train_pipeline = [
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    dict(type='Resize', scale=(128, 128), keep_ratio=True),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
 img_ratios = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
+"""
 tta_pipeline = [
     dict(type='LoadImageFromFile', backend_args=None),
     dict(
@@ -101,8 +102,9 @@ tta_pipeline = [
             ], [dict(type='LoadAnnotations')], [dict(type='PackSegInputs')]
         ])
 ]
+"""
 train_dataloader = dict(
-    batch_size=4,
+    batch_size=8,
     num_workers=4,
     persistent_workers=True,
     sampler=dict(type='InfiniteSampler', shuffle=True),
@@ -141,7 +143,7 @@ log_processor = dict(by_epoch=False)
 log_level = 'INFO'
 load_from = None
 resume = False
-tta_model = dict(type='SegTTAModel')
+# tta_model = dict(type='SegTTAModel')
 optimizer = dict(type='AdamW', lr=6e-05, betas=(0.9, 0.999), weight_decay=0.01)
 optim_wrapper = dict(
     type='OptimWrapper',
