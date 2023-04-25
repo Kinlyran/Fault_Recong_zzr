@@ -3,6 +3,20 @@ import numpy as np
 import glob
 import cv2
 import random
+import shutil
+
+def random_sample_val(root_dir, save_dir):
+    image_lst = os.listdir(os.path.join(root_dir, 'val', 'image'))
+    sampled = random.sample(image_lst, 5000)
+    os.makedirs(os.path.join(save_dir, "mini_val", "image"))
+    os.makedirs(os.path.join(save_dir, "mini_val", "ann"))
+    for img_name in sampled:
+        shutil.copy(os.path.join(root_dir, 'val', 'image', img_name), os.path.join(save_dir, 'mini_val', 'image', img_name))
+        shutil.copy(os.path.join(root_dir, 'val', 'ann', img_name), os.path.join(save_dir, 'mini_val', 'ann', img_name))
+        
+        
+        
+    
 
 def main(root_dir, save_dir):
     # create missing dir
@@ -37,6 +51,7 @@ def main(root_dir, save_dir):
     
 
 if __name__ == '__main__':
-    root_dir = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/1700-0418/'
-    save_dir = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/converted/'
-    main(root_dir, save_dir)
+    root_dir = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
+    save_dir = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
+    # main(root_dir, save_dir)
+    random_sample_val(root_dir, save_dir)

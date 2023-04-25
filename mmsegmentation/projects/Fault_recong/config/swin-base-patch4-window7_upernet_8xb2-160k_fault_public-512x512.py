@@ -85,6 +85,8 @@ test_pipeline = [
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
+
+"""
 img_ratios = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
 tta_pipeline = [
     dict(type='LoadImageFromFile', backend_args=None),
@@ -101,6 +103,8 @@ tta_pipeline = [
             ], [dict(type='LoadAnnotations')], [dict(type='PackSegInputs')]
         ])
 ]
+
+"""
 train_dataloader = dict(
     batch_size=4,
     num_workers=4,
@@ -121,8 +125,8 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_prefix=dict(
-            img_path='val/image',
-            seg_map_path='val/ann'),
+            img_path='mini_val/image',
+            seg_map_path='mini_val/ann'),
         pipeline=test_pipeline))
 test_dataloader = val_dataloader
 val_evaluator = dict(type='IoUMetric', iou_metrics=['mDice'])
