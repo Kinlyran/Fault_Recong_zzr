@@ -189,7 +189,10 @@ class FaultDataset(pl.LightningDataModule):
             if self.test_data_root_dir is not None:
                 self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
             else:
-                self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+                if self.real_data_root_dir is not None:
+                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+                elif self.public_data_root_dir is not None:
+                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl)
 
     def train_dataloader(self):
         if self.dist:

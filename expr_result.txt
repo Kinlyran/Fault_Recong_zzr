@@ -1,4 +1,14 @@
-metric:  Dice Acc
-unetr-baseline: 42.28 96.13
-swin-unetr-baseline: 42.68 95.98
+real labeled data v01:
+    metric:  Dice Acc
+    unetr-baseline: 42.28 96.13
+    swin-unetr-baseline: 42.68 95.98
+public data:
+    metric:  Dice Acc
+    unetr-baseline:  45.55 90.00
+    swin-unetr-baseline: 
+
+real labeled data v02:
+    metric:  Dice Acc
+    unetr-baseline: 
+    swin-unetr-baseline: 
 
