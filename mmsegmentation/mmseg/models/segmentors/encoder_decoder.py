@@ -261,6 +261,9 @@ class EncoderDecoder(BaseSegmentor):
         h_crop, w_crop = self.test_cfg.crop_size
         batch_size, _, h_img, w_img = inputs.size()
         num_classes = self.num_classes
+        # debug in binary seting
+        if num_classes == 2 and self.decode_head.out_channels == 1:
+            num_classes = 1
         h_grids = max(h_img - h_crop + h_stride - 1, 0) // h_stride + 1
         w_grids = max(w_img - w_crop + w_stride - 1, 0) // w_stride + 1
         preds = inputs.new_zeros((batch_size, num_classes, h_img, w_img))

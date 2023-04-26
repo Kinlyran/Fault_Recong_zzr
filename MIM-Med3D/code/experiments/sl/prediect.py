@@ -15,6 +15,8 @@ def predict(config_path, ckpt_path, output_path):
         config = yaml.load(f,Loader=yaml.FullLoader)
     model = MultiSegtrainer(**config['model']['init_args'])
     trainer = Trainer(accelerator='gpu', devices=-1, default_root_dir=output_path, inference_mode=True)
+    # trainer = Trainer(accelerator='cpu', devices=None, default_root_dir=output_path, inference_mode=True)
+    
     dataloader = FaultDataset(**config['data']['init_args'])
     dataloader.setup(stage='test')
     pred_loader = dataloader.test_dataloader()
@@ -32,7 +34,7 @@ def predict(config_path, ckpt_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_public/config.yaml'
-    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_public/checkpoints/best.ckpt'
-    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_public/preds'
+    config_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/config.yaml'
+    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/checkpoints/best.ckpt'
+    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/real_preds'
     predict(config_path, ckpt_path, output_path)
