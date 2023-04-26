@@ -5,6 +5,7 @@ port=23467
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault-512x512
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault_public-512x512
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault_public-128x128
+config=swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512
 
 if [ $1 = "train" ]; then
     CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_recong/config/${config}.py 1 --work-dir output/${config} 
