@@ -129,6 +129,48 @@ class LoadAnnotations(MMCV_LoadAnnotations):
 
 
 @TRANSFORMS.register_module()
+class LoadImageFromNpy(BaseTransform):
+    """
+    Load Image from .npy file, Similiar to LoadImageFromFile, different from LoadImageFromNDArray
+    """
+    def __init__(self,
+                 to_float32: bool = False,
+                 decode_backend: str = 'numpy',
+                 backend_args: Optional[dict] = None) -> None:
+        self.to_float32 = to_float32
+        self.decode_backend = decode_backend
+        self.backend_args = backend_args.copy() if backend_args else None
+
+    def transform(self, results: dict) -> Optional[dict]:
+        """Functions to load image.
+
+        Args:
+            results (dict): Result dict from
+                :class:`mmengine.dataset.BaseDataset`.
+
+        Returns:
+            dict: The dict contains loaded image and meta information.
+        """
+
+        data_bytes = fileio.get(results['img_path'], self.backend_args)
+        img = datafrombytes(data_bytes, backend=self.decode_backend)
+        if self.to_float32:
+            img = img.astype(np.float32)
+
+        results['img'] = img
+        results['img_shape'] = img.shape[:2]
+        results['ori_shape'] = img.shape[:2]
+        return results
+
+    def __repr__(self):
+        repr_str = (f'{self.__class__.__name__}('
+                    f"decode_backend='{self.decode_backend}', "
+                    f'to_float32={self.to_float32}, '
+                    f'backend_args={self.backend_args})')
+        return repr_str
+    
+
+@TRANSFORMS.register_module()
 class LoadImageFromNDArray(LoadImageFromFile):
     """Load an image from ``results['img']``.
 

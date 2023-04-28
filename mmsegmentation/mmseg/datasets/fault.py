@@ -11,7 +11,7 @@ class FaultDataset(BaseSegDataset):
         palette=[[120, 120, 120], [6, 230, 230]])
 
     def __init__(self,
-                 img_suffix='.png',
+                 img_suffix='.npy',
                  seg_map_suffix='.png',
                  reduce_zero_label=False,
                  **kwargs) -> None:

@@ -2,7 +2,7 @@
 from .formatting import PackSegInputs
 from .loading import (LoadAnnotations, LoadBiomedicalAnnotation,
                       LoadBiomedicalData, LoadBiomedicalImageFromFile,
-                      LoadImageFromNDArray)
+                      LoadImageFromNDArray, LoadImageFromNpy)
 # yapf: disable
 from .transforms import (CLAHE, AdjustGamma, BioMedical3DPad,
                          BioMedical3DRandomCrop, BioMedical3DRandomFlip,
@@ -22,5 +22,5 @@ __all__ = [
     'LoadBiomedicalAnnotation', 'LoadBiomedicalData', 'GenerateEdge',
     'ResizeShortestEdge', 'BioMedicalGaussianNoise', 'BioMedicalGaussianBlur',
     'BioMedical3DRandomFlip', 'BioMedicalRandomGamma', 'BioMedical3DPad',
-    'RandomRotFlip'
+    'RandomRotFlip', 'LoadImageFromNpy'
 ]
