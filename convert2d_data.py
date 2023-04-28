@@ -67,11 +67,11 @@ def main_v1():
     assert seis_train.shape == fault_train.shape
     for i in tqdm(range(seis_train.shape[0])):
         seis_slice = seis_train[i,:,:]
-        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        # seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
         fault_slice = fault_train[i,:,:]
         # convert to gray
-        seis_slice = 255 * seis_slice
-        cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'{i}.png'), seis_slice)
+        # seis_slice = 255 * seis_slice
+        np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
     del seis_train
     del fault_train
@@ -83,11 +83,11 @@ def main_v1():
     seis_val = (seis_val - seis_val.min()) / (seis_val.max() - seis_val.min())
     for i in tqdm(range(seis_val.shape[0])):
         seis_slice = seis_val[i,:,:]
-        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
+        # seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
         fault_slice = fault_val[i,:,:]
         # convert to gray
-        seis_slice = 255 * seis_slice
-        cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'{i}.png'), seis_slice)
+        # seis_slice = 255 * seis_slice
+        np.save(os.path.join(dst_path, 'val', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{i}.png'), fault_slice)
     del seis_val
     del fault_val
@@ -126,4 +126,4 @@ def main_v2():
     
 
 if __name__ == '__main__':
-    main_v0()
+    main_v1()

@@ -31,6 +31,7 @@ def get_slice(seis, fault, save_path):
 
 
 def dat2h5():
+    """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/'
     seis_data = segyio.tools.cube(os.path.join(data_path, 'mig_fill.sgy'))
     # precess missing value
@@ -55,7 +56,7 @@ def dat2h5():
     get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
     del seis_val
     del fault_val
-    """
+    
     
 
 class SliceBuilder:
