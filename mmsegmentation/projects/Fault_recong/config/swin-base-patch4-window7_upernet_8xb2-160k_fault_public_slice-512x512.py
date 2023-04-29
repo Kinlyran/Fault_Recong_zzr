@@ -45,7 +45,7 @@ model = dict(
         dropout_ratio=0.1,
         out_channels=1,
         num_classes=2,
-        threshold=0.3,
+        threshold=0.5,
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
@@ -60,7 +60,7 @@ model = dict(
         dropout_ratio=0.1,
         out_channels=1,
         num_classes=2,
-        threshold=0.3,
+        threshold=0.5,
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
@@ -74,7 +74,7 @@ train_pipeline = [
     dict(type='LoadImageFromNpy'),
     dict(type='LoadAnnotations'),
     # dict(type='Resize', scale=(512, 512), keep_ratio=True),
-    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
+    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.99),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
     dict(type='PackSegInputs')
