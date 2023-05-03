@@ -73,7 +73,9 @@ class Fault(Dataset):
     def __init__(self, 
                 root_dir: str, 
                 split: str = 'train',
-                is_ssl=False):
+                is_ssl=False,
+                mean=None,
+                std=None):
         self.root_dir = root_dir
         self.split = split
         self.is_ssl = is_ssl
@@ -81,7 +83,7 @@ class Fault(Dataset):
                                 RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                 RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
                                 RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
-                                NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
+                                NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
         self.val_transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
@@ -175,11 +177,11 @@ class FaultDataset(pl.LightningDataModule):
                 train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl))
                 valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
             if self.real_data_root_dir is not None:
-                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl))
-                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl))
+                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
+                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
             if self.public_data_root_dir is not None:
-                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl))
-                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl))
+                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
+                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
@@ -190,9 +192,9 @@ class FaultDataset(pl.LightningDataModule):
                 self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
             else:
                 if self.real_data_root_dir is not None:
-                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl)
+                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125)
                 elif self.public_data_root_dir is not None:
-                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl)
+                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345)
 
     def train_dataloader(self):
         if self.dist:
