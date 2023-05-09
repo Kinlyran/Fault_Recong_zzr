@@ -143,7 +143,7 @@ visualizer = dict(
     name='visualizer')
 log_processor = dict(by_epoch=False)
 log_level = 'INFO'
-load_from = None
+load_from = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/Best_Dice61.pth'
 resume = False
 tta_model = dict(type='SegTTAModel')
 optimizer = dict(type='AdamW', lr=6e-05, betas=(0.9, 0.999), weight_decay=0.01)
