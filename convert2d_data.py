@@ -100,27 +100,22 @@ def main_v2():
         os.makedirs(os.path.join(dst_path, 'train', 'ann'))
         os.makedirs(os.path.join(dst_path, 'val', 'image'))
         os.makedirs(os.path.join(dst_path, 'val', 'ann'))
-    seis_data = segyio.tools.cube(os.path.join(data_root, 'mig_fill.sgy'))
+    seis_data = segyio.tools.cube(os.path.join(data_root, 'origin_data', 'seis', 'mig_fill.sgy'))
     # precess missing value
     # seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
     # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
-    fault = segyio.tools.cube(os.path.join(data_root, 'label_fill.sgy'))
+    fault = segyio.tools.cube(os.path.join(data_root, 'origin_data', 'fault','label_fill.sgy'))
     fault = fault.astype(np.uint8)
-    for i in range(673):
-        seis_slice = seis_data[:,:,i]
-        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
-        fault_slice = fault[:,:,i]
-        # convert to gray
-        seis_slice = 255 * seis_slice
-        cv2.imwrite(os.path.join(dst_path, 'train', 'image', f'{i}.png'), seis_slice)
+    for i in range(373):
+        seis_slice = seis_data[i,:,:]
+        fault_slice = fault[i,:,:]
+        np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
-    for i in range(673,801):
-        seis_slice = seis_data[:,:,i]
-        seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())
-        fault_slice = fault[:,:,i]
+    for i in range(373,501):
+        seis_slice = seis_data[i,:,:]
+        fault_slice = fault[i,:,:]
         # convert to gray
-        seis_slice = 255 * seis_slice
-        cv2.imwrite(os.path.join(dst_path, 'val', 'image', f'{i}.png'), seis_slice)
+        np.save(os.path.join(dst_path, 'val', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{i}.png'), fault_slice)
         
     

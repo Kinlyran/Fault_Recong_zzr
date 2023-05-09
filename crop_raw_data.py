@@ -31,16 +31,17 @@ def get_slice(seis, fault, save_path):
 
 
 def dat2h5():
-    """
+    
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/'
-    seis_data = segyio.tools.cube(os.path.join(data_path, 'mig_fill.sgy'))
+    # 501, 501, 801
+    seis_data = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'seis', 'mig_fill.sgy'))
     # precess missing value
     # seis_data[seis_data==-912300] = seis_data[seis_data!=-912300].mean()
     # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
-    label = segyio.tools.cube(os.path.join(data_path, 'label_fill.sgy'))
+    label = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'fault', 'label_fill.sgy'))
     label = label.astype(np.uint8)
-    get_slice(seis=seis_data[:,:,:673], fault=label[:,:,:673],save_path=os.path.join(data_path, 'crop', 'train'))
-    get_slice(seis=seis_data[:,:,673:], fault=label[:,:,673:],save_path=os.path.join(data_path, 'crop', 'val'))
+    get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'crop', 'train'))
+    get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop', 'val'))
     """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
     print('loading seis train data')
@@ -56,7 +57,7 @@ def dat2h5():
     get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
     del seis_val
     del fault_val
-    
+    """
     
 
 class SliceBuilder:
