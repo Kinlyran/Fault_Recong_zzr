@@ -80,7 +80,7 @@ def main_v1():
     seis_val = np.load(os.path.join(scr_root_path,'seisval.npy'))
     fault_val = np.load(os.path.join(scr_root_path, 'faultval.npy'))
     assert seis_val.shape == fault_val.shape
-    seis_val = (seis_val - seis_val.min()) / (seis_val.max() - seis_val.min())
+    # seis_val = (seis_val - seis_val.min()) / (seis_val.max() - seis_val.min())
     for i in tqdm(range(seis_val.shape[0])):
         seis_slice = seis_val[i,:,:]
         # seis_slice = (seis_slice - seis_slice.min()) / (seis_slice.max() - seis_slice.min())

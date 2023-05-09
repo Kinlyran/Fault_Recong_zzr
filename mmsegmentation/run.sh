@@ -1,5 +1,5 @@
 GPU=$2
-port=23467
+port=23469
 
 
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault-512x512
