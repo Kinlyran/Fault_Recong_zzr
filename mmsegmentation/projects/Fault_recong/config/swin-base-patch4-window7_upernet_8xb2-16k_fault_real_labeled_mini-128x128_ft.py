@@ -158,13 +158,13 @@ optim_wrapper = dict(
 param_scheduler = [
     dict(
         type='LinearLR', start_factor=1e-06, by_epoch=False, begin=0,
-        end=1500),
+        end=150),
     dict(
         type='PolyLR',
         eta_min=0.0,
         power=1.0,
-        begin=1500,
-        end=160000,
+        begin=150,
+        end=16000,
         by_epoch=False)
 ]
 train_cfg = dict(
