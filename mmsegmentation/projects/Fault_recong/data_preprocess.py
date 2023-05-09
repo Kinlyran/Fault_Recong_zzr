@@ -34,24 +34,24 @@ def main(root_dir, save_dir):
         
     for idx in range(173):
         feature = np.fromfile(os.path.join(root_dir,f'GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50_Feature{str(idx)}.bin'), dtype=np.double).reshape(128, 128)
-        feature = (feature - feature.min()) / (feature.max() - feature.min())
-        feature = (255 * feature).astype(np.uint8)
+        # feature = (feature - feature.min()) / (feature.max() - feature.min())
+        # feature = (255 * feature).astype(np.uint8)
         label = np.fromfile(os.path.join(root_dir, f'Label{str(idx)}.bin'), dtype=np.double).reshape(128, 128).astype(np.uint8)
         # save
         if idx in train_lst:
-            feature_save_path = os.path.join(save_dir, "train", "image", str(idx) + '.png')
+            feature_save_path = os.path.join(save_dir, "train", "image", str(idx) + '.npy')
             label_save_path = os.path.join(save_dir, "train", "ann", str(idx) + '.png')
         if idx in val_lst:
-            feature_save_path = os.path.join(save_dir, "val", "image", str(idx) + '.png')
+            feature_save_path = os.path.join(save_dir, "val", "image", str(idx) + '.npy')
             label_save_path = os.path.join(save_dir, "val", "ann", str(idx) + '.png')
             
-        cv2.imwrite(feature_save_path, feature)
+        np.save(feature_save_path, feature)
         cv2.imwrite(label_save_path, label)
         
     
 
 if __name__ == '__main__':
-    root_dir = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
-    save_dir = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
-    # main(root_dir, save_dir)
-    random_sample_val(root_dir, save_dir)
+    root_dir = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/1700-0418'
+    save_dir = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/converted'
+    main(root_dir, save_dir)
+    # random_sample_val(root_dir, save_dir)

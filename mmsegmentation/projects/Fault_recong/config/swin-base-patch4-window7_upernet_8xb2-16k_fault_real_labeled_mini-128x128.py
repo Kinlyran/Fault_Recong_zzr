@@ -2,12 +2,12 @@ norm_cfg = dict(type='SyncBN', requires_grad=True)
 backbone_norm_cfg = dict(type='LN', requires_grad=True)
 data_preprocessor = dict(
     type='SegDataPreProcessor',
-    mean=123.39903247308624,
-    std=30.522013498085645,
+    mean=14.11439825829448,
+    std=6540.854932557238,
     bgr_to_rgb=False,
     pad_val=0,
     seg_pad_val=0,
-    size=(512, 512))
+    size=(128, 128))
 checkpoint_file = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
 model = dict(
     type='EncoderDecoder',
@@ -68,20 +68,20 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_2d_slices'
-crop_size = (512, 512)
+data_root = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/converted'
+# crop_size = (128, 128)
 train_pipeline = [
-    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='LoadImageFromNpy'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    dict(type='Resize', scale=(128, 128), keep_ratio=True),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.97),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
     dict(type='PackSegInputs')
 ]
 test_pipeline = [
-    dict(type='LoadImageFromFile', color_type='unchanged'),
-    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    dict(type='LoadImageFromNpy'),
+    dict(type='Resize', scale=(128, 128), keep_ratio=True),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
@@ -125,8 +125,8 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_prefix=dict(
-            img_path='mini_val/image',
-            seg_map_path='mini_val/ann'),
+            img_path='val/image',
+            seg_map_path='val/ann'),
         pipeline=test_pipeline))
 test_dataloader = val_dataloader
 val_evaluator = dict(type='IoUMetric', iou_metrics=['mDice'])
@@ -143,7 +143,7 @@ visualizer = dict(
     name='visualizer')
 log_processor = dict(by_epoch=False)
 log_level = 'INFO'
-load_from = None
+load_from = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/Best_Dice_57.pth'
 resume = False
 tta_model = dict(type='SegTTAModel')
 optimizer = dict(type='AdamW', lr=6e-05, betas=(0.9, 0.999), weight_decay=0.01)
@@ -168,14 +168,14 @@ param_scheduler = [
         by_epoch=False)
 ]
 train_cfg = dict(
-    type='IterBasedTrainLoop', max_iters=160000, val_interval=16000)
+    type='IterBasedTrainLoop', max_iters=16000, val_interval=1600)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=50, log_metric_by_epoch=False),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=16000),
+    checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=1600),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='SegVisualizationHook'))
 launcher = 'pytorch'

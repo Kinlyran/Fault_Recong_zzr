@@ -15,5 +15,5 @@ def main(root_path):
     print(f'std is {np.mean(runing_std)}')
 
 if __name__ == '__main__':
-    root_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+    root_path = '/home/zhangzr/FaultRecongnition/Fault_data/2Dfault/converted'
     main(root_path)
