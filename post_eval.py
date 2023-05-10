@@ -2,6 +2,7 @@ import h5py
 import os
 import numpy as np
 from tqdm import tqdm
+from sklearn.metrics import average_precision_score
 
 
 def dice_coefficient(y_true, y_pred):
@@ -16,14 +17,23 @@ def compute_acc(y_true, y_pred):
     y_pred_f = y_pred.flatten()
     return np.sum(y_true_f==y_pred_f) / y_true_f.shape
 
+def compute_ap(y_true, y_score):
+    y_true_f = y_true.flatten()
+    y_score_f = y_score.flatten()
+    return average_precision_score(y_true_f, y_score_f)
+    
+    
 
-def post_eval(predict_path, gt_path):
+
+def post_eval_3d(predict_path, gt_path):
     pred_lst = os.listdir(predict_path)
     dice_scores = []
     acc_scores = []
+    ap_scores = []
     for item in pred_lst:
         with h5py.File(os.path.join(predict_path, item), 'r') as f:
             pred = f['predictions'][:]
+            score = f['score'][:]
         with h5py.File(os.path.join(gt_path, item), 'r') as f:
             gt = f['label'][:]
 
@@ -32,15 +42,31 @@ def post_eval(predict_path, gt_path):
 
         acc = compute_acc(gt, pred)
         acc_scores.append(acc)
-    print(f'Dice Score is: {np.mean(dice_scores)} \n Acc is {np.mean(acc_scores)}')
+        
+        ap = compute_ap(gt, score)
+        ap_scores.append(ap)
+        
+    print(f'Dice Score is: {np.mean(dice_scores)} \n Acc is {np.mean(acc_scores)} \n Ap is {np.mean(ap_scores)}')
+    
+
+def post_eval_2d(predict_path, gt_path):
+    pred = np.load(os.path.join(predict_path, 'predict.npy'))
+    score = np.load(os.path.join(predict_path, 'score.npy'))
+    gt = np.load(gt_path)
+    
+    dice = dice_coefficient(gt, pred)
+    acc = compute_acc(gt, pred)
+    ap = compute_ap(gt, score)
+    
+    print(f'Dice Score is: {dice} \n Acc is {acc} \n Ap is {ap}')
 
         
             
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/preds'
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/predict'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop/val'
-    post_eval(predict_path, gt_path)
+    post_eval_2d(predict_path, gt_path)
     
     

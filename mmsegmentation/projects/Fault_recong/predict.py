@@ -39,7 +39,7 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     np.save(os.path.join(save_path, 'predict.npy'), predict)
-    np.save(os.path.join(save_path, 'prob.npy'), prob)
+    np.save(os.path.join(save_path, 'score.npy'), prob)
     
         
     
@@ -51,4 +51,4 @@ if __name__ == '__main__':
     checkpoint_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/Best_Dice_57.pth'
     input_cube_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/seistest.npy'
     save_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/predict'
-    main(config_file, checkpoint_file, input_cube_path, save_path, device='cpu')
+    main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda')
