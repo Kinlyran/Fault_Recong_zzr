@@ -248,8 +248,7 @@ class FaultDataset(pl.LightningDataModule):
         return torch.utils.data.DataLoader(
             self.test_ds,
             batch_size=1,
-            # num_workers=self.num_workers,
-            num_workers=1,
+            num_workers=self.num_workers,
             pin_memory=True,
             shuffle=False,
             drop_last=False,
