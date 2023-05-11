@@ -136,10 +136,12 @@ class LoadImageFromNpy(BaseTransform):
     def __init__(self,
                  to_float32: bool = False,
                  decode_backend: str = 'numpy',
+                 force_3_channel: bool = False,
                  backend_args: Optional[dict] = None) -> None:
         self.to_float32 = to_float32
         self.decode_backend = decode_backend
         self.backend_args = backend_args.copy() if backend_args else None
+        self.force_3_channel = force_3_channel
 
     def transform(self, results: dict) -> Optional[dict]:
         """Functions to load image.
@@ -156,6 +158,8 @@ class LoadImageFromNpy(BaseTransform):
         img = datafrombytes(data_bytes, backend=self.decode_backend)
         if self.to_float32:
             img = img.astype(np.float32)
+        if self.force_3_channel:
+            img = np.stack([img, img, img], axis=2)
 
         results['img'] = img
         results['img_shape'] = img.shape[:2]
