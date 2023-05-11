@@ -11,6 +11,7 @@ from mmcv.transforms import LoadImageFromFile
 
 from mmseg.registry import TRANSFORMS
 from mmseg.utils import datafrombytes
+import os
 
 
 @TRANSFORMS.register_module()
@@ -137,11 +138,17 @@ class LoadImageFromNpy(BaseTransform):
                  to_float32: bool = False,
                  decode_backend: str = 'numpy',
                  force_3_channel: bool = False,
+                 convert_25d: bool = False,
+                 step: int = None, # only used when convert_25d == True
+                 max_slice_id: int = None, # only used when convert_25d == True
                  backend_args: Optional[dict] = None) -> None:
         self.to_float32 = to_float32
         self.decode_backend = decode_backend
         self.backend_args = backend_args.copy() if backend_args else None
         self.force_3_channel = force_3_channel
+        self.convert_25d = convert_25d
+        self.step = step
+        self.max_slice_id = max_slice_id
 
     def transform(self, results: dict) -> Optional[dict]:
         """Functions to load image.
@@ -160,7 +167,22 @@ class LoadImageFromNpy(BaseTransform):
             img = img.astype(np.float32)
         if self.force_3_channel:
             img = np.stack([img, img, img], axis=2)
-
+        if self.convert_25d:
+            cur_slice = int(results['img_path'].split('/')[-1].replace('.npy', ''))
+            cur_path_lst = results['img_path'].split('/')[:-1]
+            cur_path_lst[0] = '/' + cur_path_lst[0]
+            prev_path_lst = cur_path_lst + [str(max(0, cur_slice - self.step)) + '.npy']
+            future_path_lst = cur_path_lst + [str(min(self.max_slice_id, cur_slice + self.step)) + '.npy']
+            prev_slice = os.path.join(*prev_path_lst)
+            future_slice = os.path.join(*future_path_lst)
+            img_prev = datafrombytes(fileio.get(prev_slice, self.backend_args), backend=self.decode_backend)
+            img_future = datafrombytes(fileio.get(future_slice, self.backend_args), backend=self.decode_backend)
+            if self.to_float32:
+                img_prev = img_prev.astype(np.float32)
+                img_future = img_future.astype(np.float32)
+            img = np.stack([img_prev, img, img_future], axis=2)
+            
+            
         results['img'] = img
         results['img_shape'] = img.shape[:2]
         results['ori_shape'] = img.shape[:2]
