@@ -23,10 +23,13 @@ def predict(config_path, ckpt_path, output_path):
     preds = trainer.predict(model, pred_loader,ckpt_path=ckpt_path)
     for item in preds:
         for image_name in item.keys():
-            pred = item[image_name]
+            pred = item[image_name]['pred']
+            score = item[image_name]['score']
             pred = pred.squeeze(0) # (128, 128, 128)
+            score = score.squeeze(0) # (128, 128, 128)
             with h5py.File(os.path.join(output_path, image_name.split('.')[0]+'.h5'), 'w') as f:
                 f['predictions'] = pred.cpu().numpy()
+                f['score'] = score.cpu().numpy()
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
     # print(preds)
         
@@ -34,7 +37,7 @@ def predict(config_path, ckpt_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/config.yaml'
-    ckpt_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/checkpoints/best.ckpt'
-    output_path = './output/Fault_Baseline/unetr_base_supbaseline_p16_v01/real_preds'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/checkpoints/best.ckpt'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/predict'
     predict(config_path, ckpt_path, output_path)

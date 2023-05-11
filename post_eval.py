@@ -50,23 +50,30 @@ def post_eval_3d(predict_path, gt_path):
     
 
 def post_eval_2d(predict_path, gt_path):
-    pred = np.load(os.path.join(predict_path, 'predict.npy'))
-    score = np.load(os.path.join(predict_path, 'score.npy'))
-    gt = np.load(gt_path)
+    pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
+    score = np.load(os.path.join(predict_path, 'score.npy'), mmap_mode='r')
+    gt = np.load(gt_path, mmap_mode='r')
     
-    dice = dice_coefficient(gt, pred)
-    acc = compute_acc(gt, pred)
-    ap = compute_ap(gt, score)
+    running_dice = []
+    running_acc = []
+    running_ap = []
+    for i in tqdm(range(gt.shape[0])):
+        dice = dice_coefficient(gt[i,:,:], pred[i,:,:])
+        acc = compute_acc(gt[i,:,:], pred[i,:,:])
+        ap = compute_ap(gt[i,:,:], score[i,:,:])
+        running_dice.append(dice)
+        running_acc.append(acc)
+        running_ap.append(ap)
     
-    print(f'Dice Score is: {dice} \n Acc is {acc} \n Ap is {ap}')
+    print(f'Dice Score is: {np.mean(running_dice)} \n Acc is {np.mean(running_acc)} \n Ap is {np.mean(running_ap)}')
 
         
             
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/predict'
-    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop/val'
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/predict'
+    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     post_eval_2d(predict_path, gt_path)
     
     

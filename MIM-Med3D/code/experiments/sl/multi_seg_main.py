@@ -37,6 +37,7 @@ class MultiSegtrainer(pl.LightningModule):
         self.post_trans = Compose(
             [EnsureType(), Activations(sigmoid=True), AsDiscrete(threshold=0.5)]
         )
+        self.post_score_trans = Compose([EnsureType(), Activations(sigmoid=True)])
         self.dice_vals = []
         # self.dice_vals_tc = []
         # self.dice_vals_wt = []
@@ -202,8 +203,9 @@ class MultiSegtrainer(pl.LightningModule):
         )
         outputs_pred = {}
         for i, output in enumerate(decollate_batch(outputs)):
-            output = self.post_trans(output)
-            outputs_pred[image_names[i]] = output
+            score = self.post_score_trans(output)
+            pred = self.post_trans(output)
+            outputs_pred[image_names[i]] = {'pred': pred, 'score': score}
 
         return outputs_pred
         

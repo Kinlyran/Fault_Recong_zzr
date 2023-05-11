@@ -19,7 +19,7 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
     # load predict image cube
     print(f'loading image: {input_cube_path}...')
     if '.npy' in input_cube_path:
-        image = np.load(input_cube_path)
+        image = np.load(input_cube_path, mmap_mode='r')
     elif '.sgy' in input_cube_path:
         image = segyio.tools.cube(input_cube_path)
     else:

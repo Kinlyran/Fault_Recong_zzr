@@ -130,12 +130,15 @@ class Fault_Simple(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.data_lst = os.listdir(self.root_dir)
-        self.transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
+        self.transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=False)
     def __len__(self):
         return len(self.data_lst)
     
     def __getitem__(self, index):
-        image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
+        if '.sgy' in self.data_lst[index]:
+            image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
+        elif '.npy' in self.data_lst[index]:
+            image = np.load(os.path.join(self.root_dir, self.data_lst[index]))
         return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                                 'image_name': self.data_lst[index]})
 
@@ -245,7 +248,8 @@ class FaultDataset(pl.LightningDataModule):
         return torch.utils.data.DataLoader(
             self.test_ds,
             batch_size=1,
-            num_workers=self.num_workers,
+            # num_workers=self.num_workers,
+            num_workers=1,
             pin_memory=True,
             shuffle=False,
             drop_last=False,
