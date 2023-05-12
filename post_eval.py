@@ -72,7 +72,7 @@ def post_eval_2d(predict_path, gt_path):
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/predict'
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512/predict'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     post_eval_2d(predict_path, gt_path)
     
