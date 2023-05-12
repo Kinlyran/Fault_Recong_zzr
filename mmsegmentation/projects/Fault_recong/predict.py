@@ -9,7 +9,7 @@ import segyio
 from tqdm import tqdm
 
 
-def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'):
+def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda', force_3_chan=False, convert_25d=False, step=None):
     
     # init model
     model = init_model(config_file, checkpoint_file, device)
@@ -29,7 +29,14 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
     predict = []
     prob = []
     for i in tqdm(range(image.shape[0])):
-        result = inference_model(model, image[i, :, :])
+        image_slice = image[i, :, :]
+        if force_3_chan:
+            image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
+        if convert_25d:
+            image_prev = image[max(i - step, 0), :, :]
+            image_future = image[min(i + step, image.shape[0]), :, :]
+            image_slice = np.stack([image_prev, image_slice, image_future], axis=2)
+        result = inference_model(model, image_slice.copy())
         predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
         prob.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
     predict = np.stack(predict, axis=0)
