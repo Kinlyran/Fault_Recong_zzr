@@ -34,7 +34,7 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
             image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
         if convert_25d:
             image_prev = image[max(i - step, 0), :, :]
-            image_future = image[min(i + step, image.shape[0]), :, :]
+            image_future = image[min(i + step, image.shape[0]-1), :, :]
             image_slice = np.stack([image_prev, image_slice, image_future], axis=2)
         result = inference_model(model, image_slice.copy())
         predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
