@@ -47,8 +47,8 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
      
  
 if __name__ == '__main__':
-    config_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256.py'
-    checkpoint_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/Best_Dice61.pth'
-    input_cube_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_data/seis.sgy'
-    save_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-256x256/real_data_predict'
+    config_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512.py'
+    checkpoint_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512/Best_Dice61.pth'
+    input_cube_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
+    save_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-512x512/predict'
     main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda')
