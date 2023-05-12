@@ -99,13 +99,15 @@ def _preprare_data(imgs: ImageType, model: BaseSegmentor):
     for t in cfg.test_pipeline:
         if t.get('type') == 'LoadAnnotations':
             cfg.test_pipeline.remove(t)
+        if t.get('type') == 'LoadImageFromNpy':
+            cfg.test_pipeline.remove(t)
 
     is_batch = True
     if not isinstance(imgs, (list, tuple)):
         imgs = [imgs]
         is_batch = False
 
-    if isinstance(imgs[0], np.ndarray):
+    if isinstance(imgs[0], np.ndarray) and cfg.test_pipeline[0]['type'] != 'LoadImageFromNpy':
         cfg.test_pipeline[0]['type'] = 'LoadImageFromNDArray'
 
     # TODO: Consider using the singleton pattern to avoid building
