@@ -11,7 +11,10 @@ def get_slice(seis, fault, save_path):
                                  label_dataset=None,
                                  weight_dataset=None,
                                  patch_shape=(128, 128, 128),
-                                 stride_shape=(64, 64, 64))
+                                 stride_shape=(64, 64, 64)
+                                 # patch_shape=(256, 256, 256),
+                                 # stride_shape=(128, 128, 128)
+                                 )
     crop_cubes_pos = slice_builder.raw_slices
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -31,7 +34,7 @@ def get_slice(seis, fault, save_path):
 
 
 def dat2h5():
-    
+    """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/'
     # 501, 501, 801
     seis_data = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'seis', 'mig_fill.sgy'))
@@ -45,19 +48,19 @@ def dat2h5():
     """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
     print('loading seis train data')
-    seis_train = np.load(os.path.join(data_path, 'precessed', 'seistrain.npy'))
-    fault_train = np.load(os.path.join(data_path, 'precessed', 'faulttrain.npy'))
-    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop', 'train'))
+    seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
+    fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_256', 'train'))
     del seis_train
     del fault_train
     
     print('loading seis val data')
-    seis_val = np.load(os.path.join(data_path, 'precessed','seisval.npy'))
-    fault_val = np.load(os.path.join(data_path, 'precessed', 'faultval.npy'))
-    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
+    seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'))
+    fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'))
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_256', 'val'))
     del seis_val
     del fault_val
-    """
+    
     
 
 class SliceBuilder:
