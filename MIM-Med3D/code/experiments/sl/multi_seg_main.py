@@ -200,8 +200,8 @@ class MultiSegtrainer(pl.LightningModule):
             roi_size,
             sw_batch_size,
             self.forward,  # the output image will be cropped to the original image size
-            device=torch.device('cpu'),
-            progress=True
+            # device=torch.device('cpu'),
+            # progress=True
         )
         outputs_pred = {}
         for i, output in enumerate(decollate_batch(outputs)):

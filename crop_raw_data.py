@@ -47,19 +47,28 @@ def dat2h5():
     get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop', 'val'))
     """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
+    '''
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
-    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_256', 'train'))
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop', 'train'))
     del seis_train
     del fault_train
     
     print('loading seis val data')
-    seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'))
-    fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'))
-    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_256', 'val'))
+    seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'), mmap_mode='r')
+    fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'), mmap_mode='r')
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
     del seis_val
     del fault_val
+    '''
+    
+    print('loading seis test data')
+    seis_test = np.load(os.path.join(data_path, 'precessed','test', 'seis', 'seistest.npy'), mmap_mode='r')
+    fault_test = np.load(os.path.join(data_path, 'precessed', 'test', 'fault', 'faulttest.npy'), mmap_mode='r')
+    get_slice(seis=seis_test, fault=fault_test, save_path=os.path.join(data_path, 'crop', 'test'))
+    del seis_test
+    del fault_test
     
     
 
