@@ -11,7 +11,7 @@ data_preprocessor = dict(
 model = dict(
     type='EncoderDecoder',
     data_preprocessor=data_preprocessor,
-    pretrained='./pretrain/mae_pretrain_vit_base_mmcls.pth',
+    pretrained=None,
     backbone=dict(
         type='MAE',
         img_size=(512, 512),
@@ -27,7 +27,8 @@ model = dict(
         norm_cfg=dict(type='LN', eps=1e-06),
         act_cfg=dict(type='GELU'),
         norm_eval=False,
-        init_values=1.0),
+        init_values=1.0,
+        init_cfg=dict(type='Pretrained',checkpoint='./pretrain/mae_pretrain_vit_base_mmcls.pth')),
     neck=dict(type='Feature2Pyramid', embed_dim=768, rescales=[4, 2, 1, 0.5]),
     decode_head=dict(
         type='UPerHead',
