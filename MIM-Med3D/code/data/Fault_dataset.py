@@ -86,7 +86,7 @@ class Fault(Dataset):
                                 NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
                                     # RandRotated(keys=["image", "label"], prob=0.10, )
                                     ])
-        self.val_transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
+        self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
         # self.convert_size = convert_size
         if self.split == 'train':
             self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))

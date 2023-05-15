@@ -10,6 +10,14 @@ import torch
 from tqdm import tqdm
 from monai.transforms import NormalizeIntensity
 
+
+def dice_coefficient(y_true, y_pred):
+    smooth = 1e-6
+    y_true_f = y_true.flatten()
+    y_pred_f = y_pred.flatten()
+    intersection = np.sum(y_true_f * y_pred_f)
+    return (2. * intersection + smooth) / (np.sum(y_true_f) + np.sum(y_pred_f) + smooth)
+
 class SliceBuilder:
     """
     Builds the position of the patches in a given raw/label/weight ndarray based on the the patch and stride shape
@@ -128,7 +136,7 @@ def predict(config_path, ckpt_path, output_path):
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
     # print(preds)
 
-def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
+def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_path=None):
     # set device
     device = torch.device('cuda:0')
     # crop data
@@ -143,6 +151,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
                                  )
     crop_cubes_pos = slice_builder.raw_slices
     
+    # load gt if exsist
+    if gt_path is not None:
+        gt = np.load(gt_path, mmap_mode='r')
+    
     # create missing dir
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -151,13 +163,13 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     with open(config_path,encoding='utf-8') as f:
         config = yaml.load(f,Loader=yaml.FullLoader)
     model = MultiSegtrainer(**config['model']['init_args'])
-    model.load_state_dict(torch.load(ckpt_path, map_location='cpu')["state_dict"])
+    model.load_state_dict(torch.load(ckpt_path, map_location=device)["state_dict"])
     model.to(device)
     model.eval()
     
     # data preprocess
-    mean=-1.3021970536436015e-06
-    std=0.11276439772911345
+    mean = 0.0
+    std = 0.11276439772911345
     data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
     
     # predict
@@ -178,12 +190,18 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
             # post process
             logits = logits.squeeze(0) # move batch dim
             logits = logits.squeeze(0) # move channel
+            logits = logits.detach().cpu().numpy()
             # fill into origin pred
-            output_logits[x_range, y_range, z_range] += logits.detach().cpu().numpy()
+            output_logits[x_range, y_range, z_range] += logits
             count_mat[x_range, y_range, z_range] += 1
+            
+            # eval if gt exit
+            if gt_path is not None:
+                pred = model.post_trans(logits).cpu().numpy()
+                print(dice_coefficient(gt[x_range, y_range, z_range], pred))
     output_logits /= count_mat
-    output_pred = model.post_trans(output_logits)
-    output_score = model.post_score_trans(output_logits)
+    output_pred = model.post_trans(output_logits).cpu().numpy()
+    output_score = model.post_score_trans(output_logits).cpu().numpy()
     with h5py.File(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'.h5'), 'w') as f:
         f['predictions'] = output_pred
         f['score'] = output_score
@@ -197,9 +215,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/test_pred'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/seis/seisval.npy'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred'
+    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/seis/seisval.npy'
     # predict(config_path, ckpt_path, output_path)
-    predict_sliding_window(config_path, ckpt_path, input_path, output_path)
+    predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_path)

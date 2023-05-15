@@ -25,33 +25,13 @@ def compute_ap(y_true, y_score):
     
 
 
-def post_eval_3d(predict_path, gt_path):
-    pred_lst = os.listdir(predict_path)
-    dice_scores = []
-    acc_scores = []
-    ap_scores = []
-    for item in pred_lst:
-        with h5py.File(os.path.join(predict_path, item), 'r') as f:
-            pred = f['predictions'][:]
-            score = f['score'][:]
-        with h5py.File(os.path.join(gt_path, item), 'r') as f:
-            gt = f['label'][:]
-
-        dice = dice_coefficient(gt, pred)
-        dice_scores.append(dice)
-
-        acc = compute_acc(gt, pred)
-        acc_scores.append(acc)
-        
-        ap = compute_ap(gt, score)
-        ap_scores.append(ap)
-        
-    print(f'Dice Score is: {np.mean(dice_scores)} \n Acc is {np.mean(acc_scores)} \n Ap is {np.mean(ap_scores)}')
+def post_eval(predict_path, gt_path):
+    # pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
+    # score = np.load(os.path.join(predict_path, 'score.npy'), mmap_mode='r')
+    f =  h5py.File(predict_path, 'r')
+    pred = f['predictions']
+    score = f['score']
     
-
-def post_eval_2d(predict_path, gt_path):
-    pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
-    score = np.load(os.path.join(predict_path, 'score.npy'), mmap_mode='r')
     gt = np.load(gt_path, mmap_mode='r')
     
     running_dice = []
@@ -64,16 +44,38 @@ def post_eval_2d(predict_path, gt_path):
         running_dice.append(dice)
         running_acc.append(acc)
         running_ap.append(ap)
-    
+    f.close()
     print(f'Dice Score is: {np.mean(running_dice)} \n Acc is {np.mean(running_acc)} \n Ap is {np.mean(running_ap)}')
 
+
+def post_val_eval(predict_path, gt_path):
+    data_lst = os.listdir(predict_path)
+    running_dice = []
+    running_acc = []
+    running_ap = []
+    for item in tqdm(data_lst):
+        with h5py.File(os.path.join(predict_path, item), 'r') as f:
+            pred = f['predictions'][:]
+            score = f['score'][:]
+        with h5py.File(os.path.join(gt_path, item), 'r') as f:
+            gt = f['label'][:]
+        dice = dice_coefficient(gt, pred)
+        acc = compute_acc(gt, pred)
+        ap = compute_ap(gt, score)
+        print(f'Current Dice is {dice}')
+        running_dice.append(dice)
+        running_acc.append(acc)
+        running_ap.append(ap)
+    print(f'Dice Score is: {np.mean(running_dice)} \n Acc is {np.mean(running_acc)} \n Ap is {np.mean(running_ap)}')
         
             
             
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred'
-    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
-    post_eval_3d(predict_path, gt_path)
-    
+    # predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred/seistest.h5'
+    # gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
+    # post_eval(predict_path, gt_path)
+    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/val_pred'
+    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop/val'
+    post_val_eval(predict_path, gt_path)
     
