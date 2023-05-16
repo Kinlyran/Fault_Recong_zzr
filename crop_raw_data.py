@@ -25,7 +25,7 @@ def get_slice(seis, fault, save_path):
         print(f'Processing num {i} slice')
         seis_cube_crop = seis[x_range, y_range, z_range]
         label_cube_crop = fault[x_range, y_range, z_range]
-        if np.sum(label_cube_crop) >= 0.03 * (128 ** 3):
+        if np.sum(label_cube_crop) != 0.0:
             f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
             f['raw'] = seis_cube_crop
             f['label'] = label_cube_crop
@@ -47,7 +47,7 @@ def dat2h5():
     get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop', 'val'))
     """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
-    '''
+    
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
@@ -61,14 +61,16 @@ def dat2h5():
     get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop', 'val'))
     del seis_val
     del fault_val
-    '''
     
+    '''
     print('loading seis test data')
     seis_test = np.load(os.path.join(data_path, 'precessed','test', 'seis', 'seistest.npy'), mmap_mode='r')
     fault_test = np.load(os.path.join(data_path, 'precessed', 'test', 'fault', 'faulttest.npy'), mmap_mode='r')
     get_slice(seis=seis_test, fault=fault_test, save_path=os.path.join(data_path, 'crop', 'test'))
     del seis_test
     del fault_test
+    '''
+    
     
     
 
