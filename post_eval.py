@@ -38,9 +38,9 @@ def post_eval(predict_path, gt_path):
     running_acc = []
     running_ap = []
     for i in tqdm(range(0, gt.shape[0], 5)):
-        dice = dice_coefficient(gt[i,:,:], pred[i,:,:])
-        acc = compute_acc(gt[i,:,:], pred[i,:,:])
-        ap = compute_ap(gt[i,:,:], score[i,:,:])
+        dice = dice_coefficient(gt[i,:,800:1300], pred[i,:,800:1300])
+        acc = compute_acc(gt[i,:,800:1300], pred[i,:,800:1300])
+        ap = compute_ap(gt[i,:,800:1300], score[i,:,800:1300])
         running_dice.append(dice)
         running_acc.append(acc)
         running_ap.append(ap)
