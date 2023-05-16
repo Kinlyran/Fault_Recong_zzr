@@ -26,46 +26,25 @@ def compute_ap(y_true, y_score):
 
 
 def post_eval(predict_path, gt_path):
-    # pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
-    # score = np.load(os.path.join(predict_path, 'score.npy'), mmap_mode='r')
-    f =  h5py.File(predict_path, 'r')
-    pred = f['predictions']
-    score = f['score']
+    pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
+    score = np.load(os.path.join(predict_path, 'score.npy'), mmap_mode='r')
+    # f =  h5py.File(predict_path, 'r')
+    # pred = f['predictions']
+    # score = f['score']
     
     gt = np.load(gt_path, mmap_mode='r')
     
     running_dice = []
     running_acc = []
     running_ap = []
-    for i in tqdm(range(gt.shape[0])):
+    for i in tqdm(range(0, gt.shape[0], 5)):
         dice = dice_coefficient(gt[i,:,:], pred[i,:,:])
         acc = compute_acc(gt[i,:,:], pred[i,:,:])
         ap = compute_ap(gt[i,:,:], score[i,:,:])
         running_dice.append(dice)
         running_acc.append(acc)
         running_ap.append(ap)
-    f.close()
-    print(f'Dice Score is: {np.mean(running_dice)} \n Acc is {np.mean(running_acc)} \n Ap is {np.mean(running_ap)}')
-
-
-def post_val_eval(predict_path, gt_path):
-    data_lst = os.listdir(predict_path)
-    running_dice = []
-    running_acc = []
-    running_ap = []
-    for item in tqdm(data_lst):
-        with h5py.File(os.path.join(predict_path, item), 'r') as f:
-            pred = f['predictions'][:]
-            score = f['score'][:]
-        with h5py.File(os.path.join(gt_path, item), 'r') as f:
-            gt = f['label'][:]
-        dice = dice_coefficient(gt, pred)
-        acc = compute_acc(gt, pred)
-        ap = compute_ap(gt, score)
-        print(f'Current Dice is {dice}')
-        running_dice.append(dice)
-        running_acc.append(acc)
-        running_ap.append(ap)
+    # f.close()
     print(f'Dice Score is: {np.mean(running_dice)} \n Acc is {np.mean(running_acc)} \n Ap is {np.mean(running_ap)}')
         
             
@@ -75,7 +54,7 @@ if __name__ == '__main__':
     # predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred/seistest.h5'
     # gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # post_eval(predict_path, gt_path)
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/val_pred'
-    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/crop/val'
-    post_val_eval(predict_path, gt_path)
+    predict_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512/predict'
+    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
+    post_eval(predict_path, gt_path)
     
