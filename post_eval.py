@@ -3,7 +3,24 @@ import os
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import average_precision_score
+import cv2
 
+
+
+def convert_gt(gt):
+    h, w = gt.shape
+    h_s, w_s = int(h/3), int(w/3)
+    gt = gt.astype(np.float32)
+    gt = cv2.resize(gt,(w_s,h_s))
+    gt = gt>0.5
+    gt = gt.astype(np.float32)
+    return gt
+
+def convert_score(score):
+    h, w = score.shape
+    h_s, w_s = int(h/3), int(w/3)
+    score = cv2.resize(score,(w_s,h_s))
+    return score
 
 def dice_coefficient(y_true, y_pred):
     smooth = 1e-6
@@ -38,9 +55,12 @@ def post_eval(predict_path, gt_path):
     running_acc = []
     running_ap = []
     for i in tqdm(range(0, gt.shape[0], 5)):
-        dice = dice_coefficient(gt[i,:,800:1300], pred[i,:,800:1300])
-        acc = compute_acc(gt[i,:,800:1300], pred[i,:,800:1300])
-        ap = compute_ap(gt[i,:,800:1300], score[i,:,800:1300])
+        gt_slice = convert_gt(gt[i,:,800:1300])
+        pred_slice = convert_gt(pred[i,:,800:1300])
+        score_slice = convert_score(score[i,:,800:1300])
+        dice = dice_coefficient(gt_slice, pred_slice)
+        acc = compute_acc(gt_slice, pred_slice)
+        ap = compute_ap(gt_slice, score_slice)
         running_dice.append(dice)
         running_acc.append(acc)
         running_ap.append(ap)
