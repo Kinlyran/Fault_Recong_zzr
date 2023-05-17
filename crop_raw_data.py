@@ -25,12 +25,12 @@ def get_slice(seis, fault, save_path):
         z_range = pos[2]
         seis_cube_crop = seis[x_range, y_range, z_range]
         label_cube_crop = fault[x_range, y_range, z_range]
-        # if np.sum(label_cube_crop) >= 0.01 * (128 ** 3):
-        f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
-        f['raw'] = seis_cube_crop
-        f['label'] = label_cube_crop
-        f.close() 
-        i += 1
+        if np.sum(label_cube_crop) > 0.0:
+            f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
+            f['raw'] = seis_cube_crop
+            f['label'] = label_cube_crop
+            f.close() 
+            i += 1
         
 
 
@@ -52,14 +52,14 @@ def dat2h5():
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
-    get_slice(seis=seis_train[:, :, 400:1500], fault=fault_train[:, :, 400:1500], save_path=os.path.join(data_path, 'crop', 'train'))
+    get_slice(seis=seis_train[:, :, 400:1500], fault=fault_train[:, :, 400:1500], save_path=os.path.join(data_path, 'crop_filted_no_fault', 'train'))
     del seis_train
     del fault_train
     
     print('loading seis val data')
     seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'), mmap_mode='r')
     fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'), mmap_mode='r')
-    get_slice(seis=seis_val[:, :, 400:1500], fault=fault_val[:, :, 400:1500], save_path=os.path.join(data_path, 'crop', 'val'))
+    get_slice(seis=seis_val[:, :, 400:1500], fault=fault_val[:, :, 400:1500], save_path=os.path.join(data_path, 'crop_filted_no_fault', 'val'))
     del seis_val
     del fault_val
     
