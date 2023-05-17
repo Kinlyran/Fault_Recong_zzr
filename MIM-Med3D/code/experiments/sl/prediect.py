@@ -200,8 +200,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_p
             if gt_path is not None:
                 pred = model.post_trans(logits).cpu().numpy()
                 crop_gt = gt[x_range, y_range, z_range]
-                print(pred)
-                print(np.unique(crop_gt))
+                # print(pred)
+                # print(np.unique(crop_gt))
                 print(dice_coefficient(crop_gt, pred))
     output_logits /= count_mat
     output_pred = model.post_trans(output_logits).cpu().numpy()
@@ -219,10 +219,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_p
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/checkpoints/best.ckpt'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/checkpoints/best.ckpt'
     input_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/seis/seisval.npy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public/test_pred'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/test_pred'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/fault/faultval.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_path)

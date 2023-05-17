@@ -13,7 +13,7 @@ trainer:
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
         filename: best
-        monitor: val/dice_score_avg
+        monitor: val/acc_avg
         mode: max
         # save_last: true
         save_weights_only: true

@@ -11,8 +11,7 @@ def convert_gt(gt):
     h, w = gt.shape
     h_s, w_s = int(h/3), int(w/3)
     gt = gt.astype(np.float32)
-    gt = cv2.resize(gt,(w_s,h_s))
-    gt = gt>0.5
+    gt = cv2.resize(gt,(w_s,h_s), interpolation=cv2.INTER_NEAREST)
     gt = gt.astype(np.float32)
     return gt
 

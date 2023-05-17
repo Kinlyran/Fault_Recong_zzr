@@ -11,7 +11,7 @@ from pytorch_lightning.cli import LightningCLI
 import sys
 sys.path.insert(0,'./code')
 from models import UNETR, SwinUNETR
-from metrics import dice_coefficient_batch
+from metrics import dice_coefficient_batch, compute_acc_batch
 import optimizers
 import data
 
@@ -38,7 +38,7 @@ class MultiSegtrainer(pl.LightningModule):
             [EnsureType(), Activations(sigmoid=True), AsDiscrete(threshold=0.5)]
         )
         self.post_score_trans = Compose([EnsureType(), Activations(sigmoid=True)])
-        self.dice_vals = []
+        self.acc_vals = []
         # self.dice_vals_tc = []
         # self.dice_vals_wt = []
         # self.dice_vals_et = []
@@ -99,8 +99,8 @@ class MultiSegtrainer(pl.LightningModule):
         # compute dice score
         outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
         labels = [label.detach().cpu().numpy() for label in decollate_batch(labels)]
-        dice_batch = dice_coefficient_batch(labels, outputs)
-        self.dice_vals += dice_batch
+        acc_batch = compute_acc_batch(labels, outputs)
+        self.acc_vals += acc_batch
         # logging
         self.log(
             "val/dice_loss_step",
@@ -120,8 +120,8 @@ class MultiSegtrainer(pl.LightningModule):
         for output in outputs:
             val_loss += output["val_loss"].sum().item()
             num_items += output["val_number"]
-        mean_val_dice = np.mean(self.dice_vals)
-        self.dice_vals = []
+        mean_val_acc = np.mean(self.acc_vals)
+        self.acc_vals = []
         mean_val_loss = torch.tensor(val_loss / num_items)
         # logging
         self.log(
@@ -134,8 +134,8 @@ class MultiSegtrainer(pl.LightningModule):
             sync_dist=True
         )
         self.log(
-            "val/dice_score_avg",
-            mean_val_dice,
+            "val/acc_avg",
+            mean_val_acc,
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -154,10 +154,10 @@ class MultiSegtrainer(pl.LightningModule):
                 "max_epochs": self.trainer.max_epochs,
                 "precision": self.trainer.precision,
             },
-            metrics={"dice_loss": mean_val_loss, "dice_score": mean_val_dice},
+            metrics={"dice_loss": mean_val_loss, "acc": mean_val_acc},
         )
 
-        self.metric_values.append(mean_val_dice)
+        self.metric_values.append(mean_val_acc)
 
     def test_step(self, batch, batch_idx):
         images, labels = batch["image"], batch["label"]
@@ -176,18 +176,18 @@ class MultiSegtrainer(pl.LightningModule):
         # compute dice score
         outputs = [self.post_trans(i).detach().cpu().numpy() for i in decollate_batch(outputs)]
         labels = [label.detach().cpu().numpy() for label in decollate_batch(labels)]
-        dice_batch = dice_coefficient_batch(labels, outputs)
+        acc_batch = compute_acc_batch(labels, outputs)
         # print(dice_batch)
 
-        return {"dice_batch": dice_batch}
+        return {"acc_batch": acc_batch}
 
     def test_epoch_end(self, outputs):
-        dice_vals = []
+        acc_vals = []
         for output in outputs:
-             dice_vals += output["dice_batch"]
-        mean_val_dice = np.mean(dice_vals)
+             acc_vals += output["acc_batch"]
+        mean_val_acc = np.mean(acc_vals)
 
-        print(f"avg dice score: {mean_val_dice} ")
+        print(f"avg acc: {mean_val_acc} ")
     
     def predict_step(self, batch, batch_idx, dataloader_idx = 0):
         images = batch["image"]
