@@ -12,6 +12,7 @@ from mmcv.transforms import LoadImageFromFile
 from mmseg.registry import TRANSFORMS
 from mmseg.utils import datafrombytes
 import os
+import cv2
 
 
 @TRANSFORMS.register_module()
@@ -66,6 +67,7 @@ class LoadAnnotations(MMCV_LoadAnnotations):
         reduce_zero_label=None,
         backend_args=None,
         imdecode_backend='pillow',
+        dilate=False
     ) -> None:
         super().__init__(
             with_bbox=False,
@@ -81,6 +83,7 @@ class LoadAnnotations(MMCV_LoadAnnotations):
                           'set `reduce_zero_label=True` when dataset '
                           'initialized')
         self.imdecode_backend = imdecode_backend
+        self.dilate = dilate
 
     def _load_seg_map(self, results: dict) -> None:
         """Private function to load semantic segmentation annotations.
@@ -118,6 +121,10 @@ class LoadAnnotations(MMCV_LoadAnnotations):
             gt_semantic_seg_copy = gt_semantic_seg.copy()
             for old_id, new_id in results['label_map'].items():
                 gt_semantic_seg[gt_semantic_seg_copy == old_id] = new_id
+        # dilate if needed
+        if self.dilate:
+            kernel = np.ones((3,3), dtype=np.uint8)
+            gt_semantic_seg = cv2.dilate(gt_semantic_seg, kernel=kernel, iterations=5)
         results['gt_seg_map'] = gt_semantic_seg
         results['seg_fields'].append('gt_seg_map')
 
