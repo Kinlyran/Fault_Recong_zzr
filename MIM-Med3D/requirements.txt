@@ -7,7 +7,7 @@ einops>=0.3.0
 mlflow>=1.20.1
 timm>=0.4.12
 scikit-image
-mmcv==2.0.0
+# mmcv==2.0.0
 mmengine==0.7.2
 scipy
 pandas
