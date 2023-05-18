@@ -228,7 +228,7 @@ class FaultDataset(pl.LightningDataModule):
             self.valid_ds,
             batch_size=self.val_batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=False,
             shuffle=False,
             sampler=DistributedSampler(self.valid_ds, shuffle=False, drop_last=False),
             drop_last=False,
@@ -238,7 +238,7 @@ class FaultDataset(pl.LightningDataModule):
             self.valid_ds,
             batch_size=self.val_batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=False,
             shuffle=False,
             drop_last=False,
         )
