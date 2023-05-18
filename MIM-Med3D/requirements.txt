@@ -1,13 +1,14 @@
 kornia>=0.5.8
 nvitop>=0.3.6.2
-monai>=0.6.0
+monai==1.1.0
 rich>=10.7.0
 nibabel>=3.2.1
 einops>=0.3.0
 mlflow>=1.20.1
 timm>=0.4.12
 scikit-image
-mmcv
+mmcv==2.0.0
+mmengine==0.7.2
 scipy
 pandas
 numpy
@@ -16,4 +17,5 @@ jsonargparse[signatures]
 pyarrow
 fastparquet
 python-snappy
-pytorch-lightning
+pytorch-lightning==1.9.4
+tensorboard==2.11.0
