@@ -111,12 +111,14 @@ def main_v2():
         fault_slice = fault[i,:,:]
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
+    k = 0
     for i in range(373,501):
         seis_slice = seis_data[i,:,:]
         fault_slice = fault[i,:,:]
         # convert to gray
-        np.save(os.path.join(dst_path, 'val', 'image', f'{i}.npy'), seis_slice)
-        cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{i}.png'), fault_slice)
+        np.save(os.path.join(dst_path, 'val', 'image', f'{k}.npy'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{k}.png'), fault_slice)
+        k += 1
         
     
 
