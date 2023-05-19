@@ -333,7 +333,7 @@ class SwinSimMIM(nn.Module):
             p2=self.encoder.patch_size[1],
             p3=self.encoder.patch_size[2],
         )
-        pred_pixel_values = pred_pixel_values[batch_range, masked_indices].contiguous()              
+        pred_pixel_values = pred_pixel_values[batch_range, masked_indices]             
         return pred_pixel_values, patches, batch_range, masked_indices
 
 
