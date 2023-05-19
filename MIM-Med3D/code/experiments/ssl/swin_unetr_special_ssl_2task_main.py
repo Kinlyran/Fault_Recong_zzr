@@ -35,7 +35,7 @@ class SwinUnetr_trainer_2task(pl.LightningModule):
         rot_p, rec_x = self.model(x_augment)
         imgs_recon = rec_x
         imgs = x
-        loss, losses_tasks = self.ssl_loss_train(rot_p, rot, imgs_recon, imgs)
+        loss, losses_tasks = self.ssl_loss(rot_p, rot, imgs_recon, imgs)
 
         self.log("train/total_loss", loss, batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         self.log("train/rot_loss", losses_tasks[0], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
@@ -51,7 +51,7 @@ class SwinUnetr_trainer_2task(pl.LightningModule):
         rot_p, rec_x = self.model(x_augment)
         imgs_recon = rec_x
         imgs = x
-        loss, losses_tasks = self.ssl_loss_val(rot_p, rot, imgs_recon, imgs)
+        loss, losses_tasks = self.ssl_loss(rot_p, rot, imgs_recon, imgs)
 
         self.log("val/total_loss", loss, batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         self.log("val/rot_loss", losses_tasks[0], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
