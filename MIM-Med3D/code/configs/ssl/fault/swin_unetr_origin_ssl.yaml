@@ -90,7 +90,7 @@ model:
       dropout_path_rate: 0.0 
       use_checkpoint: false 
       spatial_dims: 3
-      upsample: deconv
+      upsample: vae
       dim: 768
 data:
   class_path: data.Fault_dataset.FaultDataset
