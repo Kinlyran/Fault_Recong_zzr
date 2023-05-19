@@ -92,7 +92,7 @@ class SSLHead(nn.Module):
 
 class SSLHead_2Task(nn.Module):
     def __init__(self, in_channels, feature_size, dropout_path_rate, use_checkpoint, spatial_dims, upsample="deconv", dim=768):
-        super(SSLHead, self).__init__()
+        super(SSLHead_2Task, self).__init__()
         patch_size = ensure_tuple_rep(2, spatial_dims)
         window_size = ensure_tuple_rep(7, spatial_dims)
         self.swinViT = SwinTransformer(
