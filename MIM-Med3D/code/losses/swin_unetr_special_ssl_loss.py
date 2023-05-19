@@ -50,3 +50,18 @@ class SwinUNETR_SSL_Loss(torch.nn.Module):
         total_loss = rot_loss + contrast_loss + recon_loss
 
         return total_loss, (rot_loss, contrast_loss, recon_loss)
+
+class SwinUNETR_SSL_Loss_2Task(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.rot_loss = torch.nn.CrossEntropyLoss()
+        self.recon_loss = torch.nn.L1Loss()
+        self.alpha1 = 1.0
+        self.alpha2 = 1.0
+
+    def __call__(self, output_rot, target_rot, output_recons, target_recons):
+        rot_loss = self.alpha1 * self.rot_loss(output_rot, target_rot)
+        recon_loss = self.alpha2 * self.recon_loss(output_recons, target_recons)
+        total_loss = rot_loss + recon_loss
+
+        return total_loss, (rot_loss, recon_loss)

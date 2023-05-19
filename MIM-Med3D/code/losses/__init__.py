@@ -1,1 +1,1 @@
-from .swin_unetr_special_ssl_loss import SwinUNETR_SSL_Loss
+from .swin_unetr_special_ssl_loss import SwinUNETR_SSL_Loss, SwinUNETR_SSL_Loss_2Task

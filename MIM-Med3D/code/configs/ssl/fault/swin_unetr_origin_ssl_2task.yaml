@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Public_Pretrained
-      version: swin_unetr_origin_ssl
+      version: swin_unetr_origin_ssl_2task
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -80,10 +80,8 @@ trainer:
   multiple_trainloader_mode: max_size_cycle
   # stochastic_weight_avg: false
 model:
-  class_path: __main__.SwinUnetr_trainer
+  class_path: __main__.SwinUnetr_trainer_2task
   init_args:
-    train_batch_size: 2
-    val_batch_size: 1
     model_dict:
       in_channels: 1
       feature_size: 48
