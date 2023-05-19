@@ -272,7 +272,7 @@ class SwinSimMIM(nn.Module):
         tokens = self.encoder.patch_embed(img) # (B, embed_dim, x, x, x)
         
         # Start mask process.........
-        tokens = tokens.permute(0, 2, 3, 4, 1) # (B, x, x, x, embed_dim)
+        tokens = tokens.permute(0, 2, 3, 4, 1).contiguous()  # (B, x, x, x, embed_dim)
         batch, x_1, x_2, x_3, embed_dim = tokens.shape
         tokens = tokens.view(batch, x_1 * x_2 * x_3, embed_dim)
         # (B, num_paches, embed_dim)
@@ -302,7 +302,7 @@ class SwinSimMIM(nn.Module):
         # mask tokens
         tokens = torch.where(masked_bool_mask[..., None], mask_tokens, tokens) # (B, num_patches, embeding_dim)
         tokens = tokens.view(batch, x_1, x_2, x_3, embed_dim) # (B, x, x, x, embed_dim)
-        tokens = tokens.permute(0, 4, 1, 2, 3)
+        tokens = tokens.permute(0, 4, 1, 2, 3).contiguous() 
         # Finish mask , continue forward.......
         x0 = self.encoder.pos_drop(tokens) # (B, num_patches, embeding_dim)
         x0_out = self.encoder.proj_out(x0, self.normalize)
