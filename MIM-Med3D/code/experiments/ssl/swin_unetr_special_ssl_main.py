@@ -24,6 +24,7 @@ class SwinUnetr_trainer(pl.LightningModule):
 
         self.ssl_loss_train = SwinUNETR_SSL_Loss(batch_size=train_batch_size)
         self.ssl_loss_val = SwinUNETR_SSL_Loss(batch_size=val_batch_size)
+        self.epoch_loss_values = []
         # self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
@@ -49,6 +50,19 @@ class SwinUnetr_trainer(pl.LightningModule):
         self.log("train/recon_loss", losses_tasks[2], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         return {"loss": loss}
 
+    def training_epoch_end(self, outputs):
+        avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
+        self.log(
+            "train/l1_loss_avg",
+            avg_loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True
+        )
+        self.epoch_loss_values.append(avg_loss.detach().cpu().numpy())
+        
     def validation_step(self, batch, batch_idx):
         # --------------------------
         val_inputs = batch["image"]

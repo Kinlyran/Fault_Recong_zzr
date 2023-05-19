@@ -23,6 +23,7 @@ class SwinUnetr_trainer_2task(pl.LightningModule):
         self.model = SSLHead_2Task(**model_dict)
 
         self.ssl_loss = SwinUNETR_SSL_Loss_2Task()
+        self.epoch_loss_values = []
         # self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
@@ -41,6 +42,19 @@ class SwinUnetr_trainer_2task(pl.LightningModule):
         self.log("train/rot_loss", losses_tasks[0], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         self.log("train/recon_loss", losses_tasks[1], batch_size=batch_size, on_step=True, on_epoch=False, prog_bar=True, logger=True, sync_dist=True)
         return {"loss": loss}
+    
+    def training_epoch_end(self, outputs):
+        avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
+        self.log(
+            "train/loss_avg",
+            avg_loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True
+        )
+        self.epoch_loss_values.append(avg_loss.detach().cpu().numpy())
 
     def validation_step(self, batch, batch_idx):
         # --------------------------

@@ -25,7 +25,7 @@ class SimMIMtrainer(pl.LightningModule):
             self.model = SwinSimMIM(**model_dict)
 
         self.recon_loss = L1Loss()
-        self.recon_patches = []
+        self.epoch_loss_values = []
         # self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
@@ -44,6 +44,19 @@ class SimMIMtrainer(pl.LightningModule):
                 sync_dist=True)
 
         return {"loss": loss}
+    
+    def training_epoch_end(self, outputs):
+        avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
+        self.log(
+            "train/l1_loss_avg",
+            avg_loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True
+        )
+        self.epoch_loss_values.append(avg_loss.detach().cpu().numpy())
 
     def validation_step(self, batch, batch_idx):
         # --------------------------
