@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Public_Pretrained
-      version: swinsimmim_base_m0.75_v00
+      version: swinsimmim_base_m0.75
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -52,7 +52,10 @@ trainer:
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
   log_every_n_steps: 1
-  # strategy: ddp
+  strategy:
+    class_path: pytorch_lightning.strategies.DDPStrategy
+    init_args: 
+      find_unused_parameters: false
   sync_batchnorm: false
   precision: 16
   enable_model_summary: true
@@ -103,11 +106,11 @@ data:
     is_ssl: true
     # real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
     # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
-    public_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/public_data/crop
+    public_data_root_dir: /gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data/crop
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
-    dist: false
+    dist: true
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
