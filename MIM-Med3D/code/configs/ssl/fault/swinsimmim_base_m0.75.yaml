@@ -56,7 +56,7 @@ trainer:
     class_path: pytorch_lightning.strategies.DDPStrategy
     init_args: 
       find_unused_parameters: false
-  sync_batchnorm: false
+  sync_batchnorm: true
   precision: 16
   enable_model_summary: true
   # weights_summary: top
