@@ -87,9 +87,9 @@ param_scheduler = [
         eta_min=4e-05,
         by_epoch=True,
         begin=10,
-        end=100,
+        end=3000,
         convert_to_iter_based=True)
 ]
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=100)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=3000)
 auto_scale_lr = dict(base_batch_size=2048)
 launcher = 'pytorch'
