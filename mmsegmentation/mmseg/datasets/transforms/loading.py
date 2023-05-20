@@ -124,7 +124,7 @@ class LoadAnnotations(MMCV_LoadAnnotations):
         # dilate if needed
         if self.dilate:
             kernel = np.ones((3,3), dtype=np.uint8)
-            gt_semantic_seg = cv2.dilate(gt_semantic_seg, kernel=kernel, iterations=3) # iterations=5
+            gt_semantic_seg = cv2.dilate(gt_semantic_seg, kernel=kernel, iterations=1) # iterations=5, 3, 1
         results['gt_seg_map'] = gt_semantic_seg
         results['seg_fields'].append('gt_seg_map')
 
