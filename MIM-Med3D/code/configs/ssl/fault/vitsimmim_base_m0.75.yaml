@@ -53,7 +53,7 @@ trainer:
   # flush_logs_every_n_steps: null
   log_every_n_steps: 1
   strategy: ddp
-  sync_batchnorm: false
+  sync_batchnorm: true
   precision: 16
   enable_model_summary: true
   # weights_summary: top
