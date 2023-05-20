@@ -6,7 +6,7 @@ from einops import repeat
 
 import numpy as np
 # from .swin_3d import SwinTransformer3D
-from swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
+from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
 # from monai.networks.layers import Conv
 from monai.networks.nets import ViT
 from mmengine.runner import load_checkpoint
