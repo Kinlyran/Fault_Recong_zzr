@@ -6,7 +6,7 @@ from einops import repeat
 
 import numpy as np
 # from .swin_3d import SwinTransformer3D
-from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
+from swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
 # from monai.networks.layers import Conv
 from monai.networks.nets import ViT
 from mmengine.runner import load_checkpoint
@@ -254,6 +254,9 @@ class SwinSimMIM(nn.Module):
                 nn.ConvTranspose3d(self.num_features // 16, in_channels, kernel_size=(2, 2, 2), stride=(2, 2, 2)),
             )
 
+        # simulate origin vit patch size
+        self.mask_patch_size = (16, 16, 16)
+        self.scale = int(self.mask_patch_size[0] / patch_size[0]) # time to repeat
         
     def forward(self, img):
         # B, C, D, H, W = img.shape
@@ -283,18 +286,26 @@ class SwinSimMIM(nn.Module):
         batch_range = torch.arange(batch, device=device)[:, None]
 
         # calculate of patches needed to be masked, and get positions (indices) to be masked
-        num_masked = int(self.masking_ratio * num_patches)
-        masked_indices = (
-            torch.rand(batch, num_patches, device=device)
-            .topk(k=num_masked, dim=-1)
+        num_simulate_patches = int((img.shape[2] / self.mask_patch_size[0]) * (img.shape[3] / self.mask_patch_size[1]) * (img.shape[4] / self.mask_patch_size[2]))
+        num_simulate_masked = int(self.masking_ratio * num_simulate_patches)
+        simulate_masked_indices = (
+            torch.rand(batch, num_simulate_patches, device=device)
+            .topk(k=num_simulate_masked, dim=-1)
             .indices
-        )
-        masked_bool_mask = (
-            torch.zeros((batch, num_patches), device=device)
-            .scatter_(-1, masked_indices, 1)
+        ) # (B, num_simulate_patches)
+        simulate_masked_bool_mask = (
+            torch.zeros((batch, num_simulate_patches), device=device)
+            .scatter_(-1, simulate_masked_indices, 1)
             .bool()
-        )
-
+        ) # (B, num_simulate_patches)
+        # convert to origin masked_bool_mask
+        simulate_masked_bool_mask = simulate_masked_bool_mask.view(batch, int(img.shape[2] / self.mask_patch_size[0]), int(img.shape[3] / self.mask_patch_size[1]), int(img.shape[4] / self.mask_patch_size[2]))
+        simulate_masked_bool_mask = torch.repeat_interleave(simulate_masked_bool_mask, self.scale, dim=1)
+        simulate_masked_bool_mask = torch.repeat_interleave(simulate_masked_bool_mask, self.scale, dim=2)
+        masked_bool_mask = torch.repeat_interleave(simulate_masked_bool_mask, self.scale, dim=3)
+        masked_bool_mask = masked_bool_mask.view((batch, num_patches))
+        # get origin masked_indices
+        masked_indices = torch.stack([torch.nonzero(masked_bool_mask[i,:]).t().squeeze(0) for i in range(batch)], dim=0)
         # prepare mask tokens
         mask_tokens = repeat(self.mask_token, "d -> b n d", b=batch, n=num_patches)
         # mask_tokens = mask_tokens + self.encoder.patch_embedding.position_embeddings
