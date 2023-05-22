@@ -136,10 +136,10 @@ def predict(config_path, ckpt_path, output_path):
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
     # print(preds)
 
-def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_path=None):
+def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # set device
-    # device = torch.device('cuda:0')
-    device = 'cpu'
+    device = torch.device('cuda:1')
+    # device = 'cpu'
     # crop data
     seis = np.load(input_path, mmap_mode='r')
     slice_builder = SliceBuilder(raw_dataset=seis,
@@ -151,10 +151,6 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_p
                                  # stride_shape=(128, 128, 128)
                                  )
     crop_cubes_pos = slice_builder.raw_slices
-    
-    # load gt if exsist
-    if gt_path is not None:
-        gt = np.load(gt_path, mmap_mode='r')
     
     # create missing dir
     if not os.path.exists(output_path):
@@ -195,14 +191,6 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_p
             # fill into origin pred
             output_logits[x_range, y_range, z_range] += logits
             count_mat[x_range, y_range, z_range] += 1
-            
-            # eval if gt exit
-            if gt_path is not None:
-                pred = model.post_trans(logits).cpu().numpy()
-                crop_gt = gt[x_range, y_range, z_range]
-                # print(pred)
-                # print(np.unique(crop_gt))
-                print(dice_coefficient(crop_gt, pred))
     output_logits /= count_mat
     output_pred = model.post_trans(output_logits).cpu().numpy()
     output_score = model.post_score_trans(output_logits).cpu().numpy()
@@ -222,10 +210,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_p
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/seis/seisval.npy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filter/test_pred'
-    gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/val/fault/faultval.npy'
+    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/config.yaml'
+    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
+    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/test_pred'
+    # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
-    predict_sliding_window(config_path, ckpt_path, input_path, output_path, gt_path)
+    predict_sliding_window(config_path, ckpt_path, input_path, output_path)

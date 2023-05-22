@@ -9,7 +9,7 @@ import segyio
 from tqdm import tqdm
 
 
-def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda', force_3_chan=False, convert_25d=False, step=None):
+def main(config_file, checkpoint_file, input_cube, save_path, device='cuda', force_3_chan=False, convert_25d=False, step=None):
     
     # init model
     model = init_model(config_file, checkpoint_file, device)
@@ -17,13 +17,16 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
         model = revert_sync_batchnorm(model)
     
     # load predict image cube
-    print(f'loading image: {input_cube_path}...')
-    if '.npy' in input_cube_path:
-        image = np.load(input_cube_path, mmap_mode='r')
-    elif '.sgy' in input_cube_path:
-        image = segyio.tools.cube(input_cube_path)
+    if isinstance(input_cube, str):
+        print(f'loading image: {input_cube}...')
+        if '.npy' in input_cube:
+            image = np.load(input_cube, mmap_mode='r')
+        elif '.sgy' in input_cube:
+            image = segyio.tools.cube(input_cube)
+        else:
+            raise TypeError
     else:
-        raise TypeError
+        image = input_cube
     
     print('start predict')
     predict = []
@@ -54,8 +57,8 @@ def main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda'
      
  
 if __name__ == '__main__':
-    config_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512.py'
-    checkpoint_file = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512/Best_Dice65.pth'
-    input_cube_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    save_path = '/home/zhangzr/FaultRecongnition/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512/predict'
-    main(config_file, checkpoint_file, input_cube_path, save_path, device='cuda', convert_25d=True, step=5)
+    config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_1/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_1.py'
+    checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_1/Best_Dice_33.pth'
+    input_cube = segyio.tools.cube('/home/zhangzr/Fault_Recong/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy')[373:,:,:]
+    save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_1/predict'
+    main(config_file, checkpoint_file, input_cube, save_path, device='cuda:0', convert_25d=True, step=5)
