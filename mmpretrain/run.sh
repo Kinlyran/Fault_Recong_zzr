@@ -2,7 +2,8 @@ GPU=$2
 port=23489
 
 
-config=simmim_swin-base-w6_100e_512x512_public
+# config=simmim_swin-base-w6_100e_512x512_public
+config=simmim_swin-base-w7_3000e_256x256_0519_2d_fault
 
 if [ $1 = "train" ]; then
     CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_Recong/config/${config}.py 1 --work-dir output/${config} 
