@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetune
-      version: unetr_base_vitmae_p16_m0.75_fault_random_aug_new
+      version: unetr_base_vitmae_p16_m0.75_public_filted_003
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -29,7 +29,7 @@ trainer:
   num_nodes: 1
   devices: -1
   accelerator: gpu
-  auto_select_gpus: false
+  # auto_select_gpus: false
   tpu_cores: null
   ipus: null
   # log_gpu_memory: null
@@ -37,7 +37,7 @@ trainer:
   enable_progress_bar: true
   overfit_batches: 0.0
   track_grad_norm: -1
-  check_val_every_n_epoch: 2
+  check_val_every_n_epoch: 10
   fast_dev_run: false
   accumulate_grad_batches: null
   max_epochs: 1000
@@ -81,7 +81,7 @@ model:
   init_args:
     model_name: unetr_base
     model_dict:
-      pretrained: ./output/Fault_Pretrained_NoExtra/vitmae_base_m0.75_fault/checkpoints/best.ckpt
+      pretrained: ./output/Fault_Public_Pretrained/vitsimmim_base_m0.75_v00/checkpoints/best.ckpt
       in_channels: 1
       out_channels: 1
       img_size: [128, 128, 128]
@@ -100,12 +100,12 @@ data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     is_ssl: false
-    real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
-    simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
-    is_ssl: false
-    batch_size: 4
+    # real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
+    # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
+    public_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/public_data/crop_filted_003
+    batch_size: 16
     val_batch_size: 1
-    num_workers: 8
+    num_workers: 16
     dist: false
 optimizer:
   class_path: torch.optim.AdamW
