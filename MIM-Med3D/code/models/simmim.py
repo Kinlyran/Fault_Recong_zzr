@@ -292,7 +292,7 @@ class SwinSimMIM(nn.Module):
             torch.rand(batch, num_simulate_patches, device=device)
             .topk(k=num_simulate_masked, dim=-1)
             .indices
-        ) # (B, num_simulate_patches)
+        ) # (B, num_simulate_masked)
         simulate_masked_bool_mask = (
             torch.zeros((batch, num_simulate_patches), device=device)
             .scatter_(-1, simulate_masked_indices, 1)
