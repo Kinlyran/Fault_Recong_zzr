@@ -210,10 +210,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/config.yaml'
-    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/test_pred'
+    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filted_003/config.yaml'
+    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filted_003/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/train/seis/seistrain.npy'
+    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public_filted_003/train_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)
