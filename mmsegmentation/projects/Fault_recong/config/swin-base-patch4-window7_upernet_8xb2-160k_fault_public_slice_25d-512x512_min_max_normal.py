@@ -8,7 +8,7 @@ data_preprocessor = dict(
     pad_val=0,
     seg_pad_val=0,
     size=(512, 512))
-checkpoint_file = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
+checkpoint_file = '/gpfs/share/home/2001110054/Fault_Recong/mmsegmentation/pretrain/swin_base_patch4_window7_224_22k_20220317-4f79f7c0.pth'
 model = dict(
     type='EncoderDecoder',
     data_preprocessor=data_preprocessor,
@@ -68,16 +68,16 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+data_root = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/2d_slices'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromNpy', convert_25d=True, step=5, max_slice_id=899),
     dict(type='LoadAnnotations'),
+    dict(type='Rerange', min_value=0.0, max_value=1.0),
     # dict(type='Resize', scale=(512, 512), keep_ratio=True),
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.99),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
-    dict(type='Rerange', min_value=0.0, max_value=1.0),
     dict(type='PackSegInputs')
 ]
 test_pipeline = [
