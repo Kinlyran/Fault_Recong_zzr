@@ -47,7 +47,7 @@ def post_eval(predict_path, gt_path):
         y_true_f = gt_slice.flatten()
         y_score_f = score_slice.flatten()
         j = 0
-        for th in tqdm(ths):
+        for th in ths:
             y_pred_f = (y_score_f > th).astype(np.uint8)
             image_precision_mat[k, j] = precision_score(y_true_f, y_pred_f)
             image_f1_mat[k, j] = f1_score(y_true_f, y_pred_f)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred/seistest.h5'
     # gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # post_eval(predict_path, gt_path)
-    predict_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-256x256/predict/score.npy'
+    predict_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice-128x128/predict/score.npy'
     gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     post_eval(predict_path, gt_path)
     # post_eval_val(predict_path, gt_path)

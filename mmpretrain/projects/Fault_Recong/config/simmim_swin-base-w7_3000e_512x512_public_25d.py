@@ -14,7 +14,7 @@ train_pipeline = [
         input_size=512,
         mask_patch_size=32,
         model_patch_size=4,
-        mask_ratio=0.6),
+        mask_ratio=0.75),
     dict(type='PackInputs')
 ]
 train_dataloader = dict(

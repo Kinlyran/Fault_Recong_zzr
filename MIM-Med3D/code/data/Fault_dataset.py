@@ -17,6 +17,7 @@ from monai.transforms import (
     LoadImaged,
     Orientationd,
     RandFlipd,
+    RandSpatialCropd,
     RandCropByPosNegLabeld,
     RandSpatialCropSamplesd,
     RandShiftIntensityd,
@@ -126,6 +127,59 @@ class Fault(Dataset):
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
 
+class Fault_Size_192(Dataset):
+    def __init__(self, 
+                root_dir: str, 
+                split: str = 'train',
+                # is_ssl=False,
+                mean=None,
+                std=None):
+        self.root_dir = root_dir
+        self.split = split
+        # self.is_ssl = is_ssl
+        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                RandSpatialCropd(keys=["image", "label"], roi_size=(128, 128, 128), random_size=False),
+                                NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+                                    # RandRotated(keys=["image", "label"], prob=0.10, )
+                                    ])
+        self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+        # self.convert_size = convert_size
+        if self.split == 'train':
+            self.data_lst = os.listdir(os.path.join(self.root_dir, 'train'))
+        elif self.split == 'val':
+            self.data_lst = os.listdir(os.path.join(self.root_dir, 'val'))
+        else:
+            raise ValueError('Only support split = train/val')
+        
+    
+    def __len__(self):
+        return len(self.data_lst)
+    
+    def __getitem__(self, index):
+        f = h5py.File(os.path.join(self.root_dir, self.split, self.data_lst[index]),'r') 
+        image = f['raw'][:]
+        if 'label' in f.keys():
+            mask = f['label'][:]
+            mask = mask.astype(np.float32)
+        else:
+            mask = None
+        # mask = np.squeeze(mask,0)
+        f.close()
+        if mask is None:
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
+        elif self.split == 'train':
+            return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
+        elif self.split == 'val':
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                    'label': torch.from_numpy(mask).unsqueeze(0),
+                    'image_name': self.data_lst[index]})
+
 class Fault_Simple(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
@@ -152,6 +206,7 @@ class FaultDataset(pl.LightningDataModule):
         real_data_root_dir=None,
         simulate_data_root_dir=None,
         public_data_root_dir=None,
+        public_data_192_root_dir=None,
         test_data_root_dir=None,
         batch_size: int = 1,
         val_batch_size: int = 1,
@@ -163,6 +218,7 @@ class FaultDataset(pl.LightningDataModule):
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
         self.public_data_root_dir = public_data_root_dir
+        self.public_data_192_root_dir = public_data_192_root_dir
         self.test_data_root_dir = test_data_root_dir
         self.batch_size = batch_size
         self.val_batch_size = val_batch_size
@@ -189,6 +245,9 @@ class FaultDataset(pl.LightningDataModule):
                 # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
                 train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl))
                 valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl))
+            if self.public_data_192_root_dir is not None:
+                train_ds.append(Fault_Size_192(root_dir=self.public_data_192_root_dir, split='train'))
+                valid_ds.append(Fault_Size_192(root_dir=self.public_data_192_root_dir, split='val'))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
