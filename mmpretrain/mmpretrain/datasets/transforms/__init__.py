@@ -15,7 +15,7 @@ from .processing import (Albumentations, BEiTMaskGenerator, ColorJitter,
                          Lighting, RandomCrop, RandomErasing,
                          RandomResizedCrop, ResizeEdge, SimMIMMaskGenerator)
 from .wrappers import MultiView
-from .loading import LoadImageFromNpy
+from .loading import LoadImageFromNpy, Rerange
 
 for t in (CenterCrop, LoadImageFromFile, Normalize, RandomFlip,
           RandomGrayscale, RandomResize, Resize):
