@@ -68,7 +68,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
-data_root = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/2d_slices'
+data_root = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/2d_slices'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromNpy', convert_25d=True, step=5, max_slice_id=899),
