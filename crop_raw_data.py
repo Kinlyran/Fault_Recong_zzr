@@ -6,12 +6,12 @@ from tqdm import tqdm
 import random
 
 
-def get_slice(seis, fault, save_path):
+def get_slice(seis, fault, save_path, patch_shape, stride_shape):
     slice_builder = SliceBuilder(raw_dataset=seis,
                                  label_dataset=None,
                                  weight_dataset=None,
-                                 patch_shape=(192, 192, 192),
-                                 stride_shape=(96, 96, 96)
+                                 patch_shape=patch_shape,
+                                 stride_shape=stride_shape
                                  # patch_shape=(256, 256, 256),
                                  # stride_shape=(128, 128, 128)
                                  )
@@ -25,17 +25,17 @@ def get_slice(seis, fault, save_path):
         z_range = pos[2]
         seis_cube_crop = seis[x_range, y_range, z_range]
         label_cube_crop = fault[x_range, y_range, z_range]
-        if np.sum(label_cube_crop) > 0.0:
-            f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
-            f['raw'] = seis_cube_crop
-            f['label'] = label_cube_crop
-            f.close() 
-            i += 1
+        # if np.sum(label_cube_crop) > 0.0:
+        f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
+        f['raw'] = seis_cube_crop
+        f['label'] = label_cube_crop
+        f.close() 
+        i += 1
         
 
 
 def dat2h5():
-    """
+    
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/'
     # 501, 501, 801
     seis_data = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'seis', 'mig_fill.sgy'))
@@ -44,24 +44,26 @@ def dat2h5():
     # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
     label = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'fault', 'label_fill.sgy'))
     label = label.astype(np.uint8)
-    get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'crop', 'train'))
-    get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop', 'val'))
+    get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'large_crop', 'train'), patch_shape=(373, 501, 500), stride_shape=(373, 501, 100))
+    get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'large_crop', 'val'), patch_shape=(128, 501, 500), stride_shape=(128, 501, 100))
     """
-    data_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/'
+    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
     
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
-    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_192_filted_no_fault', 'train'))
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_512', 'train'), patch_shape=(512, 512, 512), stride_shape=(256, 256, 256))
     del seis_train
     del fault_train
     
     print('loading seis val data')
     seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'), mmap_mode='r')
     fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'), mmap_mode='r')
-    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_192_filted_no_fault', 'val'))
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_512', 'val'), patch_shape=(200, 512, 512), stride_shape=(200, 256, 256))
     del seis_val
     del fault_val
+    
+    """
     
     '''
     print('loading seis test data')

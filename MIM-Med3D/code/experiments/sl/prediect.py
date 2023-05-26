@@ -139,7 +139,7 @@ def predict(config_path, ckpt_path, output_path):
 
 def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # set device
-    device = torch.device('cuda:1')
+    device = torch.device('cuda:0')
     # device = 'cpu'
     # crop data
     seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
@@ -213,10 +213,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/config.yaml'
-    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/test_pred'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline_new_normalization/unetr_base_supbaseline_p16_public_192_filted_003/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline_new_normalization/unetr_base_supbaseline_p16_public_192_filted_003/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/seis/seistest.npy'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline_new_normalization/unetr_base_supbaseline_p16_public_192_filted_003/test_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)
