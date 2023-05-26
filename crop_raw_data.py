@@ -44,8 +44,8 @@ def dat2h5():
     # seis_data[seis_data==0.0] = seis_data[seis_data!=0.0].mean()
     label = segyio.tools.cube(os.path.join(data_path, 'origin_data', 'fault', 'label_fill.sgy'))
     label = label.astype(np.uint8)
-    get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'large_crop', 'train'), patch_shape=(373, 501, 500), stride_shape=(373, 501, 100))
-    get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'large_crop', 'val'), patch_shape=(128, 501, 500), stride_shape=(128, 501, 100))
+    get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'crop_192', 'train'), patch_shape=(192, 192, 192), stride_shape=(96, 96, 96))
+    get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop_192', 'val'), patch_shape=(128, 192, 192), stride_shape=(128, 96, 96))
     """
     data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
     
