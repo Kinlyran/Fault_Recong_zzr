@@ -9,6 +9,7 @@ import shutil
 import torch
 from tqdm import tqdm
 from monai.transforms import NormalizeIntensity
+import segyio
 
 
 def dice_coefficient(y_true, y_pred):
@@ -141,7 +142,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     device = torch.device('cuda:1')
     # device = 'cpu'
     # crop data
-    seis = np.load(input_path, mmap_mode='r')[:, :, 400:1500]
+    seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
+    # seis = segyio.tools.cube(input_path)[373:,:,:]
     slice_builder = SliceBuilder(raw_dataset=seis,
                                  label_dataset=None,
                                  weight_dataset=None,
@@ -165,9 +167,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     model.eval()
     
     # data preprocess
-    mean = -1.3021970536436015e-06
-    std = 0.11276439772911345
-    data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
+    # mean=1.7283046245574951
+    # std=6800.84033203125
+   #  data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
+    data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
     
     # predict
     output_logits = np.zeros(seis.shape)
@@ -210,10 +213,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/config.yaml'
-    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/checkpoints/best.ckpt'
+    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/config.yaml'
+    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/checkpoints/best.ckpt'
     input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_filted_no_fault/test_pred'
+    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_filted_003/test_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)

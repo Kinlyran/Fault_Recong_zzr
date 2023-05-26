@@ -16,6 +16,56 @@ from mmseg.datasets.dataset_wrappers import MultiImageMixDataset
 from mmseg.registry import TRANSFORMS
 
 
+
+@TRANSFORMS.register_module()
+class PerImageNormalization(BaseTransform):
+    """Rerange the image pixel value.
+
+    Required Keys:
+
+    - img
+
+    Modified Keys:
+
+    - img
+
+    Args:
+        min_value (float or int): Minimum value of the reranged image.
+            Default: 0.
+        max_value (float or int): Maximum value of the reranged image.
+            Default: 255.
+    """
+
+    def __init__(self, ignore_zoro=False):
+        self.ignore_zoro = ignore_zoro
+        
+    def transform(self, results: dict) -> dict:
+        """Call function to rerange images.
+
+        Args:
+            results (dict): Result dict from loading pipeline.
+        Returns:
+            dict: Reranged results.
+        """
+
+        img = results['img']
+        if self.ignore_zoro:
+            mean = np.mean(img[img != 0.0])
+            std = np.std(img[img != 0.0])
+            img[img != 0.0] = (img[img != 0.0] - mean) / std
+        else:
+            mean = np.mean(img)
+            std = np.std(img)
+            img = (img - mean) / std
+        results['img'] = img
+        return results
+
+    def __repr__(self):
+        repr_str = self.__class__.__name__
+        repr_str += f'(ignore_zoro={self.ignore_zoro})'
+        return repr_str
+
+
 @TRANSFORMS.register_module()
 class ResizeToMultiple(BaseTransform):
     """Resize images & seg to multiple of divisor.

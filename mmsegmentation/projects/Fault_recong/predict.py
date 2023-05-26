@@ -81,15 +81,15 @@ def main_2d(config_file, checkpoint_file, input_path, save_path, device='cuda', 
      
  
 if __name__ == '__main__':
-    config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_3/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft.py'
-    checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_3/Best_Dice_28.pth'
-    input_cube = segyio.tools.cube('/home/zhangzr/Fault_Recong/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy')[373:,:,:]
-    save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_3/predict'
-    main(config_file, checkpoint_file, input_cube, save_path, device='cuda:1', convert_25d=True, step=5)
+    config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256.py'
+    checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/Best_Dice_64.pth'
+    input_cube = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
+    save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/predict'
+    main(config_file, checkpoint_file, input_cube, save_path, device='cuda:0',force_3_chan=True)
     
     
-    # config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256.py'
-    # checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256/Best.pth'
+    # config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256_ft/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256_ft.py'
+    # checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256_ft/Best.pth'
     # input_path = '/home/zhangzr/Fault_Recong/Fault_data/2Dfault_0519_256/converted_slice_split/val/image'
-    # save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256/predict'
-    # main_2d(config_file, checkpoint_file, input_path, save_path, device='cuda:1', force_3_chan=True)
+    # save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256_ft/predict'
+    # main_2d(config_file, checkpoint_file, input_path, save_path, device='cuda:0', force_3_chan=True)

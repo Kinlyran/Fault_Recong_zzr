@@ -31,19 +31,21 @@ def convert_score(score):
 def post_eval_thebe(predict_path, gt_path):
     # pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
     score = np.load(predict_path, mmap_mode='r')
+    print(f'score shape is {score.shape}')
     # f =  h5py.File(predict_path, 'r')
     # pred = f['predictions']
     # score = f['score']
     
     gt = np.load(gt_path, mmap_mode='r')
+    print(f'gt shape is {gt.shape}')
     image_f1_mat = np.zeros((len(range(0, gt.shape[0], 5)), len(ths)))
     image_precision_mat = np.zeros((len(range(0, gt.shape[0], 5)), len(ths)))
     k = 0
     for i in tqdm(range(0, gt.shape[0], 5)):
         gt_slice = convert_gt(gt[i,:,800:1300])
-        # gt_slice = gt[i,:,800:1300]
-        # pred_slice = convert_gt(pred[i,:,800:1300])
-        score_slice = convert_score(score[i,:,800:1300])
+        # gt_slice = gt[i,:,800:1300]å
+        # score_slice = convert_score(score[i,:,800:1300])
+        score_slice = convert_score(score[i,:,400:900])
         # score_slice = score[i,:,800:1300]
         y_true_f = gt_slice.flatten()
         y_score_f = score_slice.flatten()
@@ -128,12 +130,7 @@ def post_eval_3d(predict_path, gt_path):
     print(f'Ap is {ap} \n OIS is {OIS}\n ODS is {ODS}')
             
 if __name__ == '__main__':
-    # predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/unetr_base_supbaseline_p16_public/test_pred/seistest.h5'
-    # gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
-    # post_eval(predict_path, gt_path)
-    predict_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_real_labeled_slice_25d-256x256-dilate_ft_3/predict/score.npy'
-    gt_path = '/home/zhangzr/Fault_Recong/Fault_data/real_labeled_data/origin_data/fault/label_fill.sgy'
-    # post_eval(predict_path, gt_path)
-    # post_eval_val(predict_path, gt_path)
-    post_eval_3d(predict_path, gt_path)
+    predict_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Finetune/unetr_base_vitsimmim_p16_m0.75_public_filted_003/test_pred/seistest_score.npy'
+    gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
+    post_eval_thebe(predict_path, gt_path)
     
