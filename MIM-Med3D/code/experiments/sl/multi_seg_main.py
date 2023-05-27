@@ -30,8 +30,8 @@ class MultiSegtrainer(pl.LightningModule):
         elif model_name == "segresnet":
             self.model = SegResNet(**model_dict)
 
-        self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True, lambda_dice=0.1, lambda_ce=1.0)
-        # self.loss_function = torch.nn.BCEWithLogitsLoss()
+        # self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True, lambda_dice=0.1, lambda_ce=1.0)
+        self.loss_function = torch.nn.BCEWithLogitsLoss()
         # self.post_pred = AsDiscrete(argmax=True, to_onehot=num_classes)
         # self.post_label = AsDiscrete(to_onehot=num_classes)
         self.post_trans = Compose(
@@ -55,7 +55,7 @@ class MultiSegtrainer(pl.LightningModule):
         loss = self.loss_function(output, labels)
         # logging
         self.log(
-            "train/dice_loss_step",
+            "train/bce_loss_step",
             loss,
             batch_size=batch_size,
             on_step=True,
@@ -70,7 +70,7 @@ class MultiSegtrainer(pl.LightningModule):
     def training_epoch_end(self, outputs):
         avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log(
-            "train/dice_loss_avg",
+            "train/bce_loss_avg",
             avg_loss,
             on_step=False,
             on_epoch=True,
@@ -103,7 +103,7 @@ class MultiSegtrainer(pl.LightningModule):
         self.f1_vals += f1_batch
         # logging
         self.log(
-            "val/dice_loss_step",
+            "val/bce_loss_step",
             loss,
             batch_size=batch_size,
             on_step=True,
@@ -125,7 +125,7 @@ class MultiSegtrainer(pl.LightningModule):
         mean_val_loss = torch.tensor(val_loss / num_items)
         # logging
         self.log(
-            "val/dice_loss_avg",
+            "val/bce_loss_avg",
             mean_val_loss,
             on_step=False,
             on_epoch=True,
@@ -154,7 +154,7 @@ class MultiSegtrainer(pl.LightningModule):
                 "max_epochs": self.trainer.max_epochs,
                 "precision": self.trainer.precision,
             },
-            metrics={"dice_loss": mean_val_loss, "f1": mean_val_f1},
+            metrics={"bce_loss": mean_val_loss, "f1": mean_val_f1},
         )
 
         self.metric_values.append(mean_val_f1)
