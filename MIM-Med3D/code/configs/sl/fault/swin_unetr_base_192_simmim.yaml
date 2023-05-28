@@ -4,8 +4,8 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Baseline_new_normalization
-      version: swin_unetr_base_supbaseline_p16_public_512
+      name: Fault_finetuning
+      version: swin_unetr_base_supbaseline_p16_public_192_filted003_bce
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -38,10 +38,10 @@ trainer:
   enable_progress_bar: true
   overfit_batches: 0.0
   track_grad_norm: -1
-  check_val_every_n_epoch: 50
+  check_val_every_n_epoch: 10
   fast_dev_run: false
   accumulate_grad_batches: null
-  max_epochs: 5000
+  max_epochs: 1000
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -100,15 +100,16 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: null
-      revise_keys: []
+      pretrained: /gpfs/share/home/2001110054/ondemand/code/Fault_Recong/MIM-Med3D/output/Fault_Public_Pretrained_new_normalization/swinsimmim_base_m0.75/checkpoints/best.ckpt
+      revise_keys: [['model.encoder.', '']]
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
     is_ssl: false
     # real_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/crop
     # simulate_data_root_dir: /home/zhangzr/FaultRecongnition/Fault_data/simulate_data
-    public_data_root_dir: /gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data/crop_512
+    # public_data_root_dir: /gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data/crop_filted_003
+    public_data_root_dir: /gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data/crop_192_filted_003
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
@@ -122,6 +123,6 @@ lr_scheduler:
   class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
   init_args:
     warmup_epochs: 100
-    max_epochs: 5000
+    max_epochs: 1000
     eta_min: 0.0001
 ckpt_path: null
