@@ -108,7 +108,7 @@ def _preprare_data(imgs: ImageType, model: BaseSegmentor):
         is_batch = False
 
     if isinstance(imgs[0], np.ndarray) and cfg.test_pipeline[0]['type'] != 'LoadImageFromNpy':
-        cfg.test_pipeline[0]['type'] = 'LoadImageFromNDArray'
+        cfg.test_pipeline.insert(0, dict(type='LoadImageFromNDArray'))
 
     # TODO: Consider using the singleton pattern to avoid building
     # a pipeline for each inference

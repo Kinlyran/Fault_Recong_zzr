@@ -81,10 +81,10 @@ def main_2d(config_file, checkpoint_file, input_path, save_path, device='cuda', 
      
  
 if __name__ == '__main__':
-    config_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256.py'
-    checkpoint_file = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/Best_Dice_64.pth'
-    input_cube = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    save_path = '/home/zhangzr/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_3chan-256x256/predict'
+    config_file = '/gpfs/share/home/2001110054/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm.py'
+    checkpoint_file = '/gpfs/share/home/2001110054/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm/Best.pth'
+    input_cube = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
+    save_path = '/gpfs/share/home/2001110054/Fault_Recong/mmsegmentation/output/swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm/predict'
     main(config_file, checkpoint_file, input_cube, save_path, device='cuda:0',force_3_chan=True)
     
     
