@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Baseline
-      version: swin_unetr_base_supbaseline_p16_real_labeled_crop_192
+      version: swin_unetr_base_supbaseline_p16_real_labeled_crop_192-pos-weight-10
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
