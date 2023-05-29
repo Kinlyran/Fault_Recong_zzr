@@ -75,7 +75,7 @@ train_pipeline = [
     dict(type='PerImageNormalization', ignore_zoro=True),
     dict(type='LoadAnnotations'),
     # dict(type='ResizeToMultiple', size_divisor=3),
-    dict(type='Resize', scale=(512, 1038), keep_ratio=True),
+    dict(type='ResizeToMultiple', size_divisor=3),
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=1.),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
@@ -86,7 +86,7 @@ test_pipeline = [
     dict(type='PerImageNormalization', ignore_zoro=True),
     dict(type='LoadAnnotations'),
     # dict(type='ResizeToMultiple', size_divisor=3),
-    dict(type='Resize', scale=(512, 1038), keep_ratio=True),
+    dict(type='ResizeToMultiple', size_divisor=3),
     dict(type='PackSegInputs')
 ]
 
