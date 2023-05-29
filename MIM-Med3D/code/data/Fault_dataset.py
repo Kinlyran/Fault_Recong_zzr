@@ -84,12 +84,12 @@ class Fault(Dataset):
         self.split = split
         self.is_ssl = is_ssl
         if zoom:
-            self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+            self.train_transform = Compose([Zoomd(keys=["image"], zoom=(1.0, 0.5, 0.5), mode='area', keep_size=False),
+                                    Zoomd(keys=["label"], zoom=(1.0, 0.5, 0.5), mode='nearest', keep_size=False),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                     RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                     RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
                                     RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
-                                    Zoomd(keys=["image"], zoom=(1.0, 0.5, 0.5), mode='area', keep_size=False),
-                                    Zoomd(keys=["label"], zoom=(1.0, 0.5, 0.5), mode='nearest', keep_size=False),
                                     RandSpatialCropd(keys=["image", "label"], roi_size=(128, 128, 128), random_size=False),
                                     NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False), # nonzero = False
                                     ])
