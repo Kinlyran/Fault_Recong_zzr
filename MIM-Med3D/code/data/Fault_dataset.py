@@ -210,7 +210,7 @@ class FaultDataset(pl.LightningDataModule):
                 # train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
                 # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
                 train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom))
-                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, rzoom=self.zoom))
+                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
