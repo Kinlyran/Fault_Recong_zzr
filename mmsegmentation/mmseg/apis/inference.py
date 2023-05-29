@@ -99,6 +99,7 @@ def _preprare_data(imgs: ImageType, model: BaseSegmentor):
     for t in cfg.test_pipeline:
         if t.get('type') == 'LoadAnnotations':
             cfg.test_pipeline.remove(t)
+    for t in cfg.test_pipeline:
         if t.get('type') == 'LoadImageFromNpy':
             cfg.test_pipeline.remove(t)
 
