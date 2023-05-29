@@ -1,5 +1,5 @@
 dataset_type = 'CustomDataset'
-data_root = '/home/zhangzr/Fault_Recong/Fault_data/public_data/2d_slices'
+data_root = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/2d_slices'
 data_preprocessor = dict(
     type='SelfSupDataPreprocessor',
     mean=None,

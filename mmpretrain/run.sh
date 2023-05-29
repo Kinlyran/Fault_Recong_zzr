@@ -1,11 +1,11 @@
 GPU=$2
-port=23487
+port=23488
 
 
 # config=simmim_swin-base-w6_100e_512x512_public
 # config=simmim_swin-base-w7_3000e_256x256_0519_2d_fault
 # config=simmim_swin-base-w7_3000e_512x512_public_25d
-config=simmim_swin-base-w7_3000e_256x256_0519_2d_fault_per_image_norm
+# config=simmim_swin-base-w7_3000e_256x256_0519_2d_fault_per_image_norm
 config=simmim_swin-base-w7_3000e_512x512_public_25d_per_image_norm
 
 if [ $1 = "train" ]; then
