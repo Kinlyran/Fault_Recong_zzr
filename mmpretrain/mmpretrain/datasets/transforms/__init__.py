@@ -15,7 +15,7 @@ from .processing import (Albumentations, BEiTMaskGenerator, ColorJitter,
                          Lighting, RandomCrop, RandomErasing,
                          RandomResizedCrop, ResizeEdge, SimMIMMaskGenerator)
 from .wrappers import MultiView
-from .loading import LoadImageFromNpy, Rerange
+from .loading import LoadImageFromNpy, Rerange, PerImageNormalization
 
 for t in (CenterCrop, LoadImageFromFile, Normalize, RandomFlip,
           RandomGrayscale, RandomResize, Resize):
@@ -31,5 +31,5 @@ __all__ = [
     'EfficientNetCenterCrop', 'ResizeEdge', 'BaseAugTransform',
     'PackMultiTaskInputs', 'GaussianBlur', 'BEiTMaskGenerator',
     'SimMIMMaskGenerator', 'CenterCrop', 'LoadImageFromFile', 'Normalize',
-    'RandomFlip', 'RandomGrayscale', 'RandomResize', 'Resize', 'MultiView', 'LoadImageFromNpy'
+    'RandomFlip', 'RandomGrayscale', 'RandomResize', 'Resize', 'MultiView', 'LoadImageFromNpy', 'Rerange', 'PerImageNormalization'
 ]
