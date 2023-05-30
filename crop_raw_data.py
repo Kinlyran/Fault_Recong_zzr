@@ -47,7 +47,7 @@ def dat2h5():
     get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'crop_256', 'train'), patch_shape=(256, 256, 256), stride_shape=(128, 128, 128))
     get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop_256', 'val'), patch_shape=(128, 192, 192), stride_shape=(128, 96, 96))
     """
-    data_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/'
+    data_path = '/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data'
     
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
