@@ -130,7 +130,7 @@ def post_eval_3d(predict_path, gt_path):
     print(f'Ap is {ap} \n OIS is {OIS}\n ODS is {ODS}')
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_bce/test_pred/mig_fill_score.npy'
+    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_crop_192-pos-weight-10/test_pred/mig_fill_score.npy'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data/fault/label_fill.sgy'
     post_eval_3d(predict_path, gt_path)
     
