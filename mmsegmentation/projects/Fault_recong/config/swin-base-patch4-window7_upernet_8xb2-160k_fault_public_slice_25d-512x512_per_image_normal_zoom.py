@@ -49,7 +49,7 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, class_weight=[10.0])),
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=512,
@@ -64,7 +64,7 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.4, class_weight=[10.0])),
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=0.4)),
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
@@ -74,8 +74,7 @@ train_pipeline = [
     dict(type='LoadImageFromNpy', convert_25d=True, step=5, max_slice_id=899),
     dict(type='PerImageNormalization', ignore_zoro=True),
     dict(type='LoadAnnotations'),
-    # dict(type='ResizeToMultiple', size_divisor=3),
-    dict(type='ResizeToMultiple', size_divisor=2),
+    dict(type='ResizeToMultiple', size_divisor=3),
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=1.),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),
@@ -84,9 +83,8 @@ train_pipeline = [
 test_pipeline = [
     dict(type='LoadImageFromNpy', convert_25d=True, step=5, max_slice_id=199),
     dict(type='PerImageNormalization', ignore_zoro=True),
+    dict(type='ResizeToMultiple', size_divisor=3),
     dict(type='LoadAnnotations'),
-    # dict(type='ResizeToMultiple', size_divisor=3),
-    dict(type='ResizeToMultiple', size_divisor=2),
     dict(type='PackSegInputs')
 ]
 
