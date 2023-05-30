@@ -80,6 +80,7 @@ class Fault(Dataset):
                 mean=None,
                 std=None,
                 zoom=False,
+                zoom_scale=None,
                 dilate=False):
         self.root_dir = root_dir
         self.split = split
@@ -88,8 +89,8 @@ class Fault(Dataset):
         if self.dilate:
             self.dilate_kernel = np.ones((3,3), dtype=np.uint8)
         if zoom:
-            self.train_transform = Compose([Zoomd(keys=["image"], zoom=(1.0, 0.5, 0.5), mode='area', keep_size=False),
-                                    Zoomd(keys=["label"], zoom=(1.0, 0.5, 0.5), mode='nearest', keep_size=False),
+            self.train_transform = Compose([Zoomd(keys=["image"], zoom=zoom_scale, mode='area', keep_size=False),
+                                    Zoomd(keys=["label"], zoom=zoom_scale, mode='nearest', keep_size=False),
                                     RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
                                     RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
                                     RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
@@ -97,8 +98,8 @@ class Fault(Dataset):
                                     RandSpatialCropd(keys=["image", "label"], roi_size=(128, 128, 128), random_size=False),
                                     NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False), # nonzero = False
                                     ])
-            self.val_transform = Compose([Zoomd(keys=["image"], zoom=(1.0, 0.5, 0.5), mode='area', keep_size=False),
-                                        Zoomd(keys=["label"], zoom=(1.0, 0.5, 0.5), mode='nearest', keep_size=False),
+            self.val_transform = Compose([Zoomd(keys=["image"], zoom=zoom_scale, mode='area', keep_size=False),
+                                        Zoomd(keys=["label"], zoom=zoom_scale, mode='nearest', keep_size=False),
                                         NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False)]) # nonzero = False])
         else:
             self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
@@ -177,6 +178,7 @@ class FaultDataset(pl.LightningDataModule):
         self,
         is_ssl=False,
         zoom=False,
+        zoom_scale=None,
         dilate=False,
         real_data_root_dir=None,
         simulate_data_root_dir=None,
@@ -190,6 +192,7 @@ class FaultDataset(pl.LightningDataModule):
         super().__init__()
         self.is_ssl = is_ssl
         self.zoom = zoom
+        self.zoom_scale = zoom_scale
         self.dilate = dilate
         self.real_data_root_dir = real_data_root_dir
         self.simulate_data_root_dir = simulate_data_root_dir
@@ -213,13 +216,13 @@ class FaultDataset(pl.LightningDataModule):
             if self.real_data_root_dir is not None:
                 # train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
                 # valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
-                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate))
-                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate))
+                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
+                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
             if self.public_data_root_dir is not None:
                 # train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
                 # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
-                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate))
-                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate))
+                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
+                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
@@ -231,11 +234,11 @@ class FaultDataset(pl.LightningDataModule):
             else:
                 if self.real_data_root_dir is not None:
                     # self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125)
-                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate)
+                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate)
                     
                 elif self.public_data_root_dir is not None:
                     # self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345)
-                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, dilate=self.dilate)
+                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate)
 
     def train_dataloader(self):
         if self.dist:
