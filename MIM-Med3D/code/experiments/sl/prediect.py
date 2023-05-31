@@ -143,8 +143,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # device = 'cpu'
     
     # load seis
-    # seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
-    seis = segyio.tools.cube(input_path)[373:,:,:]
+    seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
+    # seis = segyio.tools.cube(input_path)[373:,:,:]
     
     # load config 
     with open(config_path,encoding='utf-8') as f:
@@ -155,10 +155,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
         slice_builder = SliceBuilder(raw_dataset=seis,
                                     label_dataset=None,
                                     weight_dataset=None,
-                                    patch_shape=(128, 256, 256),
-                                    stride_shape=(64, 128, 128)
-                                    # patch_shape=(256, 256, 256),
-                                    # stride_shape=(128, 128, 128)
+                                    # patch_shape=(128, 256, 256),
+                                    # stride_shape=(64, 128, 128)
+                                    patch_shape=(128, 384, 384),
+                                    stride_shape=(64, 192, 192)
                                     )
     else:
         slice_builder = SliceBuilder(raw_dataset=seis,
@@ -189,7 +189,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
         data_preprocess = Compose([Zoom(zoom=config['data']['init_args']['zoom_scale'], mode='area', keep_size=False),
                                    NormalizeIntensity(nonzero=True, channel_wise=False)])
         
-        data_postprocess = Zoom(zoom=[1.0 / scale for scale in config['data']['init_args']['zoom_scale']], mode='area', keep_size=False)
+        # data_postprocess = Zoom(zoom=[1.0 / scale for scale in config['data']['init_args']['zoom_scale']], mode='area', keep_size=False)
+        data_postprocess = Zoom(zoom=[1.0, 3.0, 3.0], mode='area', keep_size=False)
     else:
         data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
     
@@ -236,10 +237,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/test_pred'
+    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_192x576x576_zoom/config.yaml'
+    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_192x576x576_zoom/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
+    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_192x576x576_zoom/test_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)
