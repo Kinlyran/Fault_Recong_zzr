@@ -8,7 +8,7 @@ import h5py
 import shutil
 import torch
 from tqdm import tqdm
-from monai.transforms import NormalizeIntensity
+from monai.transforms import NormalizeIntensity, Zoom, Compose
 import segyio
 
 
@@ -141,26 +141,41 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # set device
     device = torch.device('cuda:0')
     # device = 'cpu'
-    # crop data
+    
+    # load seis
     # seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
     seis = segyio.tools.cube(input_path)[373:,:,:]
-    slice_builder = SliceBuilder(raw_dataset=seis,
-                                 label_dataset=None,
-                                 weight_dataset=None,
-                                 patch_shape=(128, 128, 128),
-                                 stride_shape=(64, 64, 64)
-                                 # patch_shape=(256, 256, 256),
-                                 # stride_shape=(128, 128, 128)
-                                 )
+    
+    # load config 
+    with open(config_path,encoding='utf-8') as f:
+        config = yaml.load(f,Loader=yaml.FullLoader)
+    
+    # get slice builder 
+    if config['data']['init_args']['zoom']:
+        slice_builder = SliceBuilder(raw_dataset=seis,
+                                    label_dataset=None,
+                                    weight_dataset=None,
+                                    patch_shape=(128, 256, 256),
+                                    stride_shape=(64, 128, 128)
+                                    # patch_shape=(256, 256, 256),
+                                    # stride_shape=(128, 128, 128)
+                                    )
+    else:
+        slice_builder = SliceBuilder(raw_dataset=seis,
+                                    label_dataset=None,
+                                    weight_dataset=None,
+                                    patch_shape=(128, 128, 128),
+                                    stride_shape=(64, 64, 64)
+                                    # patch_shape=(256, 256, 256),
+                                    # stride_shape=(128, 128, 128)
+                                    )
     crop_cubes_pos = slice_builder.raw_slices
     
     # create missing dir
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    
+        
     # init model
-    with open(config_path,encoding='utf-8') as f:
-        config = yaml.load(f,Loader=yaml.FullLoader)
     model = MultiSegtrainer(**config['model']['init_args'])
     model.load_state_dict(torch.load(ckpt_path, map_location=device)["state_dict"])
     model.to(device)
@@ -169,8 +184,14 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # data preprocess
     # mean=1.7283046245574951
     # std=6800.84033203125
-   #  data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
-    data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
+    # data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
+    if config['data']['init_args']['zoom']:
+        data_preprocess = Compose([Zoom(zoom=config['data']['init_args']['zoom_scale'], mode='area', keep_size=False),
+                                   NormalizeIntensity(nonzero=True, channel_wise=False)])
+        
+        data_postprocess = Zoom(zoom=[1.0 / scale for scale in config['data']['init_args']['zoom_scale']], mode='area', keep_size=False)
+    else:
+        data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
     
     # predict
     output_logits = np.zeros(seis.shape)
@@ -189,6 +210,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
             logits = model(input.to(device))
             # post process
             logits = logits.squeeze(0) # move batch dim
+            if config['data']['init_args']['zoom']:
+                logits = data_postprocess(logits)
             logits = logits.squeeze(0) # move channel
             logits = logits.detach().cpu().numpy()
             # fill into origin pred
@@ -213,10 +236,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_crop_192-pos-weight-10/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_crop_192-pos-weight-10/checkpoints/best.ckpt'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/checkpoints/best.ckpt'
     input_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_crop_192-pos-weight-10/test_pred'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_real_labeled_192x384x384-pos-weight-10-dilate/test_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)
