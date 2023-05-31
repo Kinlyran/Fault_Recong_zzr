@@ -131,7 +131,7 @@ class Fault(Dataset):
             mask = mask.astype(np.float32)
             if self.dilate:
                 for idx in range(mask.shape[0]):
-                    mask[idx, :, :] = cv2.dilate(mask[idx, :, :], kernel=self.dilate_kernel, iterations=1)
+                    mask[idx, :, :] = cv2.dilate(mask[idx, :, :], kernel=self.dilate_kernel, iterations=3) # iterations = 1, 3, 5
         else:
             mask = None
         # mask = np.squeeze(mask,0)
