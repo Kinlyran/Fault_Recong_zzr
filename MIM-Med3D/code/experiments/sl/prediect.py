@@ -143,8 +143,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
     # device = 'cpu'
     
     # load seis
-    seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
-    # seis = segyio.tools.cube(input_path)[373:,:,:]
+    # seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
+    seis = segyio.tools.cube(input_path)[373:,:,:]
     
     # load config 
     with open(config_path,encoding='utf-8') as f:
@@ -237,10 +237,10 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_192_bce_pos_weight_10/config.yaml'
-    ckpt_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_192_bce_pos_weight_10/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy'
-    output_path = '/home/zhangzr/Fault_Recong/MIM-Med3D/output/Fault_Baseline_new_normalization/swin_unetr_base_supbaseline_p16_public_192_bce_pos_weight_10/test_pred'
+    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/config.yaml'
+    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/checkpoints/best.ckpt'
+    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy'
+    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/test_pred'
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
     predict_sliding_window(config_path, ckpt_path, input_path, output_path)
