@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Baseline
+      name: Fault_Finetuning
       version: swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1
       default_hp_metric: false
   # checkpoint_callback: null
