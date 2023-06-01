@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_finetuning
-      version: swin_unetr_base_supbaseline_p16_public_192_filted003_bce
+      version: swin_unetr_base_simmim_p16_public_192_filted003_bce_pos_weight_10
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
