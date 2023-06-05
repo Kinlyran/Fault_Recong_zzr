@@ -21,3 +21,4 @@ pytorch-lightning==1.9.4
 tensorboard==2.11.0
 h5py
 segyio
+opencv-python
