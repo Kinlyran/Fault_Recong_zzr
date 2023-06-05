@@ -12,6 +12,11 @@
 # 环境安装
 2D分割, 预训练, 3D分割、预训练代码相互独立, 如只需使用2D模型, 仅需要安装2D模型需要的环境即可. 由于整个项目是由pytorch开发, 首先需要安装pytorch, 我使用的是PyTorch: 1.12.1+cu113版本的torch, 由于CUDA版本不同, 可能需要安装的torch略有差异, 可直接去[官网](https://pytorch.org/get-started/pytorch-2.0/)安装torch. 推荐安装torch-1.12.1版本. **在安装完torch之后, 才可以进行2D或者3D模型的环境配置**
 
+例如在cuda版本为11.3的机器上安装torch 1.12.1, torch官网给出的安装命令为
+```
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+```
+
 ## 2D分割模型环境安装
 进入[2D分割代码库](./mmsegmentation), 原本代码库的说明文档位于[./mmsegmentation/README_zh-CN.md](./mmsegmentation/README_zh-CN.md), 这里简单说明一下安装步骤, 如遇问题可参考mmsegmentation的官方文档.
  
@@ -41,9 +46,8 @@ pip install -v -e .
 pip install -r requirements.txt
 ```
 
-# 模型预测接口
 
-## 2D模型预测接口
+# 2D模型预测接口
 在[2D分割文件夹下](./mmsegmentation)
 
 通用格式, 调用[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中的predict_3d或predict_2d函数. 
@@ -59,9 +63,20 @@ python ./projects/Fault_recong/predict.py --config {Path to model config} \
                                         --predict_type {Predict 2d/3d fault} \
                                         --device {Set cuda device} \
 ```
+除此之外, 在[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中还提供了predict_2d_single_image函数, 支持numpy数组作为输入, 其余参数与predict_2d函数相同, 可用于单张图片的预测, 函数返回的是输入图片的断层预测得分
+```
+# 使用示例
+input = np.load(f'{image_path}') # 单通道图片
+config_file = './output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py'
+checkpoint_file = './output/swin-base-2D_0519_Data-256x256-random-split/Best.pth'
+device = 'cuda:0'
+score = predict_2d_single_image(config_file, checkpoint_file, input, device, force_3_chan=True) # score为该图片的断层预测得分[0,1]
 
 
-调用基于thebe数据训练的网络, 使用了2.5d数据拼接方式, 随机剪裁512x512分辨率(输入切片分辨率不能低于此分辨率), 断层损失函数权重10倍加权等技巧. 由于2.5d数据技巧，该模型只能用于预测3d断层. 输出是与输入相同大小的预测结果(predict.npy)和得分结果(score.npy).
+```
+
+## Thebe数据训练的2D网络
+调用基于Thebe数据训练的网络, 使用了2.5d数据拼接方式, 随机剪裁512x512分辨率(输入切片分辨率不能低于此分辨率), 断层损失函数权重10倍加权等技巧. 由于2.5d数据技巧，该模型只能用于预测3d断层. 输出是与输入相同大小的预测结果(predict.npy)和得分结果(score.npy).
 ```
 python ./projects/Fault_recong/predict.py --config ./output/swin-base-thebe-512x512/swin-base-thebe-512x512.py \
                                         --checkpoint ./output/swin-base-thebe-512x512/Best.pth \
@@ -71,6 +86,7 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-thebe-512x
                                         --device cuda:0 \
 ```
 
+## 3D项目数据训练的2D网络
 调用基于项目3d数据(501x501x801大小)训练的2D网络对3D数据进行预测，由于2.5d数据技巧，该模型只能用于预测3d断层. 训练时的随机剪裁256x256, 输入的图片不能低于此分辨率. 输出是与输入相同大小的预测结果(predict.npy)和得分结果(score.npy).
 ```
 python ./projects/Fault_recong/predict.py --config ./output/swin-base-3d_project_data-256x256/swin-base-3d_project_data-256x256.py \
@@ -81,6 +97,7 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-3d_project
                                         --device cuda:0 \
 ```
 
+## 2D项目数据训练的2D网络
 调用基于项目2d数据(分辨率256x256, 一共991张图片)训练的2D网络对2D数据进行预测, 注意输入的图片是将原始的单通道复制三次, 形成3通道图片, predict_2d函数中的force_3_chan=True即可. 输出在save_path中，是每张图片预测的score...
 ```
 # random split 训练出的模型
@@ -101,8 +118,8 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Da
 
 ```
 
-## 3D模型预测接口
-在[3D模型代码库](./MIM-Med3D/)下, 调用[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中的predict_sliding_window函数, 模型会按照128x128x128的大小对输入的3D断层进行slice inferrence. 调用的通用格式如下
+# 3D模型预测接口
+在[3D模型代码库](./MIM-Med3D/)下, 调用[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中的predict_sliding_window函数, 模型会按照128x128x128的大小对输入的3D断层进行slice inferrence. 该函数接受的输入为.npy或者.sgy文件, 调用的通用格式如下
 ```
 python ./code/experiments/sl/prediect.py --config {Path to model config} \
                                         --checkpoint {Model checkpoint path} \
@@ -112,7 +129,7 @@ python ./code/experiments/sl/prediect.py --config {Path to model config} \
 ```
 预测的结果以及每个像素点的得分会保存在save_path文件夹下..
 
-调用基于Thebe数据训练的3D分割模型
+## 基于Thebe数据训练的3D分割模型
 ```
 python ./code/experiments/sl/prediect.py \
         --config ./output/swin_unetr_base_supbaseline_p16_public_192x384x384_zoom/config.yaml \
@@ -122,7 +139,7 @@ python ./code/experiments/sl/prediect.py \
         --device cuda:0 \
 ```
 
-调用基于项目3d数据(501x501x801大小)训练的3D分割模型
+## 基于项目3d数据(501x501x801大小)训练的3D分割模型
 ```
 python ./code/experiments/sl/prediect.py \
         --config ./output/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/config.yaml \

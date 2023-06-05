@@ -78,6 +78,27 @@ def predict_2d(config_file, checkpoint_file, input_path, save_path, device='cuda
             image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
         result = inference_model(model, image_slice.copy())
         np.save(os.path.join(save_path, img_name),torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
+
+def predict_2d_single_image(config_file, checkpoint_file, input, device='cuda', force_3_chan=True):
+    
+    # init model
+    model = init_model(config_file, checkpoint_file, device)
+    if device == 'cpu':
+        model = revert_sync_batchnorm(model)
+    
+    assert isinstance(input, np.array)
+    
+    # create missing dir
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+        
+        
+    print('start predict')
+    image_slice = input
+    if force_3_chan:
+        image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
+    result = inference_model(model, image_slice.copy())
+    return torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy()
     
         
     
