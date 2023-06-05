@@ -113,6 +113,9 @@ if __name__ == '__main__':
     args.add_argument('--input', type=str, help='input image/cube path', default='/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/seis/seistest.npy')
     args.add_argument('--save_path', type=str, help='path to save predict result', default='./output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512_per_image_normal_pos_weight_10/predict')
     args.add_argument('--predict_type', type=str, help='predict 2d/3d image', default='3d')
+    args.add_argument('--convert_25d', type=bool, default=False)
+    args.add_argument('--step', type=int, default=5)
+    args.add_argument('--force_3_chan', type=bool, default=False)
     args.add_argument('--device', default='cuda:0')
     args = args.parse_args()
     
@@ -122,6 +125,6 @@ if __name__ == '__main__':
     input = args.input
     save_path = args.save_path
     if args.predict_type == '3d':
-        predict_3d(config_file, checkpoint_file, input, save_path, device=args.device, convert_25d=True, step=5)
+        predict_3d(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=args.force_3_chan, convert_25d=args.convert_25d, step=args.step)
     elif args.predict_type == '2d':
-        predict_2d(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=True)
+        predict_2d(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=args.force_3_chan)

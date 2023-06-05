@@ -61,6 +61,9 @@ python ./projects/Fault_recong/predict.py --config {Path to model config} \
                                         --input {Input image/cube path} \
                                         --save_path {Path to save predict result} \
                                         --predict_type {Predict 2d/3d fault} \
+                                        --convert_25d {Whether convert to 2.5d} \ 
+                                        --step {step size of 2.5d data} \ 
+                                        --force_3_chan {Whether convert to 3 channel} \
                                         --device {Set cuda device} \
 ```
 除此之外, 在[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中还提供了predict_2d_single_image函数, 支持numpy数组作为输入, 其余参数与predict_2d函数相同, 可用于单张图片的预测, 函数返回的是输入图片的断层预测得分
@@ -83,6 +86,8 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-thebe-512x
                                         --input /Fault_data/public_data/precessed/test/seis/seistest.npy \
                                         --save_path ./output/swin-base-thebe-512x512/predict \
                                         --predict_type 3d \
+                                        --convert_25d True \
+                                        --step 5 \
                                         --device cuda:0 \
 ```
 
@@ -94,26 +99,48 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-3d_project
                                         --input /Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy \
                                         --save_path ./output/swin-base-3d_project_data-256x256/predict \
                                         --predict_type 3d \
+                                        --convert_25d True \
+                                        --step 5 \
                                         --device cuda:0 \
 ```
 
 ## 2D项目数据训练的2D网络
 调用基于项目2d数据(分辨率256x256, 一共991张图片)训练的2D网络对2D数据进行预测, 注意输入的图片是将原始的单通道复制三次, 形成3通道图片, predict_2d函数中的force_3_chan=True即可. 输出在save_path中，是每张图片预测的score...
 ```
-# random split 训练出的模型
+# random split 训练出的模型, 预测整个文件夹内的图片
 python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py \
                                         --checkpoint ./output/swin-base-2D_0519_Data-256x256-random-split/Best.pth \
                                         --input /Fault_data/2Dfault_0519_256/converted/val/image \
                                         --save_path ./output/swin-base-2D_0519_Data-256x256-random-split/predict \
                                         --predict_type 2d \
+                                        --force_3_chan True \
+                                        --device cuda:0 \
+# random split 训练出的模型, 预测整个数据体
+python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py \
+                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-random-split/Best.pth \
+                                        --input {Path of cube} \
+                                        --save_path ./output/swin-base-2D_0519_Data-256x256-random-split/predict \
+                                        --predict_type 3d \
+                                        --force_3_chan True \
                                         --device cuda:0 \
 
-# 使用前三个slice训练出的模型
+
+# 使用前三个slice训练出的模型, 预测整个文件夹内的图片
 python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-slice-split/swin-base-2D_0519_Data-256x256-slice-split.py \
                                         --checkpoint ./output/swin-base-2D_0519_Data-256x256-slice-split/Best.pth \
                                         --input /Fault_data/2Dfault_0519_256/converted_slice_split/val/image \
                                         --save_path ./output/swin-base-2D_0519_Data-256x256-slice-split/predict \
                                         --predict_type 2d \
+                                        --force_3_chan True \
+                                        --device cuda:0 \
+
+# 使用前三个slice训练出的模型, 预测整个数据体
+python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-slice-split/swin-base-2D_0519_Data-256x256-slice-split.py \
+                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-slice-split/Best.pth \
+                                        --input {Path of cube} \
+                                        --save_path ./output/swin-base-2D_0519_Data-256x256-slice-split/predict \
+                                        --predict_type 3d \
+                                        --force_3_chan True \
                                         --device cuda:0 \
 
 ```
