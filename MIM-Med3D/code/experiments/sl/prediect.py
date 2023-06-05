@@ -137,14 +137,20 @@ def predict(config_path, ckpt_path, output_path):
     shutil.rmtree(os.path.join(output_path, 'lightning_logs'))
     # print(preds)
 
-def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
-    # set device
-    device = torch.device('cuda:0')
-    # device = 'cpu'
+def predict_sliding_window(config_path, ckpt_path, input_path, output_path, device='cuda:0'):
     
     # load seis
-    # seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
-    seis = segyio.tools.cube(input_path)[373:,:,:]
+    if isinstance(input_path, str):
+        print(f'Loading image from {input_path}')
+        if '.npy' in input_path:
+            seis = np.load(input_path, mmap_mode='r') # [:, :, 400:1500]
+        elif '.sgy' in input_path:
+            # seis = segyio.tools.cube(input_path)[373:,:,:]
+            seis = segyio.tools.cube(input_path)
+        else:
+            raise TypeError
+    else:
+        seis = input_path
     
     # load config 
     with open(config_path,encoding='utf-8') as f:
@@ -237,10 +243,21 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path):
 
 
 if __name__ == '__main__':
-    config_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/config.yaml'
-    ckpt_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/checkpoints/best.ckpt'
-    input_path = '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy'
-    output_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetuning/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/test_pred'
+    import argparse
+    args = argparse.ArgumentParser(description='Using 3D segmentation to predict 3D Fault')
+    args.add_argument('--config', type=str, help='model config file path')
+    args.add_argument('--checkpoint', type=str, help='model checkpoint path')
+    args.add_argument('--input', type=str, help='input image/cube path')
+    args.add_argument('--save_path', type=str, help='path to save predict result')
+    args.add_argument('--device', default='cuda:0')
+    args.parse_args()
+    
+    
+    config_path = args.config
+    ckpt_path = args.checkpoint
+    input_path = args.input
+    output_path = args.save_path
+    device = args.device
     # gt_path = '/home/zhangzr/Fault_Recong/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     # predict(config_path, ckpt_path, output_path)
-    predict_sliding_window(config_path, ckpt_path, input_path, output_path)
+    predict_sliding_window(config_path, ckpt_path, input_path, output_path, device)
