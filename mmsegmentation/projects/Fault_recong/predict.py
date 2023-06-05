@@ -114,7 +114,7 @@ if __name__ == '__main__':
     args.add_argument('--save_path', type=str, help='path to save predict result', default='./output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public_slice_25d-512x512_per_image_normal_pos_weight_10/predict')
     args.add_argument('--predict_type', type=str, help='predict 2d/3d image', default='3d')
     args.add_argument('--device', default='cuda:0')
-    args.parse_args()
+    args = args.parse_args()
     
     
     config_file = args.config

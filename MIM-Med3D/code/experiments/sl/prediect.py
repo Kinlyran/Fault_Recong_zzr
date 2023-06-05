@@ -250,7 +250,7 @@ if __name__ == '__main__':
     args.add_argument('--input', type=str, help='input image/cube path')
     args.add_argument('--save_path', type=str, help='path to save predict result')
     args.add_argument('--device', default='cuda:0')
-    args.parse_args()
+    args = args.parse_args()
     
     
     config_path = args.config
