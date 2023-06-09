@@ -91,10 +91,10 @@ class Fault(Dataset):
         if zoom:
             self.train_transform = Compose([Zoomd(keys=["image"], zoom=zoom_scale, mode='area', keep_size=False),
                                     Zoomd(keys=["label"], zoom=zoom_scale, mode='nearest', keep_size=False),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                    RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                    # RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
                                     RandSpatialCropd(keys=["image", "label"], roi_size=(128, 128, 128), random_size=False),
                                     NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False), # nonzero = False
                                     ])
@@ -102,14 +102,14 @@ class Fault(Dataset):
                                         Zoomd(keys=["label"], zoom=zoom_scale, mode='nearest', keep_size=False),
                                         NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False)]) # nonzero = False])
         else:
-            self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                    RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+            self.train_transform = Compose([
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    # RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                    # RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
                                     RandSpatialCropd(keys=["image", "label"], roi_size=(128, 128, 128), random_size=False),
                                     NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
-                                        # RandRotated(keys=["image", "label"], prob=0.10, )
-                                        ])
+                                    ])
             self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
         # self.convert_size = convert_size
         if self.split == 'train':
