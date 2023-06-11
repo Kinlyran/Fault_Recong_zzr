@@ -100,7 +100,7 @@ def post_eval_2d_image(predict_path, gt_path):
 
 def post_eval_3d(predict_path, gt_path):
     # pred = np.load(os.path.join(predict_path, 'predict.npy'), mmap_mode='r')
-    score = np.load(predict_path, mmap_mode='r')
+    score = np.load(predict_path, mmap_mode='r')[373:,:,:]
     # f =  h5py.File(predict_path, 'r')
     # pred = f['predictions']
     # score = f['score']
@@ -130,7 +130,7 @@ def post_eval_3d(predict_path, gt_path):
     print(f'Ap is {ap} \n OIS is {OIS}\n ODS is {ODS}')
             
 if __name__ == '__main__':
-    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Baseline/swin_unetr_base_supbaseline_p16_public_192x576x576_zoom/predict/seistest_score.npy'
+    predict_path = '/home/zhangzr/FaultRecongnition/MIM-Med3D/output/Fault_Finetune/swin_unetr_base_2Task_Pretrained_p16_public_192_bce_pos_weight_10/predict/seistest_score.npy'
     gt_path = '/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed/test/fault/faulttest.npy'
     post_eval_thebe(predict_path, gt_path)
     
