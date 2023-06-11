@@ -32,14 +32,12 @@ def get_slice(seis, fault, save_path, patch_shape, stride_shape):
         f.close() 
         i += 1
 
-def get_slice_unlabeled(seis, save_path, patch_shape, stride_shape):
+def get_slice_unlabeled(seis, save_path, patch_shape, stride_shape, ratio):
     slice_builder = SliceBuilder(raw_dataset=seis,
                                  label_dataset=None,
                                  weight_dataset=None,
                                  patch_shape=patch_shape,
                                  stride_shape=stride_shape
-                                 # patch_shape=(256, 256, 256),
-                                 # stride_shape=(128, 128, 128)
                                  )
     crop_cubes_pos = slice_builder.raw_slices
     if not os.path.exists(save_path):
@@ -50,9 +48,15 @@ def get_slice_unlabeled(seis, save_path, patch_shape, stride_shape):
         y_range = pos[1]
         z_range = pos[2]
         seis_cube_crop = seis[x_range, y_range, z_range]
-        f = h5py.File(os.path.join(save_path, f'{i}.h5'),'w') 
-        f['raw'] = seis_cube_crop
-        f.close() 
+        if i / len(crop_cubes_pos) < ratio:
+            f = h5py.File(os.path.join(save_path, 'train', f'{i}.h5'),'w') 
+            f['raw'] = seis_cube_crop
+            f.close() 
+        else:
+            f = h5py.File(os.path.join(save_path, 'val', f'{i}.h5'),'w') 
+            f['raw'] = seis_cube_crop
+            f.close() 
+            
         i += 1
         
 
@@ -105,7 +109,8 @@ def crop_unlabeled_data(root_dir):
         get_slice_unlabeled(seis=seis, 
                             save_path=os.path.join(root_dir, item, 'crop_128'),
                             patch_shape=(128, 128, 128),
-                            stride_shape=(64, 64, 64))    
+                            stride_shape=(64, 64, 64),
+                            ratio=0.8)    
     
     
 
@@ -203,8 +208,8 @@ class SliceBuilder:
         assert patch_shape[1] >= 64 and patch_shape[2] >= 64, 'Height and Width must be greater or equal 64'
     
 if __name__ == '__main__':
-    dat2h5()
-    # crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled_data')
+    # dat2h5()
+    crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled_data')
 
     
 
