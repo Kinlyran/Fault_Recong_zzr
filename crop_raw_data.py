@@ -41,7 +41,8 @@ def get_slice_unlabeled(seis, save_path, patch_shape, stride_shape, ratio):
                                  )
     crop_cubes_pos = slice_builder.raw_slices
     if not os.path.exists(save_path):
-        os.makedirs(save_path)
+        os.makedirs(save_path, 'train')
+        os.makedirs(save_path, 'val')
     i = 0
     for pos in tqdm(crop_cubes_pos):
         x_range = pos[0]
