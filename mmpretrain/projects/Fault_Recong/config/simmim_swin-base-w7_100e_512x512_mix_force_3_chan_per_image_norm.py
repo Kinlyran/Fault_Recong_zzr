@@ -30,7 +30,7 @@ train_dataloader = dict(
     persistent_workers=True,
     collate_fn=dict(type='default_collate'),
     batch_size=4,
-    num_workers=0,
+    num_workers=8,
     sampler=dict(type='DefaultSampler', shuffle=True),
     dataset=concatenate_dataset)
 default_scope = 'mmpretrain'
