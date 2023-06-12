@@ -107,7 +107,7 @@ data:
     unlabeled_data_root_dir_lst: ['../Fault_data/project_data_v1/unlabeled/chahetai/crop_128', '../Fault_data/project_data_v1/unlabeled/gyx/crop_128_ssl','../Fault_data/project_data_v1/unlabeled/mig1100_1700/crop_128', '../Fault_data/project_data_v1/unlabeled/moxi/crop_128', '../Fault_data/project_data_v1/unlabeled/n2n3_small/crop_128', '../Fault_data/project_data_v1/unlabeled/PXZL/crop_128', '../Fault_data/project_data_v1/unlabeled/QK/crop_128', '../Fault_data/project_data_v1/unlabeled/sc/crop_128', '../Fault_data/project_data_v1/unlabeled/sudan/crop_128', '../Fault_data/project_data_v1/unlabeled/yc/crop_128']
     labeled_data_root_dir_lst: ['../Fault_data/project_data_v1/labeled/Ordos/gjb/crop_128_ssl', '../Fault_data/project_data_v1/labeled/Ordos/pl/crop_128_ssl', '../Fault_data/project_data_v1/labeled/Ordos/yw/crop_128_ssl', '../Fault_data/project_data_v1/labeled/qyb/crop_128_ssl', '../Fault_data/public_data/crop_128', '../Fault_data/real_labeled_data/crop_128_ssl']
     batch_size: 2
-    val_batch_size: 1
+    val_batch_size: 6
     num_workers: 4
     dist: true
 optimizer:
