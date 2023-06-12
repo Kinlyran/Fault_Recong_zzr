@@ -41,8 +41,8 @@ def get_slice_unlabeled(seis, save_path, patch_shape, stride_shape, ratio):
                                  )
     crop_cubes_pos = slice_builder.raw_slices
     if not os.path.exists(save_path):
-        os.makedirs(save_path, 'train')
-        os.makedirs(save_path, 'val')
+        os.makedirs(os.path.join(save_path, 'train'))
+        os.makedirs(os.path.join(save_path, 'val'))
     i = 0
     for pos in tqdm(crop_cubes_pos):
         x_range = pos[0]
@@ -108,12 +108,24 @@ def crop_unlabeled_data(root_dir):
     seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
     for idx, item in enumerate(dir_name_lst):
         print(f'loading {item}')
-        seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx]))
-        get_slice_unlabeled(seis=seis, 
-                            save_path=os.path.join(root_dir, item, 'crop_128'),
-                            patch_shape=(128, 128, 128),
-                            stride_shape=(64, 64, 64),
-                            ratio=0.8)    
+        try:
+            seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx]))
+            get_slice_unlabeled(seis=seis, 
+                                save_path=os.path.join(root_dir, item, 'crop_128'),
+                                patch_shape=(128, 128, 128),
+                                stride_shape=(64, 64, 64),
+                                ratio=0.8)    
+        except:
+            print(f'Error loading {item}')
+
+def crop_labeled_data_ssl(root_dir, seis_name):
+    seis = segyio.tools.cube(os.path.join(root_dir, 'seis', seis_name))
+    get_slice_unlabeled(seis=seis, 
+                        save_path=os.path.join(root_dir, 'crop_128_ssl'),
+                        patch_shape=(128, 128, 128),
+                        stride_shape=(64, 64, 64),
+                        ratio=0.8)    
+
     
     
 
@@ -212,7 +224,8 @@ class SliceBuilder:
     
 if __name__ == '__main__':
     # dat2h5()
-    crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled')
+    # crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled')
+    crop_labeled_data_ssl('/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled/gyx', 'GYX-small_converted.sgy')
 
     
 
