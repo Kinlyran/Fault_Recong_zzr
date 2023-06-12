@@ -104,8 +104,10 @@ def dat2h5():
 
 def crop_unlabeled_data(root_dir):
     dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
-    for item in dir_name_lst:
-        seis = segyio.tools.cube(os.path.join(root_dir, item, 'seis.sgy'))
+    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    for idx, item in enumerate(dir_name_lst):
+        print(f'loading {item}')
+        seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx]))
         get_slice_unlabeled(seis=seis, 
                             save_path=os.path.join(root_dir, item, 'crop_128'),
                             patch_shape=(128, 128, 128),
@@ -209,7 +211,7 @@ class SliceBuilder:
     
 if __name__ == '__main__':
     # dat2h5()
-    crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled_data')
+    crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled')
 
     
 

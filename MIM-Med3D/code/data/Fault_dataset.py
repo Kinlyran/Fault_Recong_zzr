@@ -33,45 +33,6 @@ from monai.transforms import (
 )
 
 
-class Fault_Simulate(Dataset):
-    def __init__(self,
-                 root_dir,
-                 split,
-                 is_ssl=False):
-        self.root_dir = root_dir
-        self.split = split
-        self.is_ssl = is_ssl
-        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
-                                RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
-                                RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
-                                RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
-                                NormalizeIntensityd(keys="image", nonzero=False, channel_wise=True)
-                                    # RandRotated(keys=["image", "label"], prob=0.10, )
-                                    ])
-        self.val_transform = NormalizeIntensityd(keys=["image"], nonzero=False, channel_wise=True)
-        self.data_lst = os.listdir(os.path.join(root_dir, self.split, 'seis'))
-
-    def __len__(self):
-        return len(self.data_lst)
-    
-    def __getitem__(self, index):
-        name = self.data_lst[index]
-        seis = np.fromfile(os.path.join(self.root_dir, self.split, 'seis', name), dtype=np.single)
-        fault = np.fromfile(os.path.join(self.root_dir, self.split, 'fault', name), dtype=np.single)
-        # reshape into 128 * 128 * 128
-        seis = seis.reshape((128, 128, 128))
-        fault = fault.reshape((128, 128, 128))
-        output = {'image': torch.from_numpy(seis).unsqueeze(0),
-                    'label': torch.from_numpy(fault).unsqueeze(0),
-                    'image_name': self.data_lst[index]}
-        if self.split == 'train' and not self.is_ssl:
-            return self.train_transform(output)
-        elif self.split == 'train' and self.is_ssl:
-            return self.val_transform(output)
-        elif self.split == 'validation':
-            return self.val_transform(output)
-
-
 class Fault(Dataset):
     def __init__(self, 
                 root_dir: str, 
@@ -179,12 +140,9 @@ class FaultDataset(pl.LightningDataModule):
         zoom=False,
         zoom_scale=None,
         dilate=False,
-        real_data_root_dir=None,
-        simulate_data_root_dir=None,
-        public_data_root_dir=None,
-        test_data_root_dir=None,
         unlabeled_data_root_dir_lst=None,
         labeled_data_root_dir_lst=None,
+        test_data_root_dir=None,
         batch_size: int = 1,
         val_batch_size: int = 1,
         num_workers: int = 4,
@@ -195,9 +153,6 @@ class FaultDataset(pl.LightningDataModule):
         self.zoom = zoom
         self.zoom_scale = zoom_scale
         self.dilate = dilate
-        self.real_data_root_dir = real_data_root_dir
-        self.simulate_data_root_dir = simulate_data_root_dir
-        self.public_data_root_dir = public_data_root_dir
         self.test_data_root_dir = test_data_root_dir
         self.unlabeled_data_root_dir_lst = unlabeled_data_root_dir_lst
         self.labeled_data_root_dir_lst = labeled_data_root_dir_lst
@@ -213,19 +168,6 @@ class FaultDataset(pl.LightningDataModule):
         if stage in [None, "fit"]:
             train_ds = []
             valid_ds = []
-            if self.simulate_data_root_dir is not None:
-                train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train', is_ssl=self.is_ssl))
-                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation', is_ssl=self.is_ssl))
-            if self.real_data_root_dir is not None:
-                # train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
-                # valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125))
-                train_ds.append(Fault(root_dir=self.real_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
-                valid_ds.append(Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
-            if self.public_data_root_dir is not None:
-                # train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
-                # valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345))
-                train_ds.append(Fault(root_dir=self.public_data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
-                valid_ds.append(Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
             if self.unlabeled_data_root_dir_lst is not None:
                 for data_root_dir in self.unlabeled_data_root_dir_lst:
                     train_ds.append(Fault(root_dir=data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
@@ -244,13 +186,11 @@ class FaultDataset(pl.LightningDataModule):
             if self.test_data_root_dir is not None:
                 self.test_ds = Fault_Simple(root_dir=self.test_data_root_dir)
             else:
-                if self.real_data_root_dir is not None:
-                    # self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, mean=1.7283046245574951, std=6800.84033203125)
-                    self.test_ds = Fault(root_dir=self.real_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate)
-                    
-                elif self.public_data_root_dir is not None:
-                    # self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, mean=-1.3021970536436015e-06, std=0.11276439772911345)
-                    self.test_ds = Fault(root_dir=self.public_data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate)
+                if self.labeled_data_root_dir_lst is not None:
+                    test_ds = []
+                    for data_root_dir in self.labeled_data_root_dir_lst:
+                        test_ds.append(Fault(root_dir=data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
+                    self.test_ds = ConcatDataset(test_ds)
 
     def train_dataloader(self):
         if self.dist:
