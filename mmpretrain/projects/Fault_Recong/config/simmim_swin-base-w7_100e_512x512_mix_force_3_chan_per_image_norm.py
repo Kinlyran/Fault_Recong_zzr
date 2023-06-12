@@ -1,5 +1,5 @@
 dataset_type = 'CustomDataset'
-data_root_lst = ['/gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/2d_slices']
+data_root_lst = ['../Fault_data/public_data/2d_slices', '../Fault_data/real_labeled_data/2d_slices', '../Fault_data/project_data_v1/unlabeled/chahetai/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/gyx/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/mig1100_1700/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/moxi/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/n2n3_small/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/PXZL/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/QK/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/sc/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/sudan/2d_slices_ssl', '../Fault_data/project_data_v1/unlabeled/yc/2d_slices_ssl', '../Fault_data/project_data_v1/labeled/Ordos/gjb/2d_slices_ssl', '../Fault_data/project_data_v1/labeled/Ordos/pl/2d_slices_ssl', '../Fault_data/project_data_v1/labeled/Ordos/yw/2d_slices_ssl', '../Fault_data/project_data_v1/labeled/qyb/2d_slices_ssl']
 data_preprocessor = dict(
     type='SelfSupDataPreprocessor',
     mean=None,
@@ -30,7 +30,7 @@ train_dataloader = dict(
     persistent_workers=True,
     collate_fn=dict(type='default_collate'),
     batch_size=4,
-    num_workers=8,
+    num_workers=0,
     sampler=dict(type='DefaultSampler', shuffle=True),
     dataset=concatenate_dataset)
 default_scope = 'mmpretrain'
@@ -38,7 +38,7 @@ default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=10, max_keep_ckpts=3),
+    checkpoint=dict(type='CheckpointHook', interval=1, max_keep_ckpts=3),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='VisualizationHook', enable=False))
 env_cfg = dict(
