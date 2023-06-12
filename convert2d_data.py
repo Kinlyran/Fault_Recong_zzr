@@ -119,8 +119,24 @@ def main_v2():
         np.save(os.path.join(dst_path, 'val', 'image', f'{k}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'val', 'ann', f'{k}.png'), fault_slice)
         k += 1
-        
+
+def convert_2d_ssl(root_dir, seis_name):
+    dst_path = os.path.join(root_dir, '2d_slices_ssl')
+    if not os.path.exists(dst_path):
+        os.makedirs(os.path.join(dst_path, 'train', 'image'))
+    seis_data = segyio.tools.cube(os.path.join(root_dir, seis_name))
+    print(f'Input seis shape is {seis_data.shape}')
+    iline, xline, timelne = seis_data.shape
+    for i in tqdm(range(xline)):
+        seis_slice = seis_data[:, i, :]
+        np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
     
 
 if __name__ == '__main__':
-    main_v2()
+    unlabeled_root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/unlabeled'
+    dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
+    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small_converted.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    for i, dir_name in enumerate(dir_name_lst): 
+        root_dir = os.path.join(unlabeled_root_dir, dir_name)
+        print(f'Processing {root_dir}')
+        convert_2d_ssl(root_dir, seis_name_lst[i])
