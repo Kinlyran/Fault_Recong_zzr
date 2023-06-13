@@ -128,8 +128,8 @@ def convert_2d_ssl(root_dir, seis_name):
     seis_data = segyio.tools.cube(os.path.join(root_dir, 'seis', seis_name))
     print(f'Input seis shape is {seis_data.shape}')
     iline, xline, timelne = seis_data.shape
-    for i in tqdm(range(xline)):
-        seis_slice = seis_data[:, i, :]
+    for i in tqdm(range(iline)):
+        seis_slice = seis_data[i, :, :]
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
     
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         print(f'Processing {root_dir}')
         convert_2d_ssl(root_dir, seis_name_lst[i])
     '''
-    root_dir = None
-    seis_name = None
+    root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/qyb'
+    seis_name = '20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy'
     convert_2d_ssl(root_dir, seis_name)
     
