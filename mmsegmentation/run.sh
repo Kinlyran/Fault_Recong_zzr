@@ -21,9 +21,10 @@ port=23501
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_slice_split_force3chan-256x256_per_image_norm_pos_weight_10_dilate_mim
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm_pos_weight_10_dilate
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault_2Dfault_0519_force3chan-256x256_per_image_norm_pos_weight_10_mim
-config=swin-base-patch4-window7_upernet_8xb2-480k_fault_public_slice_3chan_96x96_per_image_normal_pos_weight_10
+# config=swin-base-patch4-window7_upernet_8xb2-480k_fault_public_slice_3chan_96x96_per_image_normal_pos_weight_10
+config=swin-base-patch4-window7_upernet_8xb2-160k_mix_data_force_3_chan-512x512_per_image_normal_pos_weight_10
 if [ $1 = "train" ]; then
-    CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_recong/config/${config}.py 2 --work-dir output/${config} 
+    CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_recong/config/${config}.py 1 --work-dir output/${config} 
 elif [ $1 = "test" ]; then
     CUDA_VISIBLE_DEVICES=$GPU ./tools/dist_test.sh ./output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public-128x128/swin-base-patch4-window7_upernet_8xb2-160k_fault_public-128x128.py ./output/swin-base-patch4-window7_upernet_8xb2-160k_fault_public-128x128/iter_48000.pth 1
 fi

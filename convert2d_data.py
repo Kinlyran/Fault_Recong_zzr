@@ -131,6 +131,22 @@ def convert_2d_ssl(root_dir, seis_name):
     for i in tqdm(range(iline)):
         seis_slice = seis_data[i, :, :]
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
+
+def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step):
+    dst_path = os.path.join(root_dir, '2d_slices_sl')
+    if not os.path.exists(dst_path):
+        os.makedirs(os.path.join(dst_path, 'train', 'image'))
+        os.makedirs(os.path.join(dst_path, 'train', 'ann'))
+    seis = segyio.tools.cube(os.path.join(root_dir, 'seis', seis_name))
+    fault = segyio.tools.cube(os.path.join(root_dir, 'faults', fault_name))
+    assert seis.shape == fault.shape
+    print(f'shape is {seis.shape}')
+    for i in tqdm(range(start_id, end_id, step)):
+        seis_slice = seis[i, :, :]
+        fault_slice = fault[i, :, :]
+        assert np.sum(fault_slice) > 0.0
+        np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
+        cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
     
 
 if __name__ == '__main__':
@@ -142,8 +158,15 @@ if __name__ == '__main__':
         root_dir = os.path.join(unlabeled_root_dir, dir_name)
         print(f'Processing {root_dir}')
         convert_2d_ssl(root_dir, seis_name_lst[i])
-    '''
+    
     root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/qyb'
     seis_name = '20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy'
     convert_2d_ssl(root_dir, seis_name)
-    
+    '''
+    root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/Ordos/yw'
+    seis_name = 'mig.sgy'
+    fault_name = 'fault_volume_converted.sgy'
+    start_id = 0
+    end_id = 673
+    step = 8
+    convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step)
