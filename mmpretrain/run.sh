@@ -1,5 +1,5 @@
 GPU=$2
-port=23488
+port=23489
 
 
 # config=simmim_swin-base-w6_100e_512x512_public
