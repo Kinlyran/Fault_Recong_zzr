@@ -105,7 +105,7 @@ def dat2h5():
 
 def crop_unlabeled_data(root_dir):
     dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
-    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small_converted.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
     for idx, item in enumerate(dir_name_lst):
         print(f'loading {item}')
         try:
@@ -115,6 +115,7 @@ def crop_unlabeled_data(root_dir):
                                 patch_shape=(128, 128, 128),
                                 stride_shape=(64, 64, 64),
                                 ratio=0.8)    
+            del seis
         except:
             print(f'Error loading {item}')
 
@@ -224,8 +225,12 @@ class SliceBuilder:
     
 if __name__ == '__main__':
     # dat2h5()
-    # crop_unlabeled_data(root_dir='/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled')
-    crop_labeled_data_ssl('/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/project_data_v1/unlabeled/gyx', 'GYX-small_converted.sgy')
+    # crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
+    root_dir_lst = ['/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/qyb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/gjb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/pl', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/yw', '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data']
+    seis_name_lst = ['20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy', 'L500_1500_T500_2000_aa_pstm_0922_cg.sgy', '20230419_PLB-YW-pstm-post-yanshou-Q_biaoqian.sgy', 'mig.sgy', 'mig_fill.sgy']
+    for i, root_dir in enumerate(root_dir_lst):
+        print(f'loading {root_dir}')
+        crop_labeled_data_ssl(root_dir, seis_name_lst[i])
 
     
 
