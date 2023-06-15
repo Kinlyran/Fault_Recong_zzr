@@ -13,7 +13,7 @@ model = dict(
         mlp_ratio=4.0),
     head=dict(
         type='MAEPretrainHead',
-        norm_pix=True,
+        norm_pix=False,
         patch_size=16,
         loss=dict(type='PixelReconstructionLoss', criterion='L2')),
     init_cfg=[
@@ -98,4 +98,5 @@ param_scheduler = [
 ]
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=300)
 auto_scale_lr = dict(base_batch_size=4096)
+find_unused_parameters=True
 launcher = 'pytorch'
