@@ -225,12 +225,15 @@ class SliceBuilder:
     
 if __name__ == '__main__':
     # dat2h5()
-    # crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
+    crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
+    '''
     root_dir_lst = ['/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/qyb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/gjb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/pl', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/yw', '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data']
     seis_name_lst = ['20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy', 'L500_1500_T500_2000_aa_pstm_0922_cg.sgy', '20230419_PLB-YW-pstm-post-yanshou-Q_biaoqian.sgy', 'mig.sgy', 'mig_fill.sgy']
     for i, root_dir in enumerate(root_dir_lst):
         print(f'loading {root_dir}')
         crop_labeled_data_ssl(root_dir, seis_name_lst[i])
+    '''
+    
 
     
 
