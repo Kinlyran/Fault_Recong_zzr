@@ -1,5 +1,5 @@
 GPU=$2
-port=23491
+port=23492
 
 
 # config=simmim_swin-base-w6_100e_512x512_public
@@ -10,7 +10,7 @@ port=23491
 # config=simmim_swin-base-w7_3000e_512x512_public_force_3_chan_per_image_norm
 # config=simmim_swin-base-w7_100e_512x512_mix_force_3_chan_per_image_norm
 # config=mae_vit-base-p16_8xb512-amp-coslr-300e_mix_force_3_chan_per_image_norm_norm_pix_False
-config=simmim_swin-base-w7_100e_512x512_mix_force_3_chan_per_image_norm
+config=simmim_swin-base-w7_300e_512x512_mix_force_3_chan_per_image_norm
 
 if [ $1 = "train" ]; then
     CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_Recong/config/${config}.py 8 --work-dir output/${config} 
