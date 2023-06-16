@@ -97,21 +97,21 @@ class Fault(Dataset):
             mask = None
         # mask = np.squeeze(mask,0)
         f.close()
-        if mask is None:
-            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
-                    'image_name': self.data_lst[index]})
-        elif self.split == 'train' and not self.is_ssl:
+        if self.split == 'train' and not self.is_ssl:
             return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
-                    'label': torch.from_numpy(mask).unsqueeze(0),
-                    'image_name': self.data_lst[index]})
+                                        'label': torch.from_numpy(mask).unsqueeze(0),
+                                        'image_name': self.data_lst[index]})
         elif self.split == 'train' and self.is_ssl:
             return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
-                    'image_name': self.data_lst[index]})
+                                        'image_name': self.data_lst[index]})
 
-        elif self.split == 'val':
+        elif self.split == 'val' and not self.is_ssl:
             return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
                     'label': torch.from_numpy(mask).unsqueeze(0),
                     'image_name': self.data_lst[index]})
+        elif self.split == 'val' and self.is_ssl:
+            return self.val_transform({'image': torch.from_numpy(image).unsqueeze(0),
+                                        'image_name': self.data_lst[index]})
 
 
 class Fault_Simple(Dataset):
