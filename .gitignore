@@ -20,3 +20,4 @@ mmsegmentation/output
 *.pth
 *.npy
 temp.txt
+py-bsds500/
