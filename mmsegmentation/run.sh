@@ -1,5 +1,5 @@
 GPU=$2
-port=23508
+port=23509
 
 
 # config=swin-base-patch4-window7_upernet_8xb2-160k_fault-512x512
@@ -26,7 +26,8 @@ port=23508
 # config=mae-base_upernet_8xb2-amp-160k_mix_force_3_chan-512x512
 # config=mae-base_upernet_8xb2-amp-160k_mix_force_3_chan-512x512_pretrained
 # config=swin-base-patch4-window7_upernet_8xb2-160k_mix_data_force_3_chan-512x512_per_image_normal_simmim_300e
-config=swin-base-patch4-window7_upernet_8xb2-160k_mix_data_force_3_chan-512x512_per_image_normal
+# config=swin-base-patch4-window7_upernet_8xb2-160k_mix_data_force_3_chan-512x512_per_image_normal
+config=mae-base_upernet_8xb2-amp-160k_mix_force_3_chan-512x512
 if [ $1 = "train" ]; then
     CUDA_VISIBLE_DEVICES=$GPU PORT=${port} ./tools/dist_train.sh ./projects/Fault_recong/config/${config}.py 8 --work-dir output/${config} 
 elif [ $1 = "test" ]; then
