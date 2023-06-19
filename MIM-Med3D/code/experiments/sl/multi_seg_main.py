@@ -31,8 +31,8 @@ class MultiSegtrainer(pl.LightningModule):
             self.model = SegResNet(**model_dict)
 
         # self.loss_function = DiceCELoss(to_onehot_y=False, sigmoid=True, lambda_dice=0.1, lambda_ce=1.0)
-        # self.loss_function = torch.nn.BCEWithLogitsLoss()
-        self.loss_function = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(10))
+        self.loss_function = torch.nn.BCEWithLogitsLoss()
+        # self.loss_function = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(10))
         # self.post_pred = AsDiscrete(argmax=True, to_onehot=num_classes)
         # self.post_label = AsDiscrete(to_onehot=num_classes)
         self.post_trans = Compose(
